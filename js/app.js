@@ -42,7 +42,17 @@ async function init() {
   dateInput.value = `${yyyy}-${mm}-${dd}`;
   typeSelect.value = (today.getDay() === 0 || today.getDay() === 6) ? "Fin de semana" : "Entre semana";
 
-  // Cargar datos (Firestore o local)
+  const netDot = document.getElementById("net-status-dot");
+  const netTxt = document.getElementById("net-status-txt");
+  if (isOnlineDB) {
+    netDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-400";
+    netTxt.innerText = "Firebase Conectado";
+  } else {
+    netDot.className = "inline-block w-2 h-2 rounded-full bg-amber-400";
+    netTxt.innerText = "Modo Local Autónomo";
+  }
+
+  // Cargar datos
   hogares = await DataService.getHogares();
   members = await DataService.getMembers();
 
@@ -215,7 +225,7 @@ function toggleDisableChair(seatId) {
     if (r.disabled.includes(seatId)) r.disabled = r.disabled.filter(id => id !== seatId);
     else {
       const p = members.find(a => a.seatId === seatId);
-      if (p) unseat(p.id);
+      if (p) window.unseatPerson(p.id);
       r.disabled.push(seatId);
     }
   });
@@ -358,7 +368,7 @@ function renderDatabaseTable() {
     const matchesGroup = (filterGroup === "ALL") || (a.group === filterGroup) || (filterGroup === "Menor" && a.role === "Menor") || (filterGroup === "Visitante" && a.role === "Visitante");
     const matchesSearch = !term || 
       (a.name && a.name.toLowerCase().includes(term)) || 
-      (a.shortName && a.shortName.toLowerCase().includes(term)) ||
+      (a.shortName && a.shortName.toLowerCase().includes(term)) || 
       (a.family && a.family.toLowerCase().includes(term)) ||
       (a.id && a.id.toLowerCase().includes(term));
     return matchesGroup && matchesSearch;
@@ -402,7 +412,9 @@ function updateLiveCounters() {
 
   let lapTotal = 0;
   members.forEach(a => {
-    if (a.lapChildren) lapTotal += a.lapChildren.filter(c => c.isCountable !== false).length;
+    if (a.lapChildren && a.lapChildren.length > 0) {
+      lapTotal += a.lapChildren.filter(c => c.isCountable !== false).length;
+    }
   });
 
   const presential = main + sec + tasks + lapTotal;
@@ -426,7 +438,6 @@ function updateLiveCounters() {
   document.getElementById("st-cnt-pla").innerText = members.filter(a => a.location).length;
 }
 
-// Ventanas y Modales
 function openSeatAssignModal(seatId, label, type, occupant) {
   selectedSeatId = seatId;
   selectedSeatType = type;
@@ -494,6 +505,40 @@ function showToast(txt) {
     t.classList.add("translate-y-10", "opacity-0");
   }, 2000);
 }
+
+// Ventana de Editar Integrante
+window.editMemberModal = (id) => {
+  populateHogarSelect();
+  const deleteBtn = document.getElementById("btn-delete-member-form");
+
+  if (id) {
+    const member = members.find(a => a.id === id);
+    if (!member) return;
+    document.getElementById("modal-member-header").innerHTML = `<span>✏️</span> Editar Integrante (${member.id})`;
+    document.getElementById("form-member-id").value = member.id;
+    document.getElementById("form-member-name").value = member.name;
+    document.getElementById("form-member-shortname").value = member.shortName || "";
+    document.getElementById("form-member-hogar").value = member.hogarId || (hogares[0]?.id || "");
+    document.getElementById("form-member-familyrole").value = member.familyRole || "Otro";
+    document.getElementById("form-member-group").value = member.group || "Grupo 1";
+    document.getElementById("form-member-role").value = member.role || "PUB";
+    document.getElementById("form-member-aliaszoom").value = member.aliasZoom || "";
+    deleteBtn.classList.remove("hidden");
+  } else {
+    document.getElementById("modal-member-header").innerHTML = `<span>👤</span> Registrar Nuevo Integrante`;
+    document.getElementById("form-member-id").value = "";
+    document.getElementById("form-member-name").value = "";
+    document.getElementById("form-member-shortname").value = "";
+    document.getElementById("form-member-hogar").value = hogares[0]?.id || "";
+    document.getElementById("form-member-familyrole").value = "Otro";
+    document.getElementById("form-member-group").value = "Grupo 1";
+    document.getElementById("form-member-role").value = "PUB";
+    document.getElementById("form-member-aliaszoom").value = "";
+    deleteBtn.classList.add("hidden");
+  }
+
+  document.getElementById("modal-edit-member").classList.remove("hidden");
+};
 
 // Declaraciones Globales
 window.unseatPerson = (id) => {
@@ -564,23 +609,80 @@ window.openQuickZoomModal = () => {
   document.getElementById("modal-quick-zoom").classList.remove("hidden");
 };
 
-// Configurar Eventos
+// Configuración completa de Event Listeners
 function setupEventListeners() {
-  document.getElementById("btn-tab-salon").onclick = () => switchViewMode("salon");
-  document.getElementById("btn-tab-db").onclick = () => switchViewMode("db");
-  document.getElementById("btn-return-salon").onclick = () => switchViewMode("salon");
-  document.getElementById("btn-switch-to-db-view").onclick = () => switchViewMode("db");
+  const bindClick = (id, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = handler;
+  };
 
-  document.getElementById("mob-nav-hall").onclick = () => switchMobileView("hall");
-  document.getElementById("mob-nav-list").onclick = () => switchMobileView("list");
-  document.getElementById("mob-nav-zoom").onclick = () => switchMobileView("zoom");
-  document.getElementById("mob-nav-db").onclick = () => switchMobileView("db");
+  // Navegación de vistas
+  bindClick("btn-tab-salon", () => switchViewMode("salon"));
+  bindClick("btn-tab-db", () => switchViewMode("db"));
+  bindClick("btn-return-salon", () => switchViewMode("salon"));
+  bindClick("btn-switch-to-db-view", () => switchViewMode("db"));
+
+  bindClick("mob-nav-hall", () => switchMobileView("hall"));
+  bindClick("mob-nav-list", () => switchMobileView("list"));
+  bindClick("mob-nav-zoom", () => switchMobileView("zoom"));
+  bindClick("mob-nav-db", () => switchMobileView("db"));
+
+  // Modo diseñador y zoom de sillas
+  bindClick("btn-toggle-design", () => {
+    isDesignModeActive = !isDesignModeActive;
+    const banner = document.getElementById("editor-banner");
+    const tools = document.getElementById("editor-row-tools");
+    banner?.classList.toggle("hidden", !isDesignModeActive);
+    tools?.classList.toggle("hidden", !isDesignModeActive);
+    renderHall();
+  });
+
+  bindClick("btn-finish-editor", () => {
+    isDesignModeActive = false;
+    document.getElementById("editor-banner")?.classList.add("hidden");
+    document.getElementById("editor-row-tools")?.classList.add("hidden");
+    renderHall();
+  });
+
+  bindClick("btn-hall-zoom-in", () => {
+    hallZoomScale = Math.min(2.0, hallZoomScale + 0.15);
+    applyZoom();
+  });
+
+  bindClick("btn-hall-zoom-out", () => {
+    hallZoomScale = Math.max(0.65, hallZoomScale - 0.15);
+    applyZoom();
+  });
+
+  bindClick("btn-hall-zoom-reset", () => {
+    hallZoomScale = 1.0;
+    applyZoom();
+  });
+
+  const applyZoom = () => {
+    const wrapper = document.getElementById("hall-scalable-wrapper");
+    if (wrapper) wrapper.style.transform = `scale(${hallZoomScale})`;
+    const txt = document.getElementById("zoom-lvl-txt");
+    if (txt) txt.innerText = `${Math.round(hallZoomScale * 100)}%`;
+  };
+
+  bindClick("btn-add-hall-row", () => {
+    hallLayout.rows.push({ left: 4, right: 4, disabled: [] });
+    renderHall();
+  });
+
+  bindClick("btn-remove-hall-row", () => {
+    if (hallLayout.rows.length > 1) {
+      hallLayout.rows.pop();
+      renderHall();
+    }
+  });
 
   // Nueva Reunión
   const startNewMeeting = () => {
     const d = document.getElementById("meeting-date-input").value;
     const t = document.getElementById("meeting-type-select").value;
-    if (!confirm(`¿Archivar la reunión de fecha ${d} e iniciar una NUEVA reunión?\n\nSe vaciarán Salón y Zoom, conservando tu base de datos de integrantes.`)) return;
+    if (!confirm(`¿Archivar la reunión del ${d} e iniciar una NUEVA reunión?\n\nSe vaciarán Salón y Zoom, conservando tu base de datos de integrantes.`)) return;
 
     members.forEach(a => {
       a.location = null;
@@ -591,11 +693,11 @@ function setupEventListeners() {
     zoomConnections = [];
     saveState();
     refreshAll();
-    showToast("Salón y Zoom vaciados para la nueva reunión.");
+    showToast("Salón y Zoom vaciados para la nueva fecha.");
   };
 
-  document.getElementById("btn-new-meeting").onclick = startNewMeeting;
-  document.getElementById("mob-btn-new-meeting").onclick = startNewMeeting;
+  bindClick("btn-new-meeting", startNewMeeting);
+  bindClick("mob-btn-new-meeting", startNewMeeting);
 
   // Reportes
   const showReport = () => {
@@ -606,10 +708,10 @@ function setupEventListeners() {
     document.getElementById("modal-report-view").classList.remove("hidden");
   };
 
-  document.getElementById("btn-open-report").onclick = showReport;
-  document.getElementById("mob-btn-report").onclick = showReport;
-  document.getElementById("btn-close-report-modal").onclick = () => document.getElementById("modal-report-view").classList.add("hidden");
-  document.getElementById("btn-close-report-bottom").onclick = () => document.getElementById("modal-report-view").classList.add("hidden");
+  bindClick("btn-open-report", showReport);
+  bindClick("mob-btn-report", showReport);
+  bindClick("btn-close-report-modal", () => document.getElementById("modal-report-view").classList.add("hidden"));
+  bindClick("btn-close-report-bottom", () => document.getElementById("modal-report-view").classList.add("hidden"));
 
   document.querySelectorAll("#report-type-nav button").forEach(btn => {
     btn.onclick = () => {
@@ -620,56 +722,217 @@ function setupEventListeners() {
     };
   });
 
-  document.getElementById("btn-copy-report-clip").onclick = () => {
+  bindClick("btn-copy-report-clip", () => {
     const area = document.getElementById("report-output-textarea");
     area.select();
     document.execCommand("copy");
     const alert = document.getElementById("toast-copied-alert");
-    alert.style.opacity = "1";
-    setTimeout(() => alert.style.opacity = "0", 2000);
+    if (alert) alert.style.opacity = "1";
+    setTimeout(() => { if (alert) alert.style.opacity = "0"; }, 2000);
     showToast("Reporte copiado.");
+  });
+
+  // Modal Backup e Historial
+  bindClick("btn-open-backup", () => document.getElementById("modal-backup").classList.remove("hidden"));
+  bindClick("btn-close-backup-modal", () => document.getElementById("modal-backup").classList.add("hidden"));
+  bindClick("btn-close-backup-bottom", () => document.getElementById("modal-backup").classList.add("hidden"));
+
+  bindClick("btn-open-history", async () => {
+    const records = await DataService.getHistory();
+    const tbody = document.getElementById("history-records-table-body");
+    tbody.innerHTML = "";
+    if (records.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Sin historial guardado.</td></tr>`;
+    } else {
+      records.forEach((r, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/60";
+        tr.innerHTML = `
+          <td class="p-2"><strong class="text-white">${r.fecha}</strong> <span class="text-[9px] text-indigo-300">(${r.tipo})</span></td>
+          <td class="p-2 text-center text-emerald-400 font-bold">${r.totalPresencial || 0}</td>
+          <td class="p-2 text-center text-blue-400 font-bold">${r.totalZoom || 0}</td>
+          <td class="p-2 text-center text-white font-black">${r.granTotal || 0}</td>
+          <td class="p-2 text-right">
+            <button onclick="window.restoreHistoryRecord(${idx})" class="px-2 py-0.5 bg-indigo-600 text-white rounded text-[10px]">Cargar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById("modal-history").classList.remove("hidden");
+  });
+
+  bindClick("btn-close-history-modal", () => document.getElementById("modal-history").classList.add("hidden"));
+  bindClick("btn-close-history-bottom", () => document.getElementById("modal-history").classList.add("hidden"));
+
+  bindClick("btn-download-session-json", () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, hogares, zoomConnections }));
+    const a = document.createElement("a");
+    a.href = dataStr;
+    a.download = `sesion_asistencia_${document.getElementById("meeting-date-input").value}.json`;
+    a.click();
+    showToast("JSON descargado.");
+  });
+
+  bindClick("btn-copy-session-json", () => {
+    navigator.clipboard.writeText(JSON.stringify({ members, hogares, zoomConnections }));
+    showToast("JSON copiado al portapapeles.");
+  });
+
+  // Integrantes DB
+  bindClick("btn-create-member-db", () => window.editMemberModal(null));
+  bindClick("btn-quick-create-person", () => window.editMemberModal(null));
+  bindClick("btn-open-register-from-seat", () => {
+    document.getElementById("modal-seat").classList.add("hidden");
+    window.editMemberModal(null);
+  });
+  bindClick("btn-close-member-modal", () => document.getElementById("modal-edit-member").classList.add("hidden"));
+  bindClick("btn-cancel-member-form", () => document.getElementById("modal-edit-member").classList.add("hidden"));
+
+  bindClick("btn-submit-member-form", async () => {
+    const id = document.getElementById("form-member-id").value;
+    const name = document.getElementById("form-member-name").value.trim();
+    let shortName = document.getElementById("form-member-shortname").value.trim();
+    const hogarId = document.getElementById("form-member-hogar").value;
+    const familyRole = document.getElementById("form-member-familyrole").value;
+    const group = document.getElementById("form-member-group").value;
+    const role = document.getElementById("form-member-role").value;
+    const aliasZoom = document.getElementById("form-member-aliaszoom").value.trim();
+
+    if (!name) return alert("Por favor ingresa el nombre oficial.");
+
+    const hogarObj = hogares.find(h => h.id === hogarId);
+    const familyName = hogarObj ? hogarObj.name : "General";
+
+    if (!shortName) {
+      const parts = name.split(/\s+/);
+      shortName = `${parts[0]} ${familyName.split(/\s+/)[0]}`;
+    }
+
+    const memberObj = {
+      id: id || ("P" + String(Date.now()).slice(-4)),
+      name,
+      shortName,
+      hogarId,
+      family: familyName,
+      familyRole,
+      group,
+      role,
+      aliasZoom,
+      aliasWhatsApp: "",
+      device: ""
+    };
+
+    members = await DataService.saveMember(memberObj);
+    document.getElementById("modal-edit-member").classList.add("hidden");
+    refreshAll();
+    showToast(`Integrante ${shortName} guardado.`);
+  });
+
+  bindClick("btn-delete-member-form", async () => {
+    const id = document.getElementById("form-member-id").value;
+    if (id) {
+      await window.deleteMemberDirect(id);
+      document.getElementById("modal-edit-member").classList.add("hidden");
+    }
+  });
+
+  // Hogares
+  const openHogaresModal = () => {
+    const box = document.getElementById("hogares-table-list");
+    box.innerHTML = "";
+    hogares.forEach(h => {
+      const row = document.createElement("div");
+      row.className = "p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs";
+      row.innerHTML = `
+        <div>
+          <strong class="text-white">${h.name}</strong> <span class="text-[10px] text-teal-300 font-mono">(${h.id})</span>
+          <span class="text-[9px] text-slate-400 block">${h.group}</span>
+        </div>
+        <button onclick="window.deleteHogarDirect('${h.id}')" class="text-rose-400 hover:text-rose-300 font-bold px-2">✕</button>
+      `;
+      box.appendChild(row);
+    });
+    document.getElementById("modal-hogares").classList.remove("hidden");
   };
+
+  bindClick("btn-open-hogares-catalog", openHogaresModal);
+  bindClick("btn-close-hogares-modal", () => document.getElementById("modal-hogares").classList.add("hidden"));
+  bindClick("btn-close-hogares-bottom", () => document.getElementById("modal-hogares").classList.add("hidden"));
+
+  bindClick("btn-submit-hogar", async () => {
+    const name = document.getElementById("form-hogar-name").value.trim();
+    const group = document.getElementById("form-hogar-group").value;
+    if (!name) return alert("Ingresa el nombre de familia.");
+
+    const maxNum = hogares.reduce((max, h) => {
+      const n = parseInt(h.id.replace("H", "")) || 0;
+      return n > max ? n : max;
+    }, 0);
+    const newId = "H" + String(maxNum + 1).padStart(3, "0");
+
+    const newH = { id: newId, name, membersCount: 1, group };
+    hogares = await DataService.saveHogar(newH);
+    document.getElementById("form-hogar-name").value = "";
+    populateHogarSelect();
+    openHogaresModal();
+    showToast(`Hogar ${name} creado.`);
+  });
 
   // Carga Masiva de CSV
-  document.getElementById("file-upload-csv-db").onchange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      showToast("Cargando y procesando archivo CSV...");
-      const count = await DataService.importCSVFile(file);
-      members = await DataService.getMembers();
-      hogares = await DataService.getHogares();
-      populateHogarSelect();
-      refreshAll();
-      showToast(`¡Éxito! Se cargaron ${count} integrantes a la base de datos.`);
-    } catch (err) {
-      alert("Error al procesar el archivo CSV: " + err.message);
-    }
-  };
+  const fileInput = document.getElementById("file-upload-csv-db");
+  if (fileInput) {
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        showToast("Procesando archivo CSV...");
+        const count = await DataService.importCSVFile(file);
+        members = await DataService.getMembers();
+        hogares = await DataService.getHogares();
+        populateHogarSelect();
+        refreshAll();
+        showToast(`¡Éxito! Se cargaron ${count} integrantes.`);
+      } catch (err) {
+        alert("Error cargando CSV: " + err.message);
+      }
+    };
+  }
 
-  // Zoom Mode Selector
-  document.getElementById("btn-zoom-view-grouped").onclick = () => {
+  // Zoom
+  bindClick("btn-zoom-view-grouped", () => {
     currentZoomDisplay = "grouped";
     document.getElementById("btn-zoom-view-grouped").className = "py-1 rounded-lg font-bold bg-blue-600 text-white";
     document.getElementById("btn-zoom-view-individual").className = "py-1 rounded-lg text-slate-400";
     renderZoomCards();
-  };
-  document.getElementById("btn-zoom-view-individual").onclick = () => {
+  });
+
+  bindClick("btn-zoom-view-individual", () => {
     currentZoomDisplay = "individual";
     document.getElementById("btn-zoom-view-individual").className = "py-1 rounded-lg font-bold bg-blue-600 text-white";
     document.getElementById("btn-zoom-view-grouped").className = "py-1 rounded-lg text-slate-400";
     renderZoomCards();
-  };
+  });
 
-  document.getElementById("btn-quick-add-zoom").onclick = window.openQuickZoomModal;
-  document.getElementById("btn-close-quick-zoom").onclick = () => document.getElementById("modal-quick-zoom").classList.add("hidden");
-  document.getElementById("btn-close-quick-zoom-bottom").onclick = () => document.getElementById("modal-quick-zoom").classList.add("hidden");
+  bindClick("btn-quick-add-zoom", window.openQuickZoomModal);
+  bindClick("btn-close-quick-zoom", () => document.getElementById("modal-quick-zoom").classList.add("hidden"));
+  bindClick("btn-close-quick-zoom-bottom", () => document.getElementById("modal-quick-zoom").classList.add("hidden"));
 
-  // Parser de Zoom por Texto
-  document.getElementById("btn-open-paste-zoom").onclick = () => document.getElementById("modal-paste-zoom").classList.remove("hidden");
-  document.getElementById("btn-close-paste-modal").onclick = () => document.getElementById("modal-paste-zoom").classList.add("hidden");
-  document.getElementById("btn-cancel-paste").onclick = () => document.getElementById("modal-paste-zoom").classList.add("hidden");
-  document.getElementById("btn-process-zoom-report").onclick = () => {
+  bindClick("btn-open-paste-zoom", () => document.getElementById("modal-paste-zoom").classList.remove("hidden"));
+  bindClick("btn-close-paste-modal", () => document.getElementById("modal-paste-zoom").classList.add("hidden"));
+  bindClick("btn-cancel-paste", () => document.getElementById("modal-paste-zoom").classList.add("hidden"));
+
+  bindClick("btn-load-sample-zoom", () => {
+    document.getElementById("paste-zoom-textarea").value = 
+`[26/8, 6:31 p.m.] Jamer Y Fabiola Hernández: (Jamer, Jamer A, Fabiola=3)
+[26/8, 6:34 p.m.] María de Castro: (María, Nalieth=2)
+- Karina Salgado
+- Esther Mendez
+- Jaider
+- Ludys Quiroz`;
+  });
+
+  bindClick("btn-process-zoom-report", () => {
     const txt = document.getElementById("paste-zoom-textarea").value;
     const lines = txt.split("\n");
     let count = 0;
@@ -684,21 +947,62 @@ function setupEventListeners() {
     document.getElementById("modal-paste-zoom").classList.add("hidden");
     saveState();
     refreshAll();
-    showToast(`${count} personas sincronizadas en Zoom.`);
-  };
+    showToast(`${count} personas sincronizadas a Zoom.`);
+  });
 
-  document.getElementById("btn-close-seat-modal").onclick = () => document.getElementById("modal-seat").classList.add("hidden");
+  bindClick("btn-close-seat-modal", () => document.getElementById("modal-seat").classList.add("hidden"));
+  bindClick("btn-vacate-seat", () => {
+    if (selectedSeatId) {
+      const p = members.find(a => a.seatId === selectedSeatId);
+      if (p) window.unseatPerson(p.id);
+      document.getElementById("modal-seat").classList.add("hidden");
+    }
+  });
+
+  // Filtros de búsqueda
+  const dirSearch = document.getElementById("dir-search-input");
+  if (dirSearch) {
+    dirSearch.oninput = (e) => {
+      currentSearchTerm = e.target.value;
+      renderDirectoryList();
+    };
+  }
+
+  document.querySelectorAll("#group-filters-wrapper button").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#group-filters-wrapper button").forEach(b => b.className = "filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 font-medium whitespace-nowrap");
+      btn.className = "filter-pill tab-active px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-medium whitespace-nowrap";
+      currentFilterGroup = btn.dataset.g;
+      renderDirectoryList();
+    };
+  });
+
+  bindClick("st-filter-all", () => setStatusFilter("ALL"));
+  bindClick("st-filter-pen", () => setStatusFilter("PENDING"));
+  bindClick("st-filter-pla", () => setStatusFilter("PLACED"));
+}
+
+function setStatusFilter(st) {
+  currentFilterStatus = st;
+  const bAll = document.getElementById("st-filter-all");
+  const bPen = document.getElementById("st-filter-pen");
+  const bPla = document.getElementById("st-filter-pla");
+  [bAll, bPen, bPla].forEach(b => { if (b) b.className = "py-1 rounded-lg text-slate-400"; });
+  if (st === "ALL" && bAll) bAll.className = "py-1 rounded-lg font-bold bg-indigo-600 text-white";
+  if (st === "PENDING" && bPen) bPen.className = "py-1 rounded-lg font-bold bg-indigo-600 text-white";
+  if (st === "PLACED" && bPla) bPla.className = "py-1 rounded-lg font-bold bg-indigo-600 text-white";
+  renderDirectoryList();
 }
 
 function switchViewMode(mode) {
   const sView = document.getElementById("view-salon-mode");
   const dView = document.getElementById("view-db-mode");
   if (mode === "salon") {
-    sView.classList.remove("hidden");
-    dView.classList.add("hidden");
+    sView?.classList.remove("hidden");
+    dView?.classList.add("hidden");
   } else {
-    sView.classList.add("hidden");
-    dView.classList.remove("hidden");
+    sView?.classList.add("hidden");
+    dView?.classList.remove("hidden");
     renderDatabaseTable();
   }
 }
@@ -713,10 +1017,18 @@ function switchMobileView(view) {
   const pHall = document.getElementById("panel-hall-col");
   const pZoom = document.getElementById("panel-zoom-col");
 
-  [pList, pHall, pZoom].forEach(p => p.classList.add("hidden"));
-  if (view === "hall") pHall.classList.remove("hidden");
-  if (view === "list") pList.classList.remove("hidden");
-  if (view === "zoom") pZoom.classList.remove("hidden");
+  [pList, pHall, pZoom].forEach(p => p?.classList.add("hidden"));
+  if (view === "hall") pHall?.classList.remove("hidden");
+  if (view === "list") pList?.classList.remove("hidden");
+  if (view === "zoom") pZoom?.classList.remove("hidden");
 }
+
+window.deleteHogarDirect = async (id) => {
+  if (!confirm(`¿Eliminar este hogar? Los integrantes asociados quedarán sin familia asignada.`)) return;
+  hogares = await DataService.deleteHogar(id);
+  populateHogarSelect();
+  refreshAll();
+  showToast("Hogar eliminado.");
+};
 
 document.addEventListener("DOMContentLoaded", init);
