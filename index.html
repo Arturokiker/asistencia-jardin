@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Control de Asistencia - Congregación Jardín</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- CABECERA PRINCIPAL -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-3 py-2 shadow-xl">
+    <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-2.5">
+      
+      <!-- Identidad y Congregación -->
+      <div class="flex items-center justify-between w-full lg:w-auto gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-600/30">
+            🏛️
+          </div>
+          <div>
+            <h1 class="text-sm font-bold text-white leading-tight">Asistencia Jardín</h1>
+            <div class="flex items-center gap-1.5">
+              <span id="net-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">Firebase Online</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 text-xs">
+          <select id="meeting-type-select" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
+            <option value="Entre semana" class="bg-slate-900 text-white">📅 Entre semana</option>
+            <option value="Fin de semana" class="bg-slate-900 text-white">📅 Fin de semana</option>
+          </select>
+          <input type="date" id="meeting-date-input" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
+        </div>
+
+        <!-- Botones Móviles -->
+        <div class="flex items-center gap-1 lg:hidden">
+          <button id="mob-btn-new-meeting" class="px-2 py-1 bg-rose-950 border border-rose-800 text-rose-300 rounded-lg text-xs font-bold shadow">
+            🔄 Nueva
+          </button>
+          <button id="mob-btn-report" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold shadow">
+            Reporte
+          </button>
+        </div>
+      </div>
+
+      <!-- Métricas Globales en Vivo -->
+      <div class="flex items-center justify-between w-full lg:w-auto gap-1 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 text-[10px]">
+        <div class="text-center px-1.5">
+          <span class="text-slate-400 block font-semibold">Salón Pral</span>
+          <span id="stat-main" class="text-xs sm:text-sm font-black text-sky-400">0</span>
+        </div>
+        <div class="w-px h-5 bg-slate-800"></div>
+        <div class="text-center px-1.5">
+          <span class="text-slate-400 block font-semibold">Sala 2</span>
+          <span id="stat-sec" class="text-xs sm:text-sm font-black text-teal-400">0</span>
+        </div>
+        <div class="w-px h-5 bg-slate-800"></div>
+        <div class="text-center px-1.5">
+          <span class="text-slate-400 block font-semibold">Asignados</span>
+          <span id="stat-tasks" class="text-xs sm:text-sm font-black text-amber-400">0</span>
+        </div>
+        <div class="w-px h-5 bg-slate-800"></div>
+        <div class="text-center px-1.5">
+          <span class="text-emerald-400 block font-bold">Presencial</span>
+          <span id="stat-presential" class="text-xs sm:text-sm font-black text-emerald-400">0</span>
+        </div>
+        <div class="w-px h-5 bg-slate-800"></div>
+        <div class="text-center px-1.5">
+          <span class="text-blue-400 block font-bold">Zoom</span>
+          <span id="stat-zoom" class="text-xs sm:text-sm font-black text-blue-400">0</span>
+        </div>
+        <div class="w-px h-5 bg-slate-800"></div>
+        <div class="text-center px-2.5 bg-indigo-950/80 rounded-lg border border-indigo-800 py-0.5">
+          <span class="text-indigo-300 block font-extrabold">GRAN TOTAL</span>
+          <span id="stat-grand" class="text-xs sm:text-sm font-black text-indigo-200">0</span>
+        </div>
+      </div>
+
+      <!-- Barra de Acciones Escritorio -->
+      <div class="hidden lg:flex items-center gap-1.5">
+        <button id="btn-tab-salon" class="px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1">
+          <span>🏛️ Salón & Zoom</span>
+        </button>
+        <button id="btn-tab-db" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow flex items-center gap-1">
+          <span>👥 Base de Datos</span>
+        </button>
+        <button id="btn-toggle-design" class="px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold flex items-center gap-1">
+          <span>✏️ Editar Sillas</span>
+        </button>
+        <button id="btn-new-meeting" class="px-2.5 py-1.5 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
+          <span>🔄 Nueva Reunión</span>
+        </button>
+        <button id="btn-open-backup" class="px-2.5 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
+          <span>💾 Backup / CSV</span>
+        </button>
+        <button id="btn-open-report" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-900/40">
+          📋 Reporte WhatsApp
+        </button>
+      </div>
+    </div>
+
+    <!-- Pestañas Móviles -->
+    <div class="grid grid-cols-4 gap-1 mt-2 lg:hidden border-t border-slate-800 pt-1.5 text-[11px] font-semibold text-slate-400">
+      <button id="mob-nav-hall" class="py-1.5 text-center rounded-lg view-tab-active">🏛️ Salón</button>
+      <button id="mob-nav-list" class="py-1.5 text-center rounded-lg">📋 Lista</button>
+      <button id="mob-nav-zoom" class="py-1.5 text-center rounded-lg">💻 Zoom</button>
+      <button id="mob-nav-db" class="py-1.5 text-center rounded-lg">👥 Base Datos</button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       VISTA 1: SALÓN Y VIRTUAL ZOOM (3 COLUMNAS)
+       ========================================================================= -->
+  <main id="view-salon-mode" class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
+    
+    <!-- COLUMNA 1: LISTADO LATERAL DE HERMANOS -->
+    <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg">
+      <div class="space-y-2 mb-2 flex-shrink-0">
+        <div class="relative">
+          <input type="text" id="dir-search-input" placeholder="Buscar hermano, familia, menor..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+          <button id="dir-clear-search" class="hidden absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs">✕</button>
+        </div>
+
+        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 text-[11px]" id="group-filters-wrapper">
+          <button class="filter-pill tab-active px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-medium whitespace-nowrap" data-g="TODOS">Todos</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-sky-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 1">G1</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-emerald-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 2">G2</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-amber-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 3">G3</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-purple-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 4">G4</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-pink-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 5">G5</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-teal-300 border border-slate-800 font-medium whitespace-nowrap" data-g="Menor">Menores</button>
+          <button class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-slate-300 border border-slate-800 font-medium whitespace-nowrap" data-g="Visitante">Vis</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1 text-[10px] bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <button id="st-filter-all" class="py-1 rounded-lg font-bold bg-indigo-600 text-white">Todos (<span id="st-cnt-all">0</span>)</button>
+          <button id="st-filter-pen" class="py-1 rounded-lg text-slate-400">Sin Ubicar (<span id="st-cnt-pen">0</span>)</button>
+          <button id="st-filter-pla" class="py-1 rounded-lg text-slate-400">Ubicados (<span id="st-cnt-pla">0</span>)</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+          <button id="btn-quick-create-person" class="w-full py-1.5 bg-slate-950 hover:bg-slate-800 border border-dashed border-indigo-700/60 rounded-xl text-[11px] text-indigo-300 font-medium flex items-center justify-center gap-1">
+            <span>+ Nuevo Hermano</span>
+          </button>
+          <button id="btn-switch-to-db-view" class="w-full py-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800/60 rounded-xl text-[11px] text-emerald-300 font-bold flex items-center justify-center gap-1">
+            <span>👥 Directorio Completo</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pr-0.5" id="directory-list-container"></div>
+
+      <div class="mt-2 pt-2 border-t border-slate-800 text-[10px] flex justify-between text-slate-400 flex-shrink-0">
+        <span>Total Registrados: <strong id="foot-total-members" class="text-white font-mono">0</strong></span>
+        <span>Asistentes: <strong id="foot-total-placed" class="text-emerald-400 font-bold font-mono">0</strong></span>
+      </div>
+    </aside>
+
+    <!-- COLUMNA 2: SALÓN DEL REINO (MAPA DE SILLAS) -->
+    <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg overflow-hidden relative">
+      
+      <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta sillas con + / - o haz clic en cualquier puesto</span>
+        <button id="btn-finish-editor" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
+      </div>
+
+      <div class="bg-gradient-to-r from-slate-950 via-indigo-950/60 to-slate-950 border border-indigo-900/60 rounded-xl p-1.5 flex items-center justify-between flex-shrink-0 mb-2">
+        <span class="text-[10px] text-amber-400 font-bold pl-2">🎤 Atril</span>
+        <span class="text-xs font-black tracking-widest text-slate-200 uppercase">PLATAFORMA</span>
+        
+        <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
+          <button id="btn-hall-zoom-out" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">-</button>
+          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-8 text-center">100%</span>
+          <button id="btn-hall-zoom-in" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">+</button>
+          <button id="btn-hall-zoom-reset" class="text-[9px] px-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded ml-0.5">1:1</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-auto bg-slate-950/70 rounded-xl p-2 border border-slate-800 flex flex-col justify-between" id="hall-scroll-container">
+        <div id="hall-scalable-wrapper" class="transition-transform duration-150 origin-top" style="transform: scale(1);">
+          
+          <div class="flex justify-center gap-1.5 sm:gap-3 min-w-max mx-auto py-1">
+            <div class="flex flex-col gap-1.5" id="grid-hall-left"></div>
+
+            <div class="flex flex-col items-center justify-between py-1 px-1 border-x border-dashed border-slate-800 text-slate-600 text-[8px] font-bold">
+              <span style="writing-mode: vertical-rl;" class="tracking-widest">PASILLO</span>
+              <div class="my-2 flex flex-col items-center gap-1 bg-slate-900/90 border border-amber-900/60 p-1 rounded-xl shadow pointer-events-auto">
+                <span class="text-[7.5px] text-amber-400 font-bold uppercase">🎙️ Micro</span>
+                <div id="chair-mic-1"></div>
+                <div id="chair-mic-2"></div>
+              </div>
+              <span style="writing-mode: vertical-rl;" class="tracking-widest">CENTRAL</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
+          </div>
+
+          <div id="editor-row-tools" class="hidden my-2 flex justify-center gap-2 flex-shrink-0">
+            <button id="btn-add-hall-row" class="px-3 py-1 bg-amber-600/30 hover:bg-amber-600 text-amber-200 hover:text-white border border-amber-500 rounded-lg text-xs font-bold">+ Fila</button>
+            <button id="btn-remove-hall-row" class="px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded-lg text-xs font-bold">- Fila</button>
+          </div>
+
+          <div class="mt-2.5 pt-2 border-t border-slate-800 space-y-2 flex-shrink-0">
+            <div class="grid grid-cols-12 gap-2 text-xs">
+              <div class="col-span-6 bg-emerald-950/30 border border-emerald-800/60 rounded-xl p-1.5 flex items-center justify-between">
+                <div>
+                  <div class="text-[9.5px] font-bold text-emerald-300">🚪 Entrada</div>
+                  <div class="text-[7.5px] text-slate-400">Acomodación</div>
+                </div>
+                <div class="flex gap-1" id="chairs-ushers-box"></div>
+              </div>
+
+              <div class="col-span-6 bg-slate-900 border border-indigo-900/60 rounded-xl p-1.5 flex items-center justify-between">
+                <div>
+                  <div class="text-[9.5px] font-bold text-indigo-300">🎛️ Sonido</div>
+                  <div class="text-[7.5px] text-slate-400">Audio/Zoom</div>
+                </div>
+                <div class="flex gap-1" id="chairs-sound-box"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-teal-900/50 rounded-xl p-1.5 shadow-inner">
+              <div class="flex items-center justify-between mb-1 pb-1 border-b border-slate-800">
+                <span class="text-[9.5px] font-bold text-teal-300 uppercase tracking-wide">🚪 Segunda Sala / Auxiliar</span>
+                <span class="text-[8.5px] text-slate-400 font-mono">
+                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-400 font-bold">0</strong>/<span id="max-sec-hall">14</span>
+                </span>
+              </div>
+              <div class="grid grid-cols-7 gap-1" id="grid-hall-second"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- COLUMNA 3: SALA VIRTUAL ZOOM -->
+    <section id="panel-zoom-col" class="lg:col-span-3 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 flex-shrink-0">
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">
+            📹
+          </div>
+          <div>
+            <h2 class="text-xs font-bold text-white leading-tight">Conexiones Zoom</h2>
+            <p class="text-[9px] text-slate-400">Llamadas y dispositivos activos</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button id="btn-quick-add-zoom" class="text-[10px] font-bold px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors shadow">
+            ➕ Agregar
+          </button>
+          <button id="btn-new-zoom-device" class="text-[10px] font-bold px-2 py-1 bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white rounded-lg border border-blue-500/40 transition-colors">
+            + Conexión
+          </button>
+          <button id="btn-open-paste-zoom" class="text-[10px] font-bold px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors">
+            Pegar
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-1 mb-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] flex-shrink-0">
+        <button id="btn-zoom-view-grouped" class="py-1 rounded-lg font-bold bg-blue-600 text-white">Por Conexión</button>
+        <button id="btn-zoom-view-individual" class="py-1 rounded-lg text-slate-400">Por Persona</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5" id="zoom-cards-container"></div>
+
+      <div class="mt-2 pt-2 border-t border-slate-800 text-[10px] flex justify-between text-slate-400 flex-shrink-0">
+        <span>Conexiones: <strong id="cnt-zoom-devices" class="text-blue-300 font-mono">0</strong></span>
+        <span>Asistentes Virtuales: <strong id="cnt-zoom-people" class="text-blue-400 font-bold font-mono">0</strong></span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       VISTA 2: GESTIÓN DE BASE DE DATOS E INTEGRANTES
+       ========================================================================= -->
+  <main id="view-db-mode" class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-4 hidden flex-col space-y-3">
+    
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2.5 shadow-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">👥</span>
+        <div>
+          <h2 class="text-sm font-bold text-white leading-tight">Directorio Oficial de Integrantes y Familias</h2>
+          <p class="text-[10px] text-slate-400">Administración de publicadores, menores, roles y catálogo de hogares</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <button id="btn-create-member-db" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
+          <span>+ Nuevo Integrante</span>
+        </button>
+        <button id="btn-open-hogares-catalog" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
+          <span>🏠 Catálogo de Hogares</span>
+        </button>
+        <button id="btn-download-db-csv" class="px-3 py-1.5 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-200 rounded-xl text-xs font-bold shadow flex items-center gap-1">
+          <span>📊 Descargar CSV</span>
+        </button>
+        <label class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl text-xs font-semibold shadow cursor-pointer">
+          <span>📂 Cargar CSV Base</span>
+          <input type="file" id="file-upload-csv-db" accept=".csv" class="hidden">
+        </label>
+        <button id="btn-return-salon" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">
+          <span>✕ Volver al Salón</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
+      <div class="relative flex-1">
+        <input type="text" id="db-search-input" placeholder="Buscar por nombre, apellido, hogar o alias de Zoom..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+      </div>
+
+      <select id="db-group-select-filter" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
+        <option value="ALL">Todos los Grupos</option>
+        <option value="Grupo 1">Grupo 1</option>
+        <option value="Grupo 2">Grupo 2</option>
+        <option value="Grupo 3">Grupo 3</option>
+        <option value="Grupo 4">Grupo 4</option>
+        <option value="Grupo 5">Grupo 5</option>
+        <option value="Visitante">Visitantes</option>
+        <option value="Menor">Menores</option>
+      </select>
+    </div>
+
+    <div class="flex-1 overflow-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-inner max-h-[calc(100vh-16rem)]">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase sticky top-0 border-b border-slate-800 z-10">
+          <tr>
+            <th class="p-2.5">ID / Integrante Oficial</th>
+            <th class="p-2.5">Nombre Corto (WhatsApp)</th>
+            <th class="p-2.5">Hogar / Familia</th>
+            <th class="p-2.5 text-center">Rol Fam.</th>
+            <th class="p-2.5 text-center">Grupo</th>
+            <th class="p-2.5 text-center">Rol</th>
+            <th class="p-2.5">Alias Zoom</th>
+            <th class="p-2.5 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="db-members-table-body" class="divide-y divide-slate-800 font-mono text-[11px]"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       MODALES DEL SISTEMA
+       ========================================================================= -->
+
+  <!-- MODAL: ASIGNAR SILLA / REGISTRO RÁPIDO -->
+  <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
+        <div>
+          <h3 class="text-xs font-bold text-white" id="modal-seat-title">Asignar Silla</h3>
+          <p class="text-[10px] text-slate-400" id="modal-seat-subtitle">Selecciona a la persona</p>
+        </div>
+        <button id="btn-close-seat-modal" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
+      </div>
+
+      <div class="grid grid-cols-4 gap-1 text-[10px] bg-slate-950 p-1 rounded-xl border border-slate-800 flex-shrink-0" id="modal-seat-role-tabs">
+        <button class="py-1 rounded-lg font-bold bg-indigo-600 text-white" data-tab="PUBS">Publicadores</button>
+        <button class="py-1 rounded-lg text-slate-400" data-tab="MENORES">Menores</button>
+        <button class="py-1 rounded-lg text-slate-400" data-tab="VISITANTES">Visitantes</button>
+        <button class="py-1 rounded-lg text-slate-400" data-tab="TODOS">Todos</button>
+      </div>
+
+      <div class="relative flex-shrink-0">
+        <input type="text" id="modal-seat-search" placeholder="Escribe el nombre para buscar..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
+      </div>
+
+      <div id="modal-lap-section" class="bg-indigo-950/40 border border-indigo-800/60 rounded-xl p-2 text-xs hidden flex-shrink-0 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-indigo-300">👶 Menor cargado en esta silla:</span>
+          <button id="btn-toggle-lap-selector" class="text-[9px] px-2 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold">+ Cargar Menor</button>
+        </div>
+        <div id="modal-lap-list-box" class="space-y-1"></div>
+        <div id="lap-select-dropdown" class="p-2 bg-slate-950 rounded-lg border border-slate-800 space-y-2 hidden">
+          <span class="text-[9px] text-slate-400 block font-semibold">Selecciona un menor registrado:</span>
+          <div class="max-h-24 overflow-y-auto no-scrollbar space-y-1" id="lap-registered-minors-list"></div>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-48" id="modal-seat-people-list"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
+        <button id="btn-vacate-seat" class="text-[11px] px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 rounded-lg border border-rose-800 hidden">
+          Liberar Silla
+        </button>
+        <button id="btn-open-register-from-seat" class="text-[11px] px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-900/60 rounded-lg font-medium ml-auto">
+          + Registrar Nuevo Integrante
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR / CREAR INTEGRANTE -->
+  <div id="modal-edit-member" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5" id="modal-member-header">
+          <span>👤</span> Registrar Integrante
+        </h3>
+        <button id="btn-close-member-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <input type="hidden" id="form-member-id">
+
+      <div class="space-y-2 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-0.5">Nombre Completo Oficial</label>
+          <input type="text" id="form-member-name" placeholder="Ej: Oscar Enrique Arteaga Mendez" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-0.5">Nombre Corto (Para Reportes WhatsApp)</label>
+          <input type="text" id="form-member-shortname" placeholder="Ej: Oscar Arteaga" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-indigo-200 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 mb-0.5">Familia / Hogar</label>
+            <select id="form-member-hogar" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-0.5">Rol Familiar</label>
+            <select id="form-member-familyrole" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
+              <option value="Padre">Padre / Cabeza</option>
+              <option value="Esposo">Esposo</option>
+              <option value="Madre">Madre</option>
+              <option value="Esposa">Esposa</option>
+              <option value="Hijo">Hijo</option>
+              <option value="Hija">Hija</option>
+              <option value="Soltero/a">Soltero/a</option>
+              <option value="Otro" selected>Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 mb-0.5">Grupo de Servicio</label>
+            <select id="form-member-group" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
+              <option value="Grupo 1">Grupo 1</option>
+              <option value="Grupo 2">Grupo 2</option>
+              <option value="Grupo 3">Grupo 3</option>
+              <option value="Grupo 4">Grupo 4</option>
+              <option value="Grupo 5">Grupo 5</option>
+              <option value="Visitante">Visitante</option>
+              <option value="Menor">Menor</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-0.5">Rol Congregacional</label>
+            <select id="form-member-role" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
+              <option value="PUB">Publicador (PUB)</option>
+              <option value="PR">Precursor (PR)</option>
+              <option value="SM">Siervo Ministerial (SM)</option>
+              <option value="ANC">Anciano (ANC)</option>
+              <option value="PNB">Pub. No Bautizado (PNB)</option>
+              <option value="Menor">Menor</option>
+              <option value="Visitante">Visitante</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-0.5">Alias Zoom Habitual</label>
+          <input type="text" id="form-member-aliaszoom" placeholder="Ej: Familia Arteaga, iPhone de Oscar..." class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <button id="btn-delete-member-form" class="text-xs text-rose-400 hover:underline hidden font-bold">🗑️ Eliminar Integrante</button>
+        <div class="flex gap-2 ml-auto">
+          <button id="btn-cancel-member-form" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cancelar</button>
+          <button id="btn-submit-member-form" class="text-xs px-3.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CATÁLOGO DE HOGARES -->
+  <div id="modal-hogares" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+          <span>🏠</span> Catálogo Maestro de Hogares y Familias
+        </h3>
+        <button id="btn-close-hogares-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 flex-shrink-0">
+        <input type="hidden" id="form-hogar-id">
+        <div class="flex gap-2">
+          <input type="text" id="form-hogar-name" placeholder="Nombre de Familia (Ej: Pérez Florez)..." class="flex-1 px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+          <select id="form-hogar-group" class="px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-indigo-300">
+            <option value="Grupo 1">Grupo 1</option>
+            <option value="Grupo 2">Grupo 2</option>
+            <option value="Grupo 3">Grupo 3</option>
+            <option value="Grupo 4">Grupo 4</option>
+            <option value="Grupo 5">Grupo 5</option>
+            <option value="Visitante">Visitante</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-1.5">
+          <button id="btn-cancel-hogar-edit" class="px-2.5 py-1 bg-slate-800 text-slate-400 rounded-lg text-xs hidden">Cancelar</button>
+          <button id="btn-submit-hogar" class="px-3 py-1 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-lg text-xs shadow">+ Crear Hogar</button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="hogares-table-list"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button id="btn-close-hogares-bottom" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONECTAR PERSONA DIRECTAMENTE A ZOOM -->
+  <div id="modal-quick-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
+        <div>
+          <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>📹</span> Conectar Persona a Zoom
+          </h3>
+          <p class="text-[10px] text-slate-400">Toca a la persona para sumarla a Zoom</p>
+        </div>
+        <button id="btn-close-quick-zoom" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="relative flex-shrink-0">
+        <input type="text" id="quick-zoom-search-input" placeholder="Buscar hermano, menor o visitante..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
+      </div>
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="quick-zoom-people-results"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button id="btn-close-quick-zoom-bottom" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PEGAR REPORTE DE WHATSAPP / TEXTO -->
+  <div id="modal-paste-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+          <span>📹</span> Sincronizar Asistencia Zoom por Texto
+        </h3>
+        <button id="btn-close-paste-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <p class="text-[11px] text-slate-300">Pega los mensajes de WhatsApp o notas de la reunión. Reconoce conexiones grupales como `(María, Nalieth = 2)`:</p>
+      <textarea id="paste-zoom-textarea" rows="8" placeholder="Ejemplo:&#10;[26/8, 6:31 p.m.] Jamer Y Fabiola Hernández: (Jamer, Jamer A, Fabiola=3)&#10;[26/8, 6:34 p.m.] María de Castro: (María, Nalieth=2)..." class="w-full p-2.5 bg-slate-950 font-mono text-xs text-blue-300 rounded-xl border border-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"></textarea>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 gap-2">
+        <button id="btn-load-sample-zoom" class="text-[10px] px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg border border-slate-700">
+          Cargar Ejemplo
+        </button>
+        <div class="flex gap-2">
+          <button id="btn-cancel-paste" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cancelar</button>
+          <button id="btn-process-zoom-report" class="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow">Procesar Zoom</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REPORTES DE ASISTENCIA (LOS 3 REPORTES OFICIALES) -->
+  <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+          <span>📋</span> Reporte Oficial de Asistencia
+        </h3>
+        <button id="btn-close-report-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs flex-shrink-0" id="report-type-nav">
+        <button class="py-1 px-3 rounded-lg font-bold bg-emerald-600 text-white" data-target="r2">Reporte WhatsApp</button>
+        <button class="py-1 px-3 rounded-lg text-slate-400" data-target="r1">Análisis Interno (R1)</button>
+        <button class="py-1 px-3 rounded-lg text-slate-400" data-target="r3">Validación (R3)</button>
+      </div>
+      <textarea id="report-output-textarea" rows="15" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1" readonly></textarea>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
+        <span id="toast-copied-alert" class="text-[11px] text-emerald-400 font-bold opacity-0 transition-opacity">¡Copiado al portapapeles!</span>
+        <div class="flex gap-2">
+          <button id="btn-close-report-bottom" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
+          <button id="btn-copy-report-clip" class="text-xs px-3.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow">Copiar Reporte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white text-xs px-3.5 py-2 rounded-xl shadow-2xl opacity-0 transform translate-y-10 transition-all duration-200 z-50 pointer-events-none">
+    <span id="toast-txt">Notificación</span>
+  </div>
+
+  <!-- Script Modular Principal -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
