@@ -1,5 +1,6 @@
 // Capa de Datos: Firestore + LocalStorage + Parser e Importador Masivo de CSV
 import { db, isOnlineDB, CONGREGATION_ID } from "./firebase-config.js";
+import { masterMembersSeed, masterHogaresSeed } from "./seed-data.js";
 import { 
   collection, 
   doc, 
@@ -15,7 +16,7 @@ const KEY_SESSION = `asistencia_${CONGREGATION_ID}_session`;
 const KEY_HISTORY = `asistencia_${CONGREGATION_ID}_history`;
 
 export const DataService = {
-  // Cargar Integrantes
+  // Cargar Integrantes con inicialización automática de semilla
   async getMembers() {
     if (isOnlineDB) {
       try {
@@ -25,16 +26,29 @@ export const DataService = {
           snap.forEach(d => list.push(d.data()));
           localStorage.setItem(KEY_MEMBERS, JSON.stringify(list));
           return list;
+        } else {
+          // Si Firestore está recién creado y vacío, puebla con los 75 integrantes semilla
+          const initialList = JSON.parse(JSON.stringify(masterMembersSeed));
+          for (const m of initialList) {
+            await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "integrantes", m.id), m);
+          }
+          localStorage.setItem(KEY_MEMBERS, JSON.stringify(initialList));
+          return initialList;
         }
       } catch (err) {
-        console.warn("Error leyendo Firestore, usando almacenamiento local:", err);
+        console.warn("Lectura offline o Firestore pendiente de inicializar:", err);
       }
     }
+
     const local = localStorage.getItem(KEY_MEMBERS);
-    return local ? JSON.parse(local) : [];
+    if (local) {
+      try { return JSON.parse(local); } catch(e) {}
+    }
+    const seed = JSON.parse(JSON.stringify(masterMembersSeed));
+    localStorage.setItem(KEY_MEMBERS, JSON.stringify(seed));
+    return seed;
   },
 
-  // Guardar / Actualizar Integrante
   async saveMember(member) {
     const list = await this.getMembers();
     const idx = list.findIndex(m => m.id === member.id);
@@ -53,7 +67,6 @@ export const DataService = {
     return list;
   },
 
-  // Borrar Definitivo de Integrante (Garantiza que Samir no se regenere)
   async deleteMember(memberId) {
     const list = await this.getMembers();
     const updated = list.filter(m => m.id !== memberId);
@@ -79,13 +92,25 @@ export const DataService = {
           snap.forEach(d => list.push(d.data()));
           localStorage.setItem(KEY_HOGARES, JSON.stringify(list));
           return list;
+        } else {
+          const initialHogares = JSON.parse(JSON.stringify(masterHogaresSeed));
+          for (const h of initialHogares) {
+            await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "hogares", h.id), h);
+          }
+          localStorage.setItem(KEY_HOGARES, JSON.stringify(initialHogares));
+          return initialHogares;
         }
       } catch (err) {
         console.warn("Error leyendo hogares de Firestore:", err);
       }
     }
     const local = localStorage.getItem(KEY_HOGARES);
-    return local ? JSON.parse(local) : [];
+    if (local) {
+      try { return JSON.parse(local); } catch(e) {}
+    }
+    const seed = JSON.parse(JSON.stringify(masterHogaresSeed));
+    localStorage.setItem(KEY_HOGARES, JSON.stringify(seed));
+    return seed;
   },
 
   async saveHogar(hogar) {
@@ -121,7 +146,7 @@ export const DataService = {
     return updated;
   },
 
-  // Sesión Activa de Asistencia
+  // Sesión Activa
   async getActiveSession() {
     if (isOnlineDB) {
       try {
@@ -132,7 +157,7 @@ export const DataService = {
           return data;
         }
       } catch (err) {
-        console.warn("Lectura offline:", err);
+        console.warn("Lectura offline sesión:", err);
       }
     }
     const local = localStorage.getItem(KEY_SESSION);
@@ -170,7 +195,7 @@ export const DataService = {
     }
   },
 
-  // Importador Masivo del CSV Oficial de Google Sheets
+  // Importador Masivo de CSV Oficial
   async importCSVFile(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -188,7 +213,6 @@ export const DataService = {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // Parser de CSV respetando comillas
             const cols = [];
             let inQuotes = false;
             let token = "";
@@ -204,7 +228,6 @@ export const DataService = {
             }
             cols.push(token.trim());
 
-            // Estructura oficial del CSV: ID_Persona, ID_Hogar, Hogar, Integrante, Rol_Familiar, Rol_Congregacion, Grupo_Servicio, ...
             if (cols.length >= 4 && cols[3]) {
               const pId = cols[0] || ("P" + String(Date.now()).slice(-4));
               const hId = cols[1] || "H001";
@@ -217,12 +240,10 @@ export const DataService = {
               const aliasWhatsApp = cols[10] || "";
               const device = cols[11] || "";
 
-              // Registrar hogar si no existe
               if (!hogaresList.some(h => h.id === hId)) {
                 hogaresList.push({ id: hId, name: fam, membersCount: 1, group });
               }
 
-              // Calcular Nombre Corto estándar (Primer Nombre + Primer Apellido)
               const parts = name.replace(/\(.*?\)/g, "").trim().split(/\s+/);
               let shortName = parts[0];
               if (name.includes("Jamer Arturo")) shortName = "Jamer Arturo Hernandez";
