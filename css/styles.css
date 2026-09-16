@@ -1,0 +1,30 @@
+.chair-seat {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chair-seat:active { 
+  transform: scale(0.92); 
+}
+
+.no-scrollbar::-webkit-scrollbar { 
+  display: none; 
+}
+
+.no-scrollbar { 
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
+.tab-active { 
+  background-color: #4f46e5 !important; 
+  color: #ffffff !important; 
+  border-color: #6366f1 !important; 
+}
+
+.view-tab-active { 
+  border-bottom: 3px solid #6366f1; 
+  color: #ffffff !important; 
+  background-color: rgba(99, 102, 241, 0.15); 
+}
