@@ -1,4 +1,4 @@
-// Configuración Modular Firebase v10 con persistencia offline IndexedDB
+// js/firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
   initializeFirestore, 
@@ -6,35 +6,31 @@ import {
   persistentMultipleTabManager 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Pega aquí las credenciales de tu consola de Firebase
+// Tus credenciales reales vinculadas
 export const firebaseConfig = {
-  apiKey: "TU_API_KEY_FIREBASE",
-  authDomain: "asistencia-jardin.firebaseapp.com",
-  projectId: "asistencia-jardin",
-  storageBucket: "asistencia-jardin.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  apiKey: "AIzaSyCFBrFwnOPVRzfJW-kSkOUfRyv55mw1LVU",
+  authDomain: "asistencia-reuniones-final.firebaseapp.com",
+  projectId: "asistencia-reuniones-final",
+  storageBucket: "asistencia-reuniones-final.firebasestorage.app",
+  messagingSenderId: "430000122597",
+  appId: "1:430000122597:web:1ba68fae5124a5220a420c"
 };
 
 let appInstance = null;
 let dbInstance = null;
 let isConfigured = false;
 
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "TU_API_KEY_FIREBASE") {
-  try {
-    appInstance = initializeApp(firebaseConfig);
-    dbInstance = initializeFirestore(appInstance, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    });
-    isConfigured = true;
-    console.log("Firestore conectado con soporte multi-pestaña IndexedDB.");
-  } catch (err) {
-    console.warn("Error inicializando Firebase. Activando modo local autónomo:", err);
-  }
-} else {
-  console.info("Modo Offline / LocalStorage activo (configura Firebase en js/firebase-config.js).");
+try {
+  appInstance = initializeApp(firebaseConfig);
+  dbInstance = initializeFirestore(appInstance, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+  isConfigured = true;
+  console.log("Firestore conectado con soporte multi-pestaña e IndexedDB.");
+} catch (err) {
+  console.warn("Error conectando a Firebase. Operando en modo local:", err);
 }
 
 export const db = dbInstance;
