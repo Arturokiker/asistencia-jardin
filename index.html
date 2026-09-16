@@ -23,7 +23,7 @@
             <h1 class="text-sm font-bold text-white leading-tight">Asistencia Jardín</h1>
             <div class="flex items-center gap-1.5">
               <span id="net-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">Firebase Online</span>
+              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">En línea</span>
             </div>
           </div>
         </div>
@@ -96,6 +96,9 @@
         </button>
         <button id="btn-open-backup" class="px-2.5 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
           <span>💾 Backup / CSV</span>
+        </button>
+        <button id="btn-open-history" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-medium border border-slate-700">
+          <span>📜 Historial</span>
         </button>
         <button id="btn-open-report" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-900/40">
           📋 Reporte WhatsApp
@@ -352,10 +355,10 @@
   </main>
 
   <!-- =========================================================================
-       MODALES DEL SISTEMA
+       MODALES
        ========================================================================= -->
 
-  <!-- MODAL: ASIGNAR SILLA / REGISTRO RÁPIDO -->
+  <!-- MODAL: ASIGNAR SILLA -->
   <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -519,7 +522,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CONECTAR PERSONA DIRECTAMENTE A ZOOM -->
+  <!-- MODAL: AGREGAR A ZOOM -->
   <div id="modal-quick-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -529,7 +532,7 @@
           </h3>
           <p class="text-[10px] text-slate-400">Toca a la persona para sumarla a Zoom</p>
         </div>
-        <button id="btn-close-quick-zoom" class="text-slate-400 hover:text-white text-sm">✕</button>
+        <button id="btn-close-quick-zoom" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
       </div>
       <div class="relative flex-shrink-0">
         <input type="text" id="quick-zoom-search-input" placeholder="Buscar hermano, menor o visitante..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -542,7 +545,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PEGAR REPORTE DE WHATSAPP / TEXTO -->
+  <!-- MODAL: PEGAR REPORTE -->
   <div id="modal-paste-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -551,7 +554,7 @@
         </h3>
         <button id="btn-close-paste-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
-      <p class="text-[11px] text-slate-300">Pega los mensajes de WhatsApp o notas de la reunión. Reconoce conexiones grupales como `(María, Nalieth = 2)`:</p>
+      <p class="text-[11px] text-slate-300">Pega los mensajes de WhatsApp o notas. Reconoce conexiones grupales como `(María, Nalieth = 2)`:</p>
       <textarea id="paste-zoom-textarea" rows="8" placeholder="Ejemplo:&#10;[26/8, 6:31 p.m.] Jamer Y Fabiola Hernández: (Jamer, Jamer A, Fabiola=3)&#10;[26/8, 6:34 p.m.] María de Castro: (María, Nalieth=2)..." class="w-full p-2.5 bg-slate-950 font-mono text-xs text-blue-300 rounded-xl border border-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"></textarea>
       <div class="flex items-center justify-between pt-2 border-t border-slate-800 gap-2">
         <button id="btn-load-sample-zoom" class="text-[10px] px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg border border-slate-700">
@@ -565,7 +568,7 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTES DE ASISTENCIA (LOS 3 REPORTES OFICIALES) -->
+  <!-- MODAL: REPORTES -->
   <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -590,12 +593,71 @@
     </div>
   </div>
 
+  <!-- MODAL: BACKUP Y EXPORTACIÓN -->
+  <div id="modal-backup" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-1.5">
+          <span class="text-base">💾</span>
+          <h3 class="text-xs font-bold text-white">Guardar, Exportar y Respaldar</h3>
+        </div>
+        <button id="btn-close-backup-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button id="btn-download-session-json" class="p-3 bg-indigo-950 hover:bg-indigo-900 border border-indigo-800 text-indigo-200 rounded-xl font-bold flex flex-col items-center justify-center text-center shadow">
+          <span>💾 Descargar JSON</span>
+          <span class="text-[9px] font-normal opacity-75 mt-0.5">Sesión completa</span>
+        </button>
+        <button id="btn-copy-session-json" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl font-bold flex flex-col items-center justify-center text-center shadow">
+          <span>📋 Copiar JSON</span>
+          <span class="text-[9px] font-normal opacity-75 mt-0.5">Al portapapeles</span>
+        </button>
+        <button id="btn-download-history-csv" class="col-span-2 p-2.5 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-200 rounded-xl font-bold flex items-center justify-center gap-1.5 shadow">
+          <span>📊 Exportar Historial a CSV (Google Sheets)</span>
+        </button>
+      </div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button id="btn-close-backup-bottom" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTORIAL -->
+  <div id="modal-history" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📜</span>
+          <h3 class="text-xs font-bold text-white">Historial de Reuniones Guardadas</h3>
+        </div>
+        <button id="btn-close-history-modal" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-800 rounded-xl max-h-64 bg-slate-950">
+        <table class="w-full text-left text-[11px] text-slate-300">
+          <thead class="bg-slate-900 text-slate-400 text-[10px] uppercase sticky top-0 border-b border-slate-800">
+            <tr>
+              <th class="p-2">Fecha / Tipo</th>
+              <th class="p-2 text-center">Presencial</th>
+              <th class="p-2 text-center">Zoom</th>
+              <th class="p-2 text-center">Total</th>
+              <th class="p-2 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="history-records-table-body" class="divide-y divide-slate-850"></tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
+        <button id="btn-clear-all-history" class="text-[10px] text-rose-400 hover:underline">Vaciar historial</button>
+        <button id="btn-close-history-bottom" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white text-xs px-3.5 py-2 rounded-xl shadow-2xl opacity-0 transform translate-y-10 transition-all duration-200 z-50 pointer-events-none">
     <span id="toast-txt">Notificación</span>
   </div>
 
-  <!-- Script Modular Principal -->
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
