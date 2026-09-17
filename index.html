@@ -20,11 +20,21 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
+  <!-- BANNER DE DIAGNÓSTICO EN TIEMPO REAL -->
+  <div id="cloud-diagnostic-banner" class="bg-slate-900 border-b border-slate-800 px-3 py-1.5 text-[11px] flex items-center justify-between transition-colors">
+    <div class="flex items-center gap-2">
+      <span id="cloud-status-icon">🔄</span>
+      <span id="cloud-status-msg" class="font-medium text-slate-300">Conectando con la nube de Firebase...</span>
+    </div>
+    <button onclick="testCloudConnection(true)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-bold">
+      Probar Nube
+    </button>
+  </div>
+
   <!-- CABECERA PRINCIPAL -->
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-3 py-2 shadow-xl">
     <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-2.5">
       
-      <!-- Identidad y Estado de Conexión en Vivo -->
       <div class="flex items-center justify-between w-full lg:w-auto gap-2">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-600/30">
@@ -32,22 +42,18 @@
           </div>
           <div>
             <h1 class="text-sm font-bold text-white leading-tight">Asistencia Jardín</h1>
-            <div class="flex items-center gap-1.5">
-              <span id="net-status-dot" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
-              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">Iniciando...</span>
-            </div>
+            <p class="text-[9px] text-slate-400 font-mono">Los Palmitos – Sucre</p>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 text-xs">
-          <select id="meeting-type-select" onchange="onSessionMetadataChange()" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
+          <select id="meeting-type-select" onchange="onMetadataChange()" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
             <option value="Entre semana" class="bg-slate-900 text-white">📅 Entre semana</option>
             <option value="Fin de semana" class="bg-slate-900 text-white">📅 Fin de semana</option>
           </select>
-          <input type="date" id="meeting-date-input" onchange="onSessionMetadataChange()" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
+          <input type="date" id="meeting-date-input" onchange="onMetadataChange()" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
         </div>
 
-        <!-- Acciones Móviles Rápidas -->
         <div class="flex items-center gap-1 lg:hidden">
           <button onclick="toggleDesignMode()" class="px-2 py-1 bg-amber-600/30 border border-amber-500/50 text-amber-300 rounded-lg text-xs font-bold" title="Editar Sillas">✏️</button>
           <button onclick="startNewMeetingSession()" class="px-2 py-1 bg-rose-950 border border-rose-800 text-rose-300 rounded-lg text-xs font-bold shadow">🔄 Nueva</button>
@@ -111,7 +117,7 @@
       </div>
     </div>
 
-    <!-- Navegación Móvil (4 Pestañas) -->
+    <!-- Navegación Móvil -->
     <div class="grid grid-cols-4 gap-1 mt-2 lg:hidden border-t border-slate-800 pt-1.5 text-[11px] font-semibold text-slate-400">
       <button onclick="switchMobileView('hall')" id="mob-nav-hall" class="py-1.5 text-center rounded-lg view-tab-active">🏛️ Salón</button>
       <button onclick="switchMobileView('list')" id="mob-nav-list" class="py-1.5 text-center rounded-lg">📋 Lista</button>
@@ -121,12 +127,12 @@
   </header>
 
   <!-- =========================================================================
-       VISTA 1: SALÓN + LISTA + ZOOM (3 COLUMNAS)
+       VISTA 1: SALÓN + LISTADO + ZOOM
        ========================================================================= -->
   <main id="view-salon-mode" class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
     
     <!-- COLUMNA 1: LISTADO LATERAL DE HERMANOS -->
-    <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg">
+    <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
       <div class="space-y-2 mb-2 flex-shrink-0">
         <div class="relative">
           <input type="text" id="dir-search-input" oninput="filterDirectory()" placeholder="Buscar hermano, familia, menor..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
@@ -170,9 +176,9 @@
     </aside>
 
     <!-- COLUMNA 2: SALÓN DEL REINO (MAPA DE SILLAS) -->
-    <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg overflow-hidden relative">
+    <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg overflow-hidden relative">
       <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa en una silla para habilitar/deshabilitar</span>
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para deshabilitar/habilitar</span>
         <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
       </div>
 
@@ -245,13 +251,13 @@
     </section>
 
     <!-- COLUMNA 3: SALA VIRTUAL ZOOM -->
-    <section id="panel-zoom-col" class="lg:col-span-3 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg">
+    <section id="panel-zoom-col" class="lg:col-span-3 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
       <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 flex-shrink-0">
         <div class="flex items-center gap-1.5">
           <div class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">📹</div>
           <div>
             <h2 class="text-xs font-bold text-white leading-tight">Conexiones Zoom</h2>
-            <p class="text-[9px] text-slate-400">Dispositivos y llamadas activas</p>
+            <p class="text-[9px] text-slate-400">Dispositivos activos</p>
           </div>
         </div>
 
@@ -640,31 +646,31 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
-    // Persistencia Local Primero
+    // Almacenamiento Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v5");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v6");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v5", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v6", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v5");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v6");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v5");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v6");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v5", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v6", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v5");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v6");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -686,12 +692,11 @@
       },
 
       saveLocalAndCloud() {
-        // 1. Guardar en memoria local inmediatamente
-        localStorage.setItem("asistencia_jardin_members_v5", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v5", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v5", JSON.stringify(deletedMemberIds));
+        // 1. Guardar localmente
+        localStorage.setItem("asistencia_jardin_members_v6", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v6", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v6", JSON.stringify(deletedMemberIds));
 
-        // Construir mapa de asignaciones limpio (libre de undefined)
         const assignmentsMap = {};
         members.forEach(m => {
           if (m.location) {
@@ -718,9 +723,9 @@
           deletedMemberIds: deletedMemberIds
         };
 
-        localStorage.setItem("asistencia_jardin_session_v5", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v6", JSON.stringify(sessionPayload));
 
-        // 2. Subir a Firestore en segundo plano
+        // 2. Subir a Firestore
         this.pushToFirestore(sessionPayload);
       },
 
@@ -729,12 +734,35 @@
         try {
           await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), payload);
         } catch(e) {
-          console.warn("Error enviando a Firestore:", e);
+          updateCloudBanner("error", "Error guardando en Firestore: " + (e.message || e));
         }
       }
     };
 
-    // Conexión y Escucha en Tiempo Real (onSnapshot)
+    function updateCloudBanner(state, msg) {
+      const banner = document.getElementById("cloud-diagnostic-banner");
+      const icon = document.getElementById("cloud-status-icon");
+      const txt = document.getElementById("cloud-status-msg");
+
+      if (state === "ok") {
+        banner.className = "bg-emerald-950/80 border-b border-emerald-700 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        icon.innerText = "🟢";
+        txt.className = "font-bold text-emerald-300";
+        txt.innerText = msg || "NUBE ACTIVA: Sincronizado en tiempo real (Computador y Celular)";
+      } else if (state === "error") {
+        banner.className = "bg-rose-950 border-b border-rose-700 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        icon.innerText = "🔴";
+        txt.className = "font-bold text-rose-200";
+        txt.innerText = msg || "Error en Firebase: Permiso denegado. Revisa las Reglas en Firebase Console.";
+      } else {
+        banner.className = "bg-slate-900 border-b border-slate-800 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        icon.innerText = "🔄";
+        txt.className = "font-medium text-slate-400";
+        txt.innerText = msg || "Conectando con Firebase...";
+      }
+    }
+
+    // Inicializar y Diagnosticar Firestore
     async function initFirestoreRealtime() {
       try {
         const app = initializeApp(firebaseConfig);
@@ -742,23 +770,25 @@
           ignoreUndefinedProperties: true,
           localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
         });
-        isCloudOnline = true;
-        document.getElementById("net-status-dot").className = "inline-block w-2 h-2 rounded-full bg-emerald-400";
-        document.getElementById("net-status-txt").innerText = "En Vivo (Sincronizado)";
 
-        // Escuchar cambios de otros dispositivos en tiempo real
+        // Prueba de escritura real
+        const testPayload = { testPing: Date.now(), clientId: myClientId };
+        await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "diagnostico", "ping"), testPayload);
+        
+        isCloudOnline = true;
+        updateCloudBanner("ok");
+
+        // Escucha en tiempo real (onSnapshot)
         onSnapshot(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), (docSnap) => {
           if (!docSnap.exists()) return;
           const remote = docSnap.data();
-          if (remote.clientId === myClientId) return; // Ignorar el eco de nuestro propio dispositivo
+          if (remote.clientId === myClientId) return;
 
-          // Aplicar borrado de integrantes
           if (remote.deletedMemberIds && Array.isArray(remote.deletedMemberIds)) {
             deletedMemberIds = remote.deletedMemberIds;
             members = members.filter(m => !deletedMemberIds.includes(m.id));
           }
 
-          // Aplicar asignaciones de sillas y Zoom
           if (remote.assignments) {
             members.forEach(m => {
               const a = remote.assignments[m.id];
@@ -783,15 +813,29 @@
           renderZoom();
           renderDBTable();
           updateCounters();
-          showToast("⚡ Sincronizado desde otro dispositivo");
+          showToast("⚡ Sincronizado desde el otro dispositivo");
+        }, (err) => {
+          updateCloudBanner("error", "Error en Reglas de Firestore: " + err.message);
         });
+
       } catch(e) {
-        document.getElementById("net-status-dot").className = "inline-block w-2 h-2 rounded-full bg-amber-400";
-        document.getElementById("net-status-txt").innerText = "Modo Local (Offline)";
+        isCloudOnline = false;
+        if (e.message && e.message.includes("permission")) {
+          updateCloudBanner("error", "Firebase: Permiso denegado. Abre Firestore > Reglas y pon allow read, write: if true;");
+        } else {
+          updateCloudBanner("error", "Error conectando a Firebase: " + e.message);
+        }
       }
     }
 
-    // Arranque de la Aplicación
+    window.testCloudConnection = function(userInvoked) {
+      updateCloudBanner("loading", "Probando conexión con Firebase Firestore...");
+      initFirestoreRealtime().then(() => {
+        if (userInvoked && isCloudOnline) showToast("¡Conexión a Firebase verificada y activa!");
+      });
+    };
+
+    // Arranque
     function boot() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -817,11 +861,10 @@
       Storage.saveLocalAndCloud();
     }
 
-    window.onSessionMetadataChange = function() {
+    window.onMetadataChange = function() {
       Storage.saveLocalAndCloud();
     };
 
-    // Renderizado del Salón
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -942,7 +985,6 @@
       refreshUI();
     }
 
-    // Directorio Lateral
     function renderDirectory() {
       const container = document.getElementById("directory-list-container");
       if (!container) return;
@@ -998,7 +1040,6 @@
       });
     }
 
-    // Zoom
     function renderZoom() {
       const container = document.getElementById("zoom-cards-container");
       if (!container) return;
@@ -1065,7 +1106,6 @@
       }
     }
 
-    // Base de Datos
     function renderDBTable() {
       const tbody = document.getElementById("db-members-table-body");
       if (!tbody) return;
@@ -1171,11 +1211,10 @@
       }
     };
 
-    // Borrado Definitivo (Caso Samir)
     window.deleteMemberDirect = function(id) {
       const p = members.find(a => a.id === id);
       if (!p) return;
-      if (!confirm(`¿Eliminar definitivamente a "${p.name}" de la congregación?\n\nEsta acción es permanente y no volverá a aparecer en ningún dispositivo.`)) return;
+      if (!confirm(`¿Eliminar definitivamente a "${p.name}" de la congregación?\n\nEsta acción se sincronizará y no volverá a aparecer en ningún dispositivo.`)) return;
 
       window.unseatPerson(id);
       if (!deletedMemberIds.includes(id)) deletedMemberIds.push(id);
@@ -1609,7 +1648,6 @@
       }, 2000);
     }
 
-    // Arranque
     boot();
   </script>
 </body>
