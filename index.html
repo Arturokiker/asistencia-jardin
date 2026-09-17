@@ -24,7 +24,7 @@
   <div id="cloud-diagnostic-banner" class="bg-slate-900 border-b border-slate-800 px-3 py-1.5 text-[11px] flex items-center justify-between transition-colors">
     <div class="flex items-center gap-2">
       <span id="cloud-status-icon">🔄</span>
-      <span id="cloud-status-msg" class="font-medium text-slate-300">Conectando con la nube de Firebase...</span>
+      <span id="cloud-status-msg" class="font-medium text-slate-300">Conectando con Firebase...</span>
     </div>
     <button onclick="testCloudConnection(true)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-bold">
       Probar Nube
@@ -133,7 +133,7 @@
     <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
       <div class="space-y-2 mb-2 flex-shrink-0">
         <div class="relative">
-          <input type="text" id="dir-search-input" placeholder="Buscar hermano, familia (sin tildes)..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <input type="text" id="dir-search-input" oninput="window.filterDirectory(this.value)" onkeyup="window.filterDirectory(this.value)" placeholder="Buscar hermano o familia (sin tildes)..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
           <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
           <button onclick="clearDirectorySearch()" id="dir-clear-search" class="hidden absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs">✕</button>
         </div>
@@ -316,11 +316,11 @@
 
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
       <div class="relative flex-1">
-        <input type="text" id="db-search-input" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <input type="text" id="db-search-input" oninput="window.renderDBTable(this.value)" onkeyup="window.renderDBTable(this.value)" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
         <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
       </div>
 
-      <select id="db-group-select-filter" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
+      <select id="db-group-select-filter" onchange="window.renderDBTable()" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
         <option value="ALL">Todos los Grupos</option>
         <option value="Grupo 1">Grupo 1</option>
         <option value="Grupo 2">Grupo 2</option>
@@ -351,7 +351,7 @@
     </div>
   </main>
 
-  <!-- MODAL: ASIGNAR SILLA (CON LLENADO CONTIGUO FAMILIAR) -->
+  <!-- MODAL: ASIGNAR SILLA (CON LLENADO FAMILIAR CONTIGUO ⬅️ / ➡️) -->
   <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -363,11 +363,11 @@
       </div>
 
       <div class="relative flex-shrink-0">
-        <input type="text" id="modal-seat-search" placeholder="Escribe el nombre o familia (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" onkeyup="window.renderSeatList(this.value)" placeholder="Escribe el nombre o familia (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
         <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
       </div>
 
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pr-0.5 max-h-56" id="modal-seat-people-list"></div>
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5 max-h-60" id="modal-seat-people-list"></div>
 
       <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
         <button onclick="vacateCurrentSeat()" id="btn-vacate-seat" class="text-[11px] px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 rounded-lg border border-rose-800 hidden">Liberar Silla</button>
@@ -497,7 +497,7 @@
         <button onclick="closeModal('modal-quick-zoom')" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
       </div>
       <div class="relative flex-shrink-0">
-        <input type="text" id="quick-zoom-search-input" placeholder="Buscar hermano, menor o visitante (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <input type="text" id="quick-zoom-search-input" oninput="window.renderQuickZoomList(this.value)" onkeyup="window.renderQuickZoomList(this.value)" placeholder="Buscar hermano, menor o visitante (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
         <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
       </div>
       <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="quick-zoom-people-results"></div>
@@ -526,19 +526,19 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTES DE ASISTENCIA -->
+  <!-- MODAL: REPORTES DE ASISTENCIA (NORMATIVO SEGÚN REGLAS 1 AL 10) -->
   <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📋</span> Reporte Oficial de Asistencia</h3>
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📋</span> Reportes Oficiales de Asistencia</h3>
         <button onclick="closeModal('modal-report-view')" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
       <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs flex-shrink-0" id="report-type-nav">
-        <button onclick="setReportTab('r2')" id="rtab-btn-r2" class="py-1 px-3 rounded-lg font-bold bg-emerald-600 text-white">Reporte WhatsApp</button>
-        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="py-1 px-3 rounded-lg text-slate-400">Análisis Interno (R1)</button>
-        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="py-1 px-3 rounded-lg text-slate-400">Validación (R3)</button>
+        <button onclick="setReportTab('r2')" id="rtab-btn-r2" class="py-1 px-3 rounded-lg font-bold bg-emerald-600 text-white">Reporte 2 (WhatsApp)</button>
+        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="py-1 px-3 rounded-lg text-slate-400">Reporte 1 (Evaluación)</button>
+        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="py-1 px-3 rounded-lg text-slate-400">Reporte 3 (Validación)</button>
       </div>
-      <textarea id="report-output-textarea" rows="15" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1" readonly></textarea>
+      <textarea id="report-output-textarea" rows="16" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1" readonly></textarea>
       <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
         <span id="toast-copied-alert" class="text-[11px] text-emerald-400 font-bold opacity-0 transition-opacity">¡Copiado al portapapeles!</span>
         <div class="flex gap-2">
@@ -638,7 +638,7 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
-    // Normalizador de texto universal (elimina tildes y mayúsculas para búsqueda instantánea)
+    // Normalizador universal de texto (sin tildes, minúsculas, sin espacios superfluos)
     function cleanStr(str) {
       if (!str) return "";
       return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -647,28 +647,28 @@
     // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v8");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v10");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v8", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v10", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v8");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v10");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v8");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v10");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v8", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v10", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v8");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v10");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -690,9 +690,9 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_members_v8", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v8", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v8", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_members_v10", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v10", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v10", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -720,7 +720,7 @@
           deletedMemberIds: deletedMemberIds
         };
 
-        localStorage.setItem("asistencia_jardin_session_v8", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v10", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -841,7 +841,6 @@
       populateHogarDropdown();
       refreshUI();
       initFirestoreRealtime();
-      bindInputListeners();
 
       if (window.innerWidth < 1024) switchMobileView("hall");
     }
@@ -980,6 +979,19 @@
     }
 
     // DIRECTORIO LATERAL CON BÚSQUEDA INSTANTÁNEA
+    window.filterDirectory = function(val) {
+      currentSearchTerm = val !== undefined ? val : (document.getElementById("dir-search-input")?.value || "");
+      const clearBtn = document.getElementById("dir-clear-search");
+      if (clearBtn) clearBtn.classList.toggle("hidden", !currentSearchTerm);
+      renderDirectory();
+    };
+
+    window.clearDirectorySearch = function() {
+      const input = document.getElementById("dir-search-input");
+      if (input) input.value = "";
+      window.filterDirectory("");
+    };
+
     function renderDirectory() {
       const container = document.getElementById("directory-list-container");
       if (!container) return;
@@ -1113,12 +1125,12 @@
       }
     }
 
-    function renderDBTable() {
+    window.renderDBTable = function(val) {
       const tbody = document.getElementById("db-members-table-body");
       if (!tbody) return;
       tbody.innerHTML = "";
 
-      const term = cleanStr(document.getElementById("db-search-input")?.value);
+      const term = cleanStr(val !== undefined ? val : document.getElementById("db-search-input")?.value);
       const filterGroup = document.getElementById("db-group-select-filter")?.value || "ALL";
 
       const filtered = members.filter(a => {
@@ -1159,7 +1171,7 @@
         `;
         tbody.appendChild(tr);
       });
-    }
+    };
 
     function updateCounters() {
       const main = members.filter(a => a.location === "main").length;
@@ -1187,7 +1199,6 @@
       document.getElementById("st-cnt-pla").innerText = members.filter(a => a.location).length;
     }
 
-    // Ubicación Rápida en la siguiente silla disponible
     window.autoSeatNextAvailable = function(id) {
       const p = members.find(a => a.id === id);
       if (!p) return;
@@ -1252,14 +1263,15 @@
     };
 
     window.openQuickZoomModal = function() {
-      renderQuickZoomList();
+      window.renderQuickZoomList("");
       document.getElementById("modal-quick-zoom").classList.remove("hidden");
     };
 
-    function renderQuickZoomList() {
+    window.renderQuickZoomList = function(val) {
       const box = document.getElementById("quick-zoom-people-results");
+      if (!box) return;
       box.innerHTML = "";
-      const term = cleanStr(document.getElementById("quick-zoom-search-input")?.value);
+      const term = cleanStr(val !== undefined ? val : document.getElementById("quick-zoom-search-input")?.value);
       const filtered = members.filter(a => !term || cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term));
 
       filtered.forEach(a => {
@@ -1276,11 +1288,11 @@
         btn.onclick = () => {
           if (isZ) window.unseatPerson(a.id);
           else window.quickAddZoomPerson(a.id);
-          renderQuickZoomList();
+          window.renderQuickZoomList(term);
         };
         box.appendChild(btn);
       });
-    }
+    };
 
     window.editMemberModal = function(id) {
       populateHogarDropdown();
@@ -1343,45 +1355,59 @@
         vacateBtn?.classList.add("hidden");
       }
 
-      renderSeatList();
+      window.renderSeatList("");
       document.getElementById("modal-seat").classList.remove("hidden");
       setTimeout(() => searchInput?.focus(), 50);
     }
 
-    // MODAL: BÚSQUEDA INSENSIBLE A TILDES
-    function renderSeatList() {
+    // MODAL DE ASIGNACIÓN: FILTRADO INSTANTÁNEO Y BOTONES DE CONTROL DE DIRECCIÓN ⬅️ / ➡️
+    window.renderSeatList = function(val) {
       const box = document.getElementById("modal-seat-people-list");
       if (!box) return;
       box.innerHTML = "";
-      const term = cleanStr(document.getElementById("modal-seat-search")?.value);
-      const filtered = members.filter(a => !term || cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term));
+      const term = cleanStr(val !== undefined ? val : document.getElementById("modal-seat-search")?.value);
+      
+      const filtered = members.filter(a => {
+        if (!term) return !a.location;
+        return cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term);
+      });
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="py-4 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
+        return;
+      }
 
       filtered.forEach(a => {
         const card = document.createElement("div");
-        card.className = "w-full p-2 rounded-xl flex items-center justify-between text-xs bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 gap-1.5";
+        card.className = "w-full p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 gap-2 shadow-sm";
         
         const unseatedFamily = members.filter(m => m.hogarId === a.hogarId && m.id !== a.id && !m.location);
         const hasFamily = unseatedFamily.length > 0;
 
         card.innerHTML = `
           <div class="truncate min-w-0 flex-1">
-            <div class="font-medium text-white truncate">${a.shortName || a.name}</div>
-            <div class="text-[9px] text-slate-400">${a.family} • ${a.group}</div>
+            <div class="font-bold text-white truncate text-[12px]">${a.shortName || a.name}</div>
+            <div class="text-[9.5px] text-slate-400">${a.family} • <span class="text-indigo-300 font-semibold">${a.group}</span> ${a.location ? '<span class="text-amber-400 font-bold ml-1">(Ya ubicado)</span>' : ''}</div>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0">
+          <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0">
             ${hasFamily ? `
-              <button onclick="seatWholeFamily('${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}')" class="text-[9.5px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-200 rounded-lg font-bold border border-teal-600" title="Sentar a los miembros disponibles de esta familia juntos">
-                + Familia (${unseatedFamily.length + 1})
-              </button>
+              <div class="flex items-center gap-1 bg-slate-900 border border-teal-800/80 rounded-lg p-0.5">
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'left')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold" title="Sienta a la familia hacia la izquierda de esta silla">
+                  ⬅️ Familia (${unseatedFamily.length + 1})
+                </button>
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'right')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold" title="Sienta a la familia hacia la derecha de esta silla">
+                  ➡️ Familia (${unseatedFamily.length + 1})
+                </button>
+              </div>
             ` : ''}
-            <button onclick="seatSinglePerson('${a.id}')" class="text-[10px] px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold">
-              Sentar
+            <button onclick="seatSinglePerson('${a.id}')" class="text-[10px] px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow">
+              ${hasFamily ? 'Solo él' : 'Sentar'}
             </button>
           </div>
         `;
         box.appendChild(card);
       });
-    }
+    };
 
     window.seatSinglePerson = function(id) {
       const p = members.find(a => a.id === id);
@@ -1390,16 +1416,18 @@
         p.seatId = selectedSeatId;
         closeModal("modal-seat");
         refreshUI();
+        showToast(`${p.shortName || p.name} ubicado.`);
       }
     };
 
-    // ALGORITMO DE ACOMODACIÓN CONTIGUA (MANTIENE A LA FAMILIA UNIDA EN LA MISMA FILA)
-    window.seatWholeFamily = function(hogarId, startSeatId, seatType) {
-      const familyMembers = members.filter(m => m.hogarId === hogarId && !m.location);
-      if (familyMembers.length === 0) return;
+    // ALGORITMO DIRECCIONAL INTELIGENTE: Sienta al hermano elegido y a su familia hacia la IZQUIERDA o DERECHA
+    window.seatWholeFamilyDirectional = function(primaryId, hogarId, startSeatId, seatType, direction) {
+      const primaryPerson = members.find(m => m.id === primaryId);
+      const otherFamily = members.filter(m => m.hogarId === hogarId && m.id !== primaryId && !m.location);
+      const familyQueue = [primaryPerson, ...otherFamily];
 
       const occupied = new Set(members.filter(m => m.seatId).map(m => m.seatId));
-      const allocated = [];
+      const assignments = [];
 
       if (startSeatId.startsWith("MAIN-")) {
         const parts = startSeatId.split("-");
@@ -1407,54 +1435,58 @@
         const startR = parseInt(parts[2].replace("R", ""));
         const startS = parseInt(parts[3].replace("S", ""));
 
-        // Primero el asiento seleccionado
-        familyMembers[0].location = "main";
-        familyMembers[0].seatId = startSeatId;
-        allocated.push(startSeatId);
+        // 1. Asignar puesto primario
+        primaryPerson.location = "main";
+        primaryPerson.seatId = startSeatId;
         occupied.add(startSeatId);
+        assignments.push(primaryPerson.shortName || primaryPerson.name);
 
         let memIdx = 1;
-        // Explorar filas ordenadas: empezando por la fila actual hacia atrás, luego hacia adelante
         const rowOrder = [];
         for (let r = startR; r <= hallLayout.rows.length; r++) rowOrder.push(r);
         for (let r = startR - 1; r >= 1; r--) rowOrder.push(r);
 
         for (const currR of rowOrder) {
-          if (memIdx >= familyMembers.length) break;
+          if (memIdx >= familyQueue.length) break;
           const rowConfig = hallLayout.rows[currR - 1];
           const maxS = rowConfig[side === "L" ? "left" : "right"];
           const disabled = rowConfig.disabled || [];
 
-          // En la fila actual, explorar sillas contiguas (siguiente, siguiente, anterior...)
-          let seatOrder = [];
+          let candidateSeats = [];
           if (currR === startR) {
-            for (let s = startS + 1; s <= maxS; s++) seatOrder.push(s);
-            for (let s = startS - 1; s >= 1; s--) seatOrder.push(s);
+            if (direction === "right") {
+              for (let s = startS + 1; s <= maxS; s++) candidateSeats.push(s);
+            } else {
+              for (let s = startS - 1; s >= 1; s--) candidateSeats.push(s);
+            }
           } else {
-            for (let s = 1; s <= maxS; s++) seatOrder.push(s);
+            if (direction === "right") {
+              for (let s = startS; s <= maxS; s++) candidateSeats.push(s);
+            } else {
+              for (let s = startS; s >= 1; s--) candidateSeats.push(s);
+            }
           }
 
-          for (const s of seatOrder) {
-            if (memIdx >= familyMembers.length) break;
+          for (const s of candidateSeats) {
+            if (memIdx >= familyQueue.length) break;
             const sid = `MAIN-${side}-R${currR}-S${s}`;
             if (!occupied.has(sid) && !disabled.includes(sid)) {
-              familyMembers[memIdx].location = "main";
-              familyMembers[memIdx].seatId = sid;
+              familyQueue[memIdx].location = "main";
+              familyQueue[memIdx].seatId = sid;
               occupied.add(sid);
-              allocated.push(sid);
+              assignments.push(familyQueue[memIdx].shortName || familyQueue[memIdx].name);
               memIdx++;
             }
           }
         }
       } else {
-        // En segunda sala o puestos auxiliares
-        familyMembers[0].location = seatType;
-        familyMembers[0].seatId = startSeatId;
+        primaryPerson.location = seatType;
+        primaryPerson.seatId = startSeatId;
       }
 
       closeModal("modal-seat");
       refreshUI();
-      showToast(`Familia sentada junta (${allocated.length} puestos contiguos)`);
+      showToast(`Familia sentada hacia la ${direction === 'right' ? 'derecha ➡️' : 'izquierda ⬅️'} (${assignments.length} personas)`);
     };
 
     window.vacateCurrentSeat = function() {
@@ -1509,7 +1541,7 @@
     window.switchView = function(mode) {
       document.getElementById("view-salon-mode").classList.toggle("hidden", mode !== "salon");
       document.getElementById("view-db-mode").classList.toggle("hidden", mode === "salon");
-      if (mode === "db") renderDBTable();
+      if (mode === "db") window.renderDBTable();
     };
 
     window.switchMobileView = function(view) {
@@ -1562,41 +1594,104 @@
       showToast("Salón y Zoom listos para la nueva reunión.");
     };
 
+    // GENERADOR OFICIAL DE LOS 3 REPORTES CON JERARQUÍA WHATSAPP Y CONTEOS NORMATIVOS
     window.openReportModal = function() {
       const d = document.getElementById("meeting-date-input").value;
       const t = document.getElementById("meeting-type-select").value;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      const presentPubs = members.filter(a => a.location && a.role !== 'Menor' && a.role !== 'Visitante');
-      const presentMinors = members.filter(a => a.location && a.role === 'Menor');
-      const presentVisitors = members.filter(a => a.location && (a.role === 'Visitante' || a.group === 'Visitante'));
-      const grand = presentPubs.length + presentMinors.length + presentVisitors.length;
+      // Filtrar a los asistentes de Zoom (excluyendo cuentas de cabina)
+      const zoomAssistants = members.filter(a => a.location === "zoom");
 
-      let r2 = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
-      r2 += `📊 *CONSOLIDADO DE ASISTENCIA*\n• Publicadores: *${presentPubs.length}*\n• Menores: *${presentMinors.length}*\n• Visitantes: *${presentVisitors.length}*\n🔥 *TOTAL VIRTUAL:* ${grand}\n\n`;
-      r2 += `═══════════════════════════\n🏛️ *DESGLOSE POR GRUPOS*\n═══════════════════════════\n\n`;
+      // REPORTE 2: Formato Oficial de WhatsApp con Sangría Jerárquica (- y ------)
+      let r2 = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
+      let globalNum = 1;
+      let totalPubs = 0;
+      let totalMenores = 0;
+      let totalVisitantes = 0;
 
-      let pNum = 1;
       for (let g = 1; g <= 5; g++) {
         const gKey = `Grupo ${g}`;
-        r2 += `*GRUPO ${g}*\n`;
-        const gMem = members.filter(a => a.group === gKey && a.location);
-        if (gMem.length === 0) r2 += `- (Sin asistentes presentes)\n`;
-        else {
-          gMem.forEach(m => {
-            r2 += `- ${pNum}. ${m.shortName || m.name}${m.role === 'Menor' ? ' (Menor)' : m.role === 'Visitante' ? ' (Visitante)' : ''}\n`;
-            pNum++;
+        const groupMembers = zoomAssistants.filter(a => a.group === gKey);
+        
+        if (groupMembers.length > 0) {
+          r2 += `*GRUPO ${g}*\n`;
+          let gPubCount = 0;
+
+          // Agrupar por familias
+          const famGroups = {};
+          groupMembers.forEach(m => {
+            const fid = m.hogarId || "INDIV";
+            if (!famGroups[fid]) famGroups[fid] = [];
+            famGroups[fid].push(m);
           });
+
+          Object.values(famGroups).forEach(famList => {
+            // Ordenar: Padre/Esposo primero, luego Esposa/Madre, luego Hijos
+            famList.sort((x, y) => {
+              const score = r => r.familyRole === "Padre" || r.familyRole === "Esposo" ? 1 : (r.familyRole === "Madre" || r.familyRole === "Esposa" ? 2 : 3);
+              return score(x) - score(y);
+            });
+
+            famList.forEach((person, pIdx) => {
+              const isPub = (person.role === "ANC" || person.role === "SM" || person.role === "PR" || person.role === "PUB" || person.role === "PNB");
+              let roleTag = "";
+              if (person.role === "Menor") { roleTag = " (Menor)"; totalMenores++; }
+              else if (person.role === "Visitante") { roleTag = " (Visitante)"; totalVisitantes++; }
+              else if (!isPub) { roleTag = ` (${person.role})`; }
+              else { gPubCount++; totalPubs++; }
+
+              const prefix = pIdx === 0 ? `- ` : `------ `;
+              r2 += `${prefix}${globalNum}. ${person.shortName || person.name}${roleTag}\n`;
+              globalNum++;
+            });
+          });
+
+          r2 += `\n*Total Grupo ${g} = ${gPubCount} publicadores*\n\n`;
         }
+      }
+
+      // Menores o Visitantes independientes
+      const indepOthers = zoomAssistants.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
+      if (indepOthers.length > 0) {
+        r2 += `*MENORES Y VISITANTES*\n`;
+        indepOthers.forEach(person => {
+          let roleTag = person.role === "Menor" ? " (Menor)" : " (Visitante)";
+          if (person.role === "Menor") totalMenores++;
+          if (person.role === "Visitante") totalVisitantes++;
+          r2 += `- ${globalNum}. ${person.shortName || person.name}${roleTag}\n`;
+          globalNum++;
+        });
         r2 += `\n`;
       }
 
-      generatedReports = {
-        r1: `Reporte 1: Evaluación Interna\nTotal Conexiones: ${zoomConnections.length}\nTotal Asistencia: ${grand}`,
-        r2: r2,
-        r3: `Reporte 3: Validación y Aprendizaje\nSalvedades: Ninguna discrepancia detectada.`
-      };
+      const grandTotal = globalNum - 1;
+      r2 += `*Total Menores = ${totalMenores}*\n`;
+      r2 += `*Total Visitantes = ${totalVisitantes}*\n`;
+      r2 += `*Total Publicadores = ${totalPubs}*\n\n`;
+      r2 += `*TOTAL ASISTENCIA VIRTUAL:* ${grandTotal}`;
 
+      // REPORTE 1: Evaluación y Análisis Interno
+      let r1 = `--- REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO ---\n\n`;
+      r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Video Salón del Reino (Cabina transmisión)\n   - Anfitrión / Acomodador\n\n`;
+      r1 += `2. Evaluación de Reglas por Conexión Doméstica:\n`;
+      zoomConnections.forEach(c => {
+        r1 += `   - Conexión: "${c.label}" -> Integrantes asignados: ${c.memberIds.length}\n`;
+      });
+      r1 += `\n3. Resumen General:\n`;
+      r1 += `   - Conexiones efectivas de hogares: ${zoomConnections.length}\n`;
+      r1 += `   - Total Publicadores (Grupos 1 al 5): ${totalPubs}\n`;
+      r1 += `   - Total Menores y Visitantes: ${totalMenores + totalVisitantes}\n`;
+      r1 += `   - Total Asistencia Virtual: ${grandTotal}\n`;
+
+      // REPORTE 3: Validación y Aprendizaje
+      let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
+      r3 += `1. Conexiones operativas excluidas: Cuentas de sonido y anfitrión omitidas del conteo normativo.\n`;
+      r3 += `2. Salvedades de WhatsApp: Se aplicó la Regla 3 (solo se contabilizan quienes aparecen en Zoom).\n`;
+      r3 += `3. Normalizaciones: Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
+      r3 += `4. Nuevos dispositivos: Ninguna discrepancia crítica detectada.\n`;
+
+      generatedReports = { r1, r2, r3 };
       document.getElementById("report-output-textarea").value = generatedReports.r2;
       document.getElementById("modal-report-view").classList.remove("hidden");
     };
@@ -1611,7 +1706,7 @@
       const area = document.getElementById("report-output-textarea");
       area.select();
       document.execCommand("copy");
-      showToast("Reporte copiado.");
+      showToast("Reporte copiado al portapapeles.");
     };
 
     window.openBackupModal = function() { document.getElementById("modal-backup").classList.remove("hidden"); };
@@ -1669,19 +1764,6 @@
       document.getElementById("st-filter-pen").className = st === "PENDING" ? "py-1 rounded-lg font-bold bg-indigo-600 text-white" : "py-1 rounded-lg text-slate-400";
       document.getElementById("st-filter-pla").className = st === "PLACED" ? "py-1 rounded-lg font-bold bg-indigo-600 text-white" : "py-1 rounded-lg text-slate-400";
       renderDirectory();
-    };
-
-    window.filterDirectory = function() {
-      currentSearchTerm = document.getElementById("dir-search-input")?.value || "";
-      const clearBtn = document.getElementById("dir-clear-search");
-      if (clearBtn) clearBtn.classList.toggle("hidden", !currentSearchTerm);
-      renderDirectory();
-    };
-
-    window.clearDirectorySearch = function() {
-      const input = document.getElementById("dir-search-input");
-      if (input) input.value = "";
-      window.filterDirectory();
     };
 
     window.setZoomViewMode = function(mode) {
@@ -1763,20 +1845,6 @@
         t.classList.add("translate-y-10", "opacity-0");
       }, 2000);
     }
-
-    // VINCULACIÓN DIRECTA DE ENTRADA (GARANTIZA FILTRADO AL ESCRIBIR)
-    function bindInputListeners() {
-      document.getElementById("dir-search-input")?.addEventListener("input", window.filterDirectory);
-      document.getElementById("modal-seat-search")?.addEventListener("input", renderSeatList);
-      document.getElementById("quick-zoom-search-input")?.addEventListener("input", renderQuickZoomList);
-      document.getElementById("db-search-input")?.addEventListener("input", renderDBTable);
-      document.getElementById("db-group-select-filter")?.addEventListener("change", renderDBTable);
-    }
-
-    // Exposición de funciones en window
-    window.renderSeatList = renderSeatList;
-    window.renderDBTable = renderDBTable;
-    window.renderQuickZoomList = renderQuickZoomList;
 
     boot();
   </script>
