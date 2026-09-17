@@ -133,7 +133,7 @@
     <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
       <div class="space-y-2 mb-2 flex-shrink-0">
         <div class="relative">
-          <input type="text" id="dir-search-input" oninput="filterDirectory()" placeholder="Buscar hermano, familia (sin tildes)..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <input type="text" id="dir-search-input" placeholder="Buscar hermano, familia (sin tildes)..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
           <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
           <button onclick="clearDirectorySearch()" id="dir-clear-search" class="hidden absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs">✕</button>
         </div>
@@ -316,11 +316,11 @@
 
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
       <div class="relative flex-1">
-        <input type="text" id="db-search-input" oninput="renderDBTable()" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <input type="text" id="db-search-input" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
         <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
       </div>
 
-      <select id="db-group-select-filter" onchange="renderDBTable()" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
+      <select id="db-group-select-filter" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
         <option value="ALL">Todos los Grupos</option>
         <option value="Grupo 1">Grupo 1</option>
         <option value="Grupo 2">Grupo 2</option>
@@ -351,7 +351,7 @@
     </div>
   </main>
 
-  <!-- MODAL: ASIGNAR SILLA (CON LLENADO RÁPIDO FAMILIAR) -->
+  <!-- MODAL: ASIGNAR SILLA (CON LLENADO CONTIGUO FAMILIAR) -->
   <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -363,7 +363,7 @@
       </div>
 
       <div class="relative flex-shrink-0">
-        <input type="text" id="modal-seat-search" oninput="renderSeatList()" placeholder="Escribe el nombre o familia (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <input type="text" id="modal-seat-search" placeholder="Escribe el nombre o familia (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
         <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
       </div>
 
@@ -497,7 +497,7 @@
         <button onclick="closeModal('modal-quick-zoom')" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
       </div>
       <div class="relative flex-shrink-0">
-        <input type="text" id="quick-zoom-search-input" oninput="renderQuickZoomList()" placeholder="Buscar hermano, menor o visitante (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <input type="text" id="quick-zoom-search-input" placeholder="Buscar hermano, menor o visitante (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
         <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
       </div>
       <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="quick-zoom-people-results"></div>
@@ -647,28 +647,28 @@
     // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v7");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v8");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v7", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v8", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v7");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v8");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v7");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v8");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v7", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v8", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v7");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v8");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -690,9 +690,9 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_members_v7", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v7", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v7", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_members_v8", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v8", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v8", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -720,7 +720,7 @@
           deletedMemberIds: deletedMemberIds
         };
 
-        localStorage.setItem("asistencia_jardin_session_v7", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v8", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -757,7 +757,6 @@
       }
     }
 
-    // Inicializar y Diagnosticar Firestore
     async function initFirestoreRealtime() {
       try {
         const app = initializeApp(firebaseConfig);
@@ -766,7 +765,6 @@
           localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
         });
 
-        // Test ping
         await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "diagnostico", "ping"), {
           testPing: Date.now(),
           clientId: myClientId
@@ -843,6 +841,7 @@
       populateHogarDropdown();
       refreshUI();
       initFirestoreRealtime();
+      bindInputListeners();
 
       if (window.innerWidth < 1024) switchMobileView("hall");
     }
@@ -980,7 +979,7 @@
       refreshUI();
     }
 
-    // BÚSQUEDA INSTANTÁNEA EN EL DIRECTORIO (IGNORA TILDES)
+    // DIRECTORIO LATERAL CON BÚSQUEDA INSTANTÁNEA
     function renderDirectory() {
       const container = document.getElementById("directory-list-container");
       if (!container) return;
@@ -990,7 +989,6 @@
       const isSearching = term.length > 0;
 
       const filtered = members.filter(a => {
-        // Si el usuario escribe en el buscador, busca globalmente en toda la congregación
         const matchesGroup = isSearching || (currentFilterGroup === "TODOS") || (a.group === currentFilterGroup) || (currentFilterGroup === "Menor" && a.role === "Menor");
         
         let matchesStatus = true;
@@ -1040,7 +1038,7 @@
               ${locBadge}
               <button onclick="unseatPerson('${a.id}')" class="p-1 text-slate-400 hover:text-rose-400">✕</button>
             ` : `
-              <button onclick="autoSeatPerson('${a.id}', 'main')" class="px-1.5 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px]">Salón</button>
+              <button onclick="autoSeatNextAvailable('${a.id}')" class="px-1.5 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold" title="Ubicar en la próxima silla disponible">+ Salón</button>
               <button onclick="quickAddZoomPerson('${a.id}')" class="px-1.5 py-0.5 bg-blue-700 hover:bg-blue-600 text-white rounded text-[10px]" title="Conectar en Zoom">📹</button>
             `}
           </div>
@@ -1080,7 +1078,7 @@
               <div class="flex items-center justify-between py-1 px-1.5 bg-slate-900/80 rounded-lg text-xs">
                 <span class="text-white">${m.shortName || m.name} <span class="text-[9px] text-slate-400">(${m.role})</span></span>
                 <div class="flex items-center gap-1">
-                  <button onclick="autoSeatPerson('${m.id}', 'main')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[9.5px]">🪑 Salón</button>
+                  <button onclick="autoSeatNextAvailable('${m.id}')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[9.5px]">🪑 Salón</button>
                   <button onclick="unseatPerson('${m.id}')" class="p-0.5 text-slate-400 hover:text-rose-400 text-xs">✕</button>
                 </div>
               </div>
@@ -1106,7 +1104,7 @@
               <div class="text-[9px] text-slate-400">${m.family} • ${m.group} • ${m.role}</div>
             </div>
             <div class="flex items-center gap-1">
-              <button onclick="autoSeatPerson('${m.id}', 'main')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[10px]">🪑 Salón</button>
+              <button onclick="autoSeatNextAvailable('${m.id}')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[10px]">🪑 Salón</button>
               <button onclick="unseatPerson('${m.id}')" class="p-1 text-slate-400 hover:text-rose-400">✕</button>
             </div>
           `;
@@ -1189,7 +1187,38 @@
       document.getElementById("st-cnt-pla").innerText = members.filter(a => a.location).length;
     }
 
-    // Funciones en Window
+    // Ubicación Rápida en la siguiente silla disponible
+    window.autoSeatNextAvailable = function(id) {
+      const p = members.find(a => a.id === id);
+      if (!p) return;
+
+      const occupied = new Set(members.filter(m => m.seatId).map(m => m.seatId));
+      for (let r = 1; r <= hallLayout.rows.length; r++) {
+        const row = hallLayout.rows[r - 1];
+        for (let s = 1; s <= row.left; s++) {
+          const sid = `MAIN-L-R${r}-S${s}`;
+          if (!occupied.has(sid) && !(row.disabled || []).includes(sid)) {
+            p.location = "main";
+            p.seatId = sid;
+            refreshUI();
+            showToast(`${p.shortName || p.name} ubicado en F${r}-I${s}`);
+            return;
+          }
+        }
+        for (let s = 1; s <= row.right; s++) {
+          const sid = `MAIN-R-R${r}-S${s}`;
+          if (!occupied.has(sid) && !(row.disabled || []).includes(sid)) {
+            p.location = "main";
+            p.seatId = sid;
+            refreshUI();
+            showToast(`${p.shortName || p.name} ubicado en F${r}-D${s}`);
+            return;
+          }
+        }
+      }
+      showToast("Salón principal lleno. Ubícalo manualmente.");
+    };
+
     window.unseatPerson = function(id) {
       const p = members.find(a => a.id === id);
       if (p) {
@@ -1197,16 +1226,6 @@
         p.seatId = null;
         p.zoomConnId = null;
         refreshUI();
-      }
-    };
-
-    window.autoSeatPerson = function(id, type) {
-      const p = members.find(a => a.id === id);
-      if (p) {
-        p.location = type;
-        p.seatId = `SEAT_${Date.now()}`;
-        refreshUI();
-        showToast(`${p.shortName || p.name} ubicado.`);
       }
     };
 
@@ -1312,24 +1331,27 @@
       selectedSeatId = seatId;
       selectedSeatType = type;
       document.getElementById("modal-seat-title").innerText = `Silla: ${label}`;
-      document.getElementById("modal-seat-search").value = "";
+      const searchInput = document.getElementById("modal-seat-search");
+      if (searchInput) searchInput.value = "";
 
       const vacateBtn = document.getElementById("btn-vacate-seat");
       if (occupant) {
         document.getElementById("modal-seat-subtitle").innerText = `Ocupada por: ${occupant.shortName || occupant.name}`;
-        vacateBtn.classList.remove("hidden");
+        vacateBtn?.classList.remove("hidden");
       } else {
         document.getElementById("modal-seat-subtitle").innerText = "Silla libre. Toca a quién sentar:";
-        vacateBtn.classList.add("hidden");
+        vacateBtn?.classList.add("hidden");
       }
 
       renderSeatList();
       document.getElementById("modal-seat").classList.remove("hidden");
+      setTimeout(() => searchInput?.focus(), 50);
     }
 
-    // MODAL CON BÚSQUEDA INSENSIBLE A TILDES Y BOTÓN DE LLENADO FAMILIAR
+    // MODAL: BÚSQUEDA INSENSIBLE A TILDES
     function renderSeatList() {
       const box = document.getElementById("modal-seat-people-list");
+      if (!box) return;
       box.innerHTML = "";
       const term = cleanStr(document.getElementById("modal-seat-search")?.value);
       const filtered = members.filter(a => !term || cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term));
@@ -1338,7 +1360,6 @@
         const card = document.createElement("div");
         card.className = "w-full p-2 rounded-xl flex items-center justify-between text-xs bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 gap-1.5";
         
-        // Contar otros integrantes de la misma familia que aún no estén sentados
         const unseatedFamily = members.filter(m => m.hogarId === a.hogarId && m.id !== a.id && !m.location);
         const hasFamily = unseatedFamily.length > 0;
 
@@ -1349,7 +1370,7 @@
           </div>
           <div class="flex items-center gap-1 flex-shrink-0">
             ${hasFamily ? `
-              <button onclick="seatWholeFamily('${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}')" class="text-[9.5px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-200 rounded-lg font-bold border border-teal-600" title="Sentar a todos los miembros disponibles de esta familia">
+              <button onclick="seatWholeFamily('${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}')" class="text-[9.5px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-200 rounded-lg font-bold border border-teal-600" title="Sentar a los miembros disponibles de esta familia juntos">
                 + Familia (${unseatedFamily.length + 1})
               </button>
             ` : ''}
@@ -1372,49 +1393,68 @@
       }
     };
 
-    // FUNCIÓN DE LLENADO RÁPIDO: SIENTA A TODA LA FAMILIA EN SILLAS LIBRES CONTIGUAS
+    // ALGORITMO DE ACOMODACIÓN CONTIGUA (MANTIENE A LA FAMILIA UNIDA EN LA MISMA FILA)
     window.seatWholeFamily = function(hogarId, startSeatId, seatType) {
       const familyMembers = members.filter(m => m.hogarId === hogarId && !m.location);
       if (familyMembers.length === 0) return;
 
-      // Buscar sillas libres contiguas en el salón
-      const occupiedSeatIds = new Set(members.filter(m => m.seatId).map(m => m.seatId));
-      
-      let seatedCount = 0;
-      // Primero sentar al seleccionado en la silla actual
-      familyMembers[0].location = seatType;
-      familyMembers[0].seatId = startSeatId;
-      occupiedSeatIds.add(startSeatId);
-      seatedCount++;
+      const occupied = new Set(members.filter(m => m.seatId).map(m => m.seatId));
+      const allocated = [];
 
-      // Buscar sillas vacías para el resto del núcleo familiar
-      for (let r = 1; r <= hallLayout.rows.length && seatedCount < familyMembers.length; r++) {
-        const row = hallLayout.rows[r - 1];
-        // Buscar en el lado izquierdo
-        for (let s = 1; s <= row.left && seatedCount < familyMembers.length; s++) {
-          const sid = `MAIN-L-R${r}-S${s}`;
-          if (!occupiedSeatIds.has(sid) && !(row.disabled || []).includes(sid)) {
-            familyMembers[seatedCount].location = "main";
-            familyMembers[seatedCount].seatId = sid;
-            occupiedSeatIds.add(sid);
-            seatedCount++;
+      if (startSeatId.startsWith("MAIN-")) {
+        const parts = startSeatId.split("-");
+        const side = parts[1]; // "L" o "R"
+        const startR = parseInt(parts[2].replace("R", ""));
+        const startS = parseInt(parts[3].replace("S", ""));
+
+        // Primero el asiento seleccionado
+        familyMembers[0].location = "main";
+        familyMembers[0].seatId = startSeatId;
+        allocated.push(startSeatId);
+        occupied.add(startSeatId);
+
+        let memIdx = 1;
+        // Explorar filas ordenadas: empezando por la fila actual hacia atrás, luego hacia adelante
+        const rowOrder = [];
+        for (let r = startR; r <= hallLayout.rows.length; r++) rowOrder.push(r);
+        for (let r = startR - 1; r >= 1; r--) rowOrder.push(r);
+
+        for (const currR of rowOrder) {
+          if (memIdx >= familyMembers.length) break;
+          const rowConfig = hallLayout.rows[currR - 1];
+          const maxS = rowConfig[side === "L" ? "left" : "right"];
+          const disabled = rowConfig.disabled || [];
+
+          // En la fila actual, explorar sillas contiguas (siguiente, siguiente, anterior...)
+          let seatOrder = [];
+          if (currR === startR) {
+            for (let s = startS + 1; s <= maxS; s++) seatOrder.push(s);
+            for (let s = startS - 1; s >= 1; s--) seatOrder.push(s);
+          } else {
+            for (let s = 1; s <= maxS; s++) seatOrder.push(s);
+          }
+
+          for (const s of seatOrder) {
+            if (memIdx >= familyMembers.length) break;
+            const sid = `MAIN-${side}-R${currR}-S${s}`;
+            if (!occupied.has(sid) && !disabled.includes(sid)) {
+              familyMembers[memIdx].location = "main";
+              familyMembers[memIdx].seatId = sid;
+              occupied.add(sid);
+              allocated.push(sid);
+              memIdx++;
+            }
           }
         }
-        // Buscar en el lado derecho
-        for (let s = 1; s <= row.right && seatedCount < familyMembers.length; s++) {
-          const sid = `MAIN-R-R${r}-S${s}`;
-          if (!occupiedSeatIds.has(sid) && !(row.disabled || []).includes(sid)) {
-            familyMembers[seatedCount].location = "main";
-            familyMembers[seatedCount].seatId = sid;
-            occupiedSeatIds.add(sid);
-            seatedCount++;
-          }
-        }
+      } else {
+        // En segunda sala o puestos auxiliares
+        familyMembers[0].location = seatType;
+        familyMembers[0].seatId = startSeatId;
       }
 
       closeModal("modal-seat");
       refreshUI();
-      showToast(`Familia sentada (${seatedCount} personas)`);
+      showToast(`Familia sentada junta (${allocated.length} puestos contiguos)`);
     };
 
     window.vacateCurrentSeat = function() {
@@ -1632,14 +1672,15 @@
     };
 
     window.filterDirectory = function() {
-      currentSearchTerm = document.getElementById("dir-search-input").value;
+      currentSearchTerm = document.getElementById("dir-search-input")?.value || "";
       const clearBtn = document.getElementById("dir-clear-search");
       if (clearBtn) clearBtn.classList.toggle("hidden", !currentSearchTerm);
       renderDirectory();
     };
 
     window.clearDirectorySearch = function() {
-      document.getElementById("dir-search-input").value = "";
+      const input = document.getElementById("dir-search-input");
+      if (input) input.value = "";
       window.filterDirectory();
     };
 
@@ -1722,6 +1763,20 @@
         t.classList.add("translate-y-10", "opacity-0");
       }, 2000);
     }
+
+    // VINCULACIÓN DIRECTA DE ENTRADA (GARANTIZA FILTRADO AL ESCRIBIR)
+    function bindInputListeners() {
+      document.getElementById("dir-search-input")?.addEventListener("input", window.filterDirectory);
+      document.getElementById("modal-seat-search")?.addEventListener("input", renderSeatList);
+      document.getElementById("quick-zoom-search-input")?.addEventListener("input", renderQuickZoomList);
+      document.getElementById("db-search-input")?.addEventListener("input", renderDBTable);
+      document.getElementById("db-group-select-filter")?.addEventListener("change", renderDBTable);
+    }
+
+    // Exposición de funciones en window
+    window.renderSeatList = renderSeatList;
+    window.renderDBTable = renderDBTable;
+    window.renderQuickZoomList = renderQuickZoomList;
 
     boot();
   </script>
