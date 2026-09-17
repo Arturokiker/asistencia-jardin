@@ -16,12 +16,21 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .tab-active { background-color: #4f46e5 !important; color: #ffffff !important; border-color: #6366f1 !important; }
     .view-tab-active { border-bottom: 3px solid #6366f1; color: #ffffff !important; background-color: rgba(99, 102, 241, 0.18); }
-    .aisle-pattern {
-      background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px);
-      background-size: 8px 8px;
+    .tile-floor {
+      background-color: #f1f5f9;
+      background-image: 
+        linear-gradient(to right, rgba(203, 213, 225, 0.6) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(203, 213, 225, 0.6) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
-    .stage-glow {
-      box-shadow: 0 4px 20px -2px rgba(245, 158, 11, 0.18);
+    .aisle-walkway {
+      background: repeating-linear-gradient(
+        45deg,
+        #fef3c7,
+        #fef3c7 6px,
+        #fde68a 6px,
+        #fde68a 12px
+      );
     }
   </style>
 </head>
@@ -180,20 +189,20 @@
       </div>
     </aside>
 
-    <!-- COLUMNA 2: SALÓN DEL REINO (MAPA ARQUITECTÓNICO DEL SALÓN) -->
+    <!-- COLUMNA 2: SALÓN DEL REINO (DISEÑO ARQUITECTÓNICO CON PISO BLANCO) -->
     <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg overflow-hidden relative">
       <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para habilitar/deshabilitar</span>
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para deshabilitar/habilitar</span>
         <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
       </div>
 
-      <!-- PLATAFORMA / ATRIL ELEVADO -->
-      <div class="stage-glow bg-gradient-to-r from-amber-950/40 via-amber-900/30 to-amber-950/40 border-2 border-amber-600/60 rounded-xl p-2 flex items-center justify-between flex-shrink-0 mb-2.5">
+      <!-- PLATAFORMA ELEVADA CON ACABADO EN ROBLE CÁLIDO -->
+      <div class="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 text-amber-50 border-2 border-amber-500 rounded-xl p-2 flex items-center justify-between flex-shrink-0 mb-2.5 shadow-md">
         <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 bg-amber-500/20 border border-amber-500 text-amber-300 text-[10px] font-black rounded-lg uppercase tracking-wider flex items-center gap-1">
+          <span class="px-2 py-0.5 bg-amber-950/80 border border-amber-400 text-amber-200 text-[10px] font-black rounded-lg uppercase tracking-wider flex items-center gap-1">
             🎤 Atril
           </span>
-          <span class="text-xs font-black tracking-widest text-amber-200 uppercase">PLATAFORMA PRINCIPAL</span>
+          <span class="text-xs font-black tracking-widest text-white uppercase drop-shadow">PLATAFORMA PRINCIPAL</span>
         </div>
         
         <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-0.5 rounded-lg border border-slate-700">
@@ -204,38 +213,38 @@
         </div>
       </div>
 
-      <!-- NAVE CENTRAL: ISLAS Y PASILLO -->
-      <div class="flex-1 overflow-auto bg-slate-950/90 rounded-2xl p-2.5 border border-slate-800 flex flex-col justify-between" id="hall-scroll-container">
+      <!-- NAVE DEL SALÓN CON PISO BLANCO / PORCELANA CLARA -->
+      <div class="flex-1 overflow-auto tile-floor rounded-2xl p-2.5 border-2 border-slate-300 flex flex-col justify-between shadow-inner" id="hall-scroll-container">
         <div id="hall-scalable-wrapper" class="transition-transform duration-150 origin-top" style="transform: scale(1);">
           
           <div class="flex justify-center gap-2 sm:gap-4 min-w-max mx-auto py-1">
             
-            <!-- ISLA IZQUIERDA -->
-            <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-2 flex flex-col shadow-inner">
-              <div class="text-center pb-1.5 mb-1 border-b border-slate-800/80">
-                <span class="text-[10px] font-black tracking-wider text-sky-400 uppercase">⬅️ Isla Izquierda</span>
+            <!-- ISLA IZQUIERDA (MÓDULO BLANCO ELEVADO) -->
+            <div class="bg-white border-2 border-slate-300/90 rounded-2xl p-2.5 flex flex-col shadow-sm">
+              <div class="text-center pb-1 mb-1.5 border-b border-slate-200">
+                <span class="text-[10px] font-black tracking-wider text-sky-700 uppercase">⬅️ Isla Izquierda</span>
               </div>
               <div class="flex flex-col gap-1.5" id="grid-hall-left"></div>
             </div>
 
-            <!-- PASILLO CENTRAL -->
-            <div class="aisle-pattern flex flex-col items-center justify-between py-2 px-2 border-x border-dashed border-slate-800 text-slate-500 text-[8px] font-bold rounded-lg">
-              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-60">PASILLO</span>
+            <!-- PASILLO CENTRAL CLARO -->
+            <div class="aisle-walkway flex flex-col items-center justify-between py-2 px-2 border-x-2 border-dashed border-amber-400/80 text-amber-900 text-[8px] font-black rounded-lg shadow-sm">
+              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-80">PASILLO</span>
               
-              <!-- ESTACIONES DE MICRÓFONOS -->
-              <div class="my-2 flex flex-col items-center gap-1.5 bg-slate-900/95 border border-amber-600/70 p-1.5 rounded-xl shadow-lg pointer-events-auto">
-                <span class="text-[7.5px] text-amber-300 font-extrabold uppercase tracking-tight">🎙️ Micro Pasillo</span>
+              <!-- MICRÓFONOS DE PASILLO -->
+              <div class="my-2 flex flex-col items-center gap-1.5 bg-white border-2 border-amber-500 p-1.5 rounded-xl shadow-md pointer-events-auto">
+                <span class="text-[7.5px] text-amber-900 font-extrabold uppercase tracking-tight">🎙️ Micro</span>
                 <div id="chair-mic-1"></div>
                 <div id="chair-mic-2"></div>
               </div>
 
-              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-60">CENTRAL</span>
+              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-80">CENTRAL</span>
             </div>
 
-            <!-- ISLA DERECHA -->
-            <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-2 flex flex-col shadow-inner">
-              <div class="text-center pb-1.5 mb-1 border-b border-slate-800/80">
-                <span class="text-[10px] font-black tracking-wider text-emerald-400 uppercase">Isla Derecha ➡️</span>
+            <!-- ISLA DERECHA (MÓDULO BLANCO ELEVADO) -->
+            <div class="bg-white border-2 border-slate-300/90 rounded-2xl p-2.5 flex flex-col shadow-sm">
+              <div class="text-center pb-1 mb-1.5 border-b border-slate-200">
+                <span class="text-[10px] font-black tracking-wider text-emerald-700 uppercase">Isla Derecha ➡️</span>
               </div>
               <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
             </div>
@@ -243,39 +252,39 @@
           </div>
 
           <div id="editor-row-tools" class="hidden my-2 flex justify-center gap-2 flex-shrink-0">
-            <button onclick="addHallRow()" class="px-3 py-1 bg-amber-600/30 hover:bg-amber-600 text-amber-200 hover:text-white border border-amber-500 rounded-lg text-xs font-bold">+ Fila</button>
-            <button onclick="removeHallRow()" class="px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded-lg text-xs font-bold">- Fila</button>
+            <button onclick="addHallRow()" class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow">+ Fila</button>
+            <button onclick="removeHallRow()" class="px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded-lg text-xs font-bold shadow">- Fila</button>
           </div>
 
-          <!-- PARTE TRASERA: ENTRADA / SONIDO / SEGUNDA SALA -->
-          <div class="mt-3 pt-2.5 border-t-2 border-dashed border-slate-800 space-y-2 flex-shrink-0">
+          <!-- ÁREA POSTERIOR CLARA: ENTRADA / SONIDO / SEGUNDA SALA -->
+          <div class="mt-3 pt-2.5 border-t-2 border-dashed border-slate-300 space-y-2 flex-shrink-0">
             <div class="grid grid-cols-12 gap-2 text-xs">
               
-              <!-- ÁREA DE ENTRADA Y ACOMODADORES -->
-              <div class="col-span-6 bg-emerald-950/25 border border-emerald-800/60 rounded-xl p-2 flex items-center justify-between">
+              <!-- ENTRADA Y ACOMODACIÓN -->
+              <div class="col-span-6 bg-white border-2 border-emerald-300 rounded-xl p-2 flex items-center justify-between shadow-sm">
                 <div>
-                  <div class="text-[10px] font-bold text-emerald-300 flex items-center gap-1">🚪 Entrada Principal</div>
-                  <div class="text-[8px] text-slate-400">Puestos de Acomodación</div>
+                  <div class="text-[10px] font-extrabold text-emerald-800 flex items-center gap-1">🚪 Entrada Principal</div>
+                  <div class="text-[8px] text-slate-500">Puestos de Acomodación</div>
                 </div>
                 <div class="flex gap-1" id="chairs-ushers-box"></div>
               </div>
 
               <!-- CABINA DE SONIDO Y VÍDEO -->
-              <div class="col-span-6 bg-slate-900/90 border border-indigo-900/60 rounded-xl p-2 flex items-center justify-between">
+              <div class="col-span-6 bg-white border-2 border-indigo-300 rounded-xl p-2 flex items-center justify-between shadow-sm">
                 <div>
-                  <div class="text-[10px] font-bold text-indigo-300 flex items-center gap-1">🎛️ Cabina Técnica</div>
-                  <div class="text-[8px] text-slate-400">Audio, Vídeo & Zoom</div>
+                  <div class="text-[10px] font-extrabold text-indigo-800 flex items-center gap-1">🎛️ Cabina Técnica</div>
+                  <div class="text-[8px] text-slate-500">Audio, Vídeo & Zoom</div>
                 </div>
                 <div class="flex gap-1" id="chairs-sound-box"></div>
               </div>
             </div>
 
             <!-- SEGUNDA SALA / SALA AUXILIAR -->
-            <div class="bg-slate-900 border border-teal-900/60 rounded-xl p-2 shadow-inner">
-              <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-800">
-                <span class="text-[10px] font-extrabold text-teal-300 uppercase tracking-wide flex items-center gap-1">🚪 Segunda Sala / Sala Auxiliar</span>
-                <span class="text-[9px] text-slate-400 font-mono">
-                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-300 font-bold">0</strong>/<span id="max-sec-hall">14</span>
+            <div class="bg-white border-2 border-teal-400 rounded-xl p-2 shadow-sm">
+              <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200">
+                <span class="text-[10px] font-extrabold text-teal-800 uppercase tracking-wide flex items-center gap-1">🚪 Segunda Sala / Sala Auxiliar</span>
+                <span class="text-[9px] text-slate-600 font-mono font-bold">
+                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-700 font-black">0</strong>/<span id="max-sec-hall">14</span>
                 </span>
               </div>
               <div class="grid grid-cols-7 gap-1" id="grid-hall-second"></div>
@@ -400,7 +409,7 @@
         <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕</button>
       </div>
 
-      <!-- FICHA DEL OCUPANTE ACTUAL (SI LA SILLA ESTÁ OCUPADA) -->
+      <!-- FICHA DEL OCUPANTE ACTUAL -->
       <div id="modal-occupant-card" class="hidden bg-slate-950 border border-indigo-900/80 rounded-xl p-2.5 space-y-2 flex-shrink-0 shadow-inner">
         <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
           <span class="text-[10px] font-black uppercase text-indigo-300 tracking-wider">Ocupante Actual de esta Silla</span>
@@ -434,13 +443,13 @@
         </div>
       </div>
 
-      <!-- BUSCADOR CON FILTRADO EN TIEMPO REAL -->
+      <!-- BUSCADOR EN TIEMPO REAL -->
       <div class="relative flex-shrink-0">
         <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" onkeyup="window.renderSeatList(this.value)" placeholder="Buscar por nombre, apellido o familia (sin tildes)..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
         <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
       </div>
 
-      <!-- LISTA DE HERMANOS CON LA MISMA INFORMACIÓN DE LA LISTA LATERAL -->
+      <!-- LISTA DE HERMANOS CON LA MISMA INFORMACIÓN DE LA BARRA LATERAL -->
       <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5 max-h-64" id="modal-seat-people-list"></div>
 
       <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
@@ -599,19 +608,24 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTES DE ASISTENCIA (NORMATIVO SEGÚN REGLAS 1 AL 10) -->
+  <!-- MODAL: REPORTES DE ASISTENCIA (INTEGRA SALÓN + ZOOM CON PESTAÑAS) -->
   <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📋</span> Reportes Oficiales de Asistencia</h3>
-        <button onclick="closeModal('modal-report-view')" class="text-slate-400 hover:text-white text-sm">✕</button>
+        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📋</span> Reportes de Asistencia de la Congregación</h3>
+        <button onclick="closeModal('modal-report-view')" class="text-slate-400 hover:text-white text-sm font-bold">✕</button>
       </div>
-      <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs flex-shrink-0" id="report-type-nav">
-        <button onclick="setReportTab('r2')" id="rtab-btn-r2" class="py-1 px-3 rounded-lg font-bold bg-emerald-600 text-white">Reporte 2 (WhatsApp)</button>
-        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="py-1 px-3 rounded-lg text-slate-400">Reporte 1 (Evaluación)</button>
-        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="py-1 px-3 rounded-lg text-slate-400">Reporte 3 (Validación)</button>
+      
+      <div class="flex gap-1 overflow-x-auto no-scrollbar bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs flex-shrink-0" id="report-type-nav">
+        <button onclick="setReportTab('r_all')" id="rtab-btn-r_all" class="py-1 px-2.5 rounded-lg font-bold bg-emerald-600 text-white whitespace-nowrap">Completo (Salón + Zoom)</button>
+        <button onclick="setReportTab('r_zoom')" id="rtab-btn-r_zoom" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Solo Zoom (R2 Oficial)</button>
+        <button onclick="setReportTab('r_salon')" id="rtab-btn-r_salon" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Solo Salón</button>
+        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Evaluación (R1)</button>
+        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Validación (R3)</button>
       </div>
-      <textarea id="report-output-textarea" rows="16" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1" readonly></textarea>
+
+      <textarea id="report-output-textarea" rows="16" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1 leading-relaxed" readonly></textarea>
+      
       <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
         <span id="toast-copied-alert" class="text-[11px] text-emerald-400 font-bold opacity-0 transition-opacity">¡Copiado al portapapeles!</span>
         <div class="flex gap-2">
@@ -692,7 +706,7 @@
     let selectedSeatId = null;
     let selectedSeatType = "main";
     let currentZoomDisplay = "grouped";
-    let generatedReports = { r1: "", r2: "", r3: "" };
+    let generatedReports = { r_all: "", r_zoom: "", r_salon: "", r1: "", r3: "" };
 
     let hallLayout = {
       rows: [
@@ -711,35 +725,37 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
+    // Normalizador universal de texto (sin tildes, minúsculas, sin espacios superfluos)
     function cleanStr(str) {
       if (!str) return "";
       return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
 
+    // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v11");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v12");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v11", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v12", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v11");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v12");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v11");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v12");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v11", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v12", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v11");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v12");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -761,9 +777,9 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_members_v11", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v11", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v11", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_members_v12", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v12", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v12", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -791,7 +807,7 @@
           deletedMemberIds: deletedMemberIds
         };
 
-        localStorage.setItem("asistencia_jardin_session_v11", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v12", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -929,7 +945,7 @@
       Storage.saveLocalAndCloud();
     };
 
-    // RENDERIZADO DEL SALÓN (REPARADO: APPENDCHILD EN LUGAR DE INNERHTML += PARA EVITAR DESTRUIR ONCLICK)
+    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y APERTURA DE SILLAS
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -942,10 +958,10 @@
 
         // Fila Izquierda
         const rowL = document.createElement("div");
-        rowL.className = "flex items-center gap-1";
+        rowL.className = "flex items-center gap-1.5";
         
         const spanL = document.createElement("span");
-        spanL.className = "w-3 text-[9px] font-bold text-slate-500 text-right";
+        spanL.className = "w-3 text-[10px] font-black text-slate-500 text-right";
         spanL.innerText = `F${rNum}`;
         rowL.appendChild(spanL);
 
@@ -956,9 +972,9 @@
         }
         leftBox.appendChild(rowL);
 
-        // Fila Derecha (REPARACIÓN CRÍTICA: se añade el span con appendChild para preservar listeners de las sillas)
+        // Fila Derecha
         const rowR = document.createElement("div");
-        rowR.className = "flex items-center gap-1";
+        rowR.className = "flex items-center gap-1.5";
 
         for (let s = 1; s <= row.right; s++) {
           const sid = `MAIN-R-R${rNum}-S${s}`;
@@ -967,7 +983,7 @@
         }
 
         const spanR = document.createElement("span");
-        spanR.className = "w-3 text-[9px] font-bold text-slate-500 text-left";
+        spanR.className = "w-3 text-[10px] font-black text-slate-500 text-left";
         spanR.innerText = `F${rNum}`;
         rowR.appendChild(spanR);
 
@@ -1013,7 +1029,7 @@
 
       if (isDisabled) {
         if (isDesignModeActive) {
-          el.className = "chair-seat w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-amber-950/40 border border-dashed border-amber-600 text-amber-300 text-xs font-black cursor-pointer";
+          el.className = "chair-seat w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-amber-100 border-2 border-dashed border-amber-500 text-amber-800 text-xs font-black cursor-pointer shadow-sm";
           el.innerHTML = "+";
           el.onclick = () => toggleDisableChair(seatId);
         } else {
@@ -1024,18 +1040,18 @@
 
       const occupant = members.find(a => a.seatId === seatId);
       const colorMap = {
-        "Grupo 1": "bg-sky-600 border-sky-400 text-white shadow-sky-900/40",
-        "Grupo 2": "bg-emerald-600 border-emerald-400 text-white shadow-emerald-900/40",
-        "Grupo 3": "bg-amber-600 border-amber-300 text-white shadow-amber-900/40",
-        "Grupo 4": "bg-purple-600 border-purple-400 text-white shadow-purple-900/40",
-        "Grupo 5": "bg-pink-600 border-pink-400 text-white shadow-pink-900/40",
-        "Visitante": "bg-slate-600 border-slate-400 text-white shadow-slate-900/40",
-        "Menor": "bg-teal-600 border-teal-300 text-white shadow-teal-900/40"
+        "Grupo 1": "bg-sky-600 border-sky-400 text-white shadow-md shadow-sky-700/30",
+        "Grupo 2": "bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-700/30",
+        "Grupo 3": "bg-amber-600 border-amber-300 text-white shadow-md shadow-amber-700/30",
+        "Grupo 4": "bg-purple-600 border-purple-400 text-white shadow-md shadow-purple-700/30",
+        "Grupo 5": "bg-pink-600 border-pink-400 text-white shadow-md shadow-pink-700/30",
+        "Visitante": "bg-slate-700 border-slate-500 text-white shadow-md shadow-slate-800/30",
+        "Menor": "bg-teal-600 border-teal-300 text-white shadow-md shadow-teal-700/30"
       };
 
       if (occupant) {
-        const bg = colorMap[occupant.group] || "bg-indigo-600 border-indigo-400 text-white shadow-indigo-900/40";
-        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center p-0.5 cursor-pointer border text-center shadow font-sans ${bg}`;
+        const bg = colorMap[occupant.group] || "bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-700/30";
+        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center p-0.5 cursor-pointer border text-center font-sans ${bg}`;
         const shortName = (occupant.shortName || occupant.name).split(" ")[0];
         el.innerHTML = `
           <span class="text-[8.5px] font-bold truncate max-w-full leading-tight">${shortName}</span>
@@ -1043,10 +1059,10 @@
           ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black">✕</button>` : ''}
         `;
       } else {
-        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center bg-slate-950/85 hover:bg-slate-800 border border-slate-700/80 text-slate-400 cursor-pointer shadow-sm ${isDesignModeActive ? 'border-amber-500/60 hover:border-amber-400' : ''}`;
+        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center bg-white hover:bg-slate-100 border-2 border-slate-300/90 text-slate-600 cursor-pointer shadow-sm ${isDesignModeActive ? 'border-amber-500 hover:border-amber-600' : ''}`;
         el.innerHTML = `
           <span class="text-[11px] opacity-40">🪑</span>
-          <span class="text-[7px] font-mono font-bold opacity-60">${label}</span>
+          <span class="text-[7.5px] font-mono font-bold text-slate-500">${label}</span>
           ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-rose-600 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8.5px] font-bold shadow">✕</button>` : ''}
         `;
       }
@@ -1483,7 +1499,7 @@
       setTimeout(() => searchInput?.focus(), 60);
     }
 
-    // MODAL DE ASIGNACIÓN: INFORMACIÓN IDÉNTICA A LA LISTA DE LA IZQUIERDA + BOTONES DE FAMILIA DIRECCIONALES
+    // MODAL DE ASIGNACIÓN: INFORMACIÓN IDÉNTICA A LA BARRA LATERAL + BOTONES DE FAMILIA DIRECCIONALES
     window.renderSeatList = function(val) {
       const box = document.getElementById("modal-seat-people-list");
       if (!box) return;
@@ -1590,7 +1606,6 @@
         assignments.push(primaryPerson.shortName || primaryPerson.name);
 
         let memIdx = 1;
-        // Orden de exploración de filas: misma fila hacia adelante/atrás
         const rowOrder = [];
         for (let r = startR; r <= hallLayout.rows.length; r++) rowOrder.push(r);
         for (let r = startR - 1; r >= 1; r--) rowOrder.push(r);
@@ -1743,111 +1758,152 @@
       showToast("Salón y Zoom listos para la nueva reunión.");
     };
 
-    // GENERADOR OFICIAL DE LOS 3 REPORTES CON JERARQUÍA WHATSAPP Y CONTEOS NORMATIVOS
+    // GENERADOR DE REPORTES COMPLETO: INTEGRA ASISTENCIA DE SALÓN Y ZOOM
     window.openReportModal = function() {
       const d = document.getElementById("meeting-date-input").value;
       const t = document.getElementById("meeting-type-select").value;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Filtrar a los asistentes de Zoom (excluyendo cuentas de cabina)
-      const zoomAssistants = members.filter(a => a.location === "zoom");
+      // Clasificación de asistentes
+      const presencialMembers = members.filter(a => a.location && a.location !== "zoom");
+      const zoomMembers = members.filter(a => a.location === "zoom");
+      const allAttendees = members.filter(a => a.location);
 
-      // REPORTE 2: Formato Oficial de WhatsApp con Sangría Jerárquica (- y ------)
-      let r2 = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
-      let globalNum = 1;
-      let totalPubs = 0;
-      let totalMenores = 0;
-      let totalVisitantes = 0;
+      // Conteo general
+      const totalPresential = presencialMembers.length;
+      const totalZoom = zoomMembers.length;
+      const grandTotal = allAttendees.length;
 
-      for (let g = 1; g <= 5; g++) {
-        const gKey = `Grupo ${g}`;
-        const groupMembers = zoomAssistants.filter(a => a.group === gKey);
-        
-        if (groupMembers.length > 0) {
-          r2 += `*GRUPO ${g}*\n`;
-          let gPubCount = 0;
+      const totalPubs = allAttendees.filter(a => a.role !== 'Menor' && a.role !== 'Visitante').length;
+      const totalMenores = allAttendees.filter(a => a.role === 'Menor').length;
+      const totalVisitantes = allAttendees.filter(a => a.role === 'Visitante' || a.group === 'Visitante').length;
 
-          // Agrupar por familias
-          const famGroups = {};
-          groupMembers.forEach(m => {
-            const fid = m.hogarId || "INDIV";
-            if (!famGroups[fid]) famGroups[fid] = [];
-            famGroups[fid].push(m);
-          });
+      // Función auxiliar para construir el listado por grupos con jerarquía
+      function buildGroupList(membersSubset, isGlobal) {
+        let text = "";
+        let globalNum = 1;
+        let pCount = 0;
+        let mCount = 0;
+        let vCount = 0;
 
-          Object.values(famGroups).forEach(famList => {
-            // Ordenar: Padre/Esposo primero, luego Esposa/Madre, luego Hijos
-            famList.sort((x, y) => {
-              const score = r => r.familyRole === "Padre" || r.familyRole === "Esposo" ? 1 : (r.familyRole === "Madre" || r.familyRole === "Esposa" ? 2 : 3);
-              return score(x) - score(y);
+        for (let g = 1; g <= 5; g++) {
+          const gKey = `Grupo ${g}`;
+          const gList = membersSubset.filter(a => a.group === gKey);
+
+          if (gList.length > 0) {
+            text += `*GRUPO ${g}*\n`;
+            let gPubs = 0;
+
+            // Agrupar familias
+            const fams = {};
+            gList.forEach(m => {
+              const fid = m.hogarId || "INDIV";
+              if (!fams[fid]) fams[fid] = [];
+              fams[fid].push(m);
             });
 
-            famList.forEach((person, pIdx) => {
-              const isPub = (person.role === "ANC" || person.role === "SM" || person.role === "PR" || person.role === "PUB" || person.role === "PNB");
-              let roleTag = "";
-              if (person.role === "Menor") { roleTag = " (Menor)"; totalMenores++; }
-              else if (person.role === "Visitante") { roleTag = " (Visitante)"; totalVisitantes++; }
-              else if (!isPub) { roleTag = ` (${person.role})`; }
-              else { gPubCount++; totalPubs++; }
+            Object.values(fams).forEach(famList => {
+              famList.sort((x, y) => {
+                const score = r => r.familyRole === "Padre" || r.familyRole === "Esposo" ? 1 : (r.familyRole === "Madre" || r.familyRole === "Esposa" ? 2 : 3);
+                return score(x) - score(y);
+              });
 
-              const prefix = pIdx === 0 ? `- ` : `------ `;
-              r2 += `${prefix}${globalNum}. ${person.shortName || person.name}${roleTag}\n`;
-              globalNum++;
+              famList.forEach((person, pIdx) => {
+                const isPub = (person.role !== "Menor" && person.role !== "Visitante");
+                let roleTag = "";
+                if (person.role === "Menor") { roleTag = " (Menor)"; mCount++; }
+                else if (person.role === "Visitante") { roleTag = " (Visitante)"; vCount++; }
+                else { gPubs++; pCount++; }
+
+                // Etiqueta de ubicación si es reporte unificado
+                let locTag = "";
+                if (isGlobal) {
+                  locTag = person.location === "zoom" ? " [Zoom]" : "";
+                }
+
+                const prefix = pIdx === 0 ? `- ` : `------ `;
+                text += `${prefix}${globalNum}. ${person.shortName || person.name}${roleTag}${locTag}\n`;
+                globalNum++;
+              });
             });
-          });
 
-          r2 += `\n*Total Grupo ${g} = ${gPubCount} publicadores*\n\n`;
+            text += `\n*Total Grupo ${g} = ${gPubs} publicadores*\n\n`;
+          }
         }
+
+        // Menores y visitantes independientes
+        const others = membersSubset.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
+        if (others.length > 0) {
+          text += `*MENORES Y VISITANTES*\n`;
+          others.forEach(person => {
+            let roleTag = person.role === "Menor" ? " (Menor)" : " (Visitante)";
+            if (person.role === "Menor") mCount++;
+            if (person.role === "Visitante") vCount++;
+            let locTag = isGlobal ? (person.location === "zoom" ? " [Zoom]" : "") : "";
+            text += `- ${globalNum}. ${person.shortName || person.name}${roleTag}${locTag}\n`;
+            globalNum++;
+          });
+          text += `\n`;
+        }
+
+        return { text, totalCount: globalNum - 1, pCount, mCount, vCount };
       }
 
-      // Menores o Visitantes independientes
-      const indepOthers = zoomAssistants.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
-      if (indepOthers.length > 0) {
-        r2 += `*MENORES Y VISITANTES*\n`;
-        indepOthers.forEach(person => {
-          let roleTag = person.role === "Menor" ? " (Menor)" : " (Visitante)";
-          if (person.role === "Menor") totalMenores++;
-          if (person.role === "Visitante") totalVisitantes++;
-          r2 += `- ${globalNum}. ${person.shortName || person.name}${roleTag}\n`;
-          globalNum++;
-        });
-        r2 += `\n`;
-      }
+      // REPORTE UNIFICADO (SALÓN + ZOOM)
+      const fullData = buildGroupList(allAttendees, true);
+      let r_all = `*REPORTE DE ASISTENCIA - CONGREGACIÓN JARDÍN*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
+      r_all += `📊 *CONSOLIDADO GENERAL*\n`;
+      r_all += `• Salón (Presencial): *${totalPresential}*\n`;
+      r_all += `• Zoom (Virtual): *${totalZoom}*\n`;
+      r_all += `🔥 *GRAN TOTAL DE ASISTENCIA:* *${grandTotal}*\n`;
+      r_all += `• Publicadores: *${totalPubs}* | Menores: *${totalMenores}* | Visitantes: *${totalVisitantes}*\n\n`;
+      r_all += `═══════════════════════════\n🏛️ *DESGLOSE GENERAL DE ASISTENTES*\n═══════════════════════════\n\n`;
+      r_all += fullData.text;
 
-      const grandTotal = globalNum - 1;
-      r2 += `*Total Menores = ${totalMenores}*\n`;
-      r2 += `*Total Visitantes = ${totalVisitantes}*\n`;
-      r2 += `*Total Publicadores = ${totalPubs}*\n\n`;
-      r2 += `*TOTAL ASISTENCIA VIRTUAL:* ${grandTotal}`;
+      // REPORTE EXCLUSIVO ZOOM (REGLA OFICIAL DE 3 REPORTES)
+      const zoomData = buildGroupList(zoomMembers, false);
+      let r_zoom = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
+      r_zoom += zoomData.text;
+      r_zoom += `*Total Menores = ${zoomData.mCount}*\n`;
+      r_zoom += `*Total Visitantes = ${zoomData.vCount}*\n`;
+      r_zoom += `*Total Publicadores = ${zoomData.pCount}*\n\n`;
+      r_zoom += `*TOTAL ASISTENCIA VIRTUAL:* ${zoomData.totalCount}`;
 
-      // REPORTE 1: Evaluación y Análisis Interno
+      // REPORTE EXCLUSIVO SALÓN (PRESENCIAL)
+      const salonData = buildGroupList(presencialMembers, false);
+      let r_salon = `*REPORTE ASISTENCIA SALÓN (PRESENCIAL)*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
+      r_salon += salonData.text;
+      r_salon += `*Total Menores = ${salonData.mCount}*\n`;
+      r_salon += `*Total Visitantes = ${salonData.vCount}*\n`;
+      r_salon += `*Total Publicadores = ${salonData.pCount}*\n\n`;
+      r_salon += `*TOTAL ASISTENCIA SALÓN:* ${salonData.totalCount}`;
+
+      // REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO
       let r1 = `--- REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO ---\n\n`;
-      r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Video Salón del Reino (Cabina transmisión)\n   - Anfitrión / Acomodador\n\n`;
-      r1 += `2. Evaluación de Reglas por Conexión Doméstica:\n`;
-      zoomConnections.forEach(c => {
-        r1 += `   - Conexión: "${c.label}" -> Integrantes asignados: ${c.memberIds.length}\n`;
-      });
-      r1 += `\n3. Resumen General:\n`;
-      r1 += `   - Conexiones efectivas de hogares: ${zoomConnections.length}\n`;
-      r1 += `   - Total Publicadores (Grupos 1 al 5): ${totalPubs}\n`;
-      r1 += `   - Total Menores y Visitantes: ${totalMenores + totalVisitantes}\n`;
-      r1 += `   - Total Asistencia Virtual: ${grandTotal}\n`;
+      r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Vídeo Salón del Reino (Cabina de transmisión)\n   - Anfitrión / Acomodador\n\n`;
+      r1 += `2. Resumen General:\n`;
+      r1 += `   - Presencial en Salón: ${totalPresential}\n`;
+      r1 += `   - Virtual en Zoom: ${totalZoom}\n`;
+      r1 += `   - Conexiones efectivas de hogares Zoom: ${zoomConnections.length}\n`;
+      r1 += `   - Gran Total de Asistentes: ${grandTotal}\n`;
 
-      // REPORTE 3: Validación y Aprendizaje
+      // REPORTE 3: VALIDACIÓN Y APRENDIZAJE
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
-      r3 += `1. Conexiones operativas identificadas y excluidas: Cuentas de sonido y anfitrión omitidas del conteo normativo.\n`;
-      r3 += `2. Salvedades de WhatsApp: Se aplicó la Regla 3 (solo se contabilizan quienes aparecen en Zoom).\n`;
-      r3 += `3. Normalizaciones: Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
-      r3 += `4. Nuevos dispositivos: Ninguna discrepancia crítica detectada.\n`;
+      r3 += `1. Conexiones operativas excluidas del conteo normativo.\n`;
+      r3 += `2. Salvedades de WhatsApp cruzadas contra presencia en Zoom.\n`;
+      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
 
-      generatedReports = { r1, r2, r3 };
-      document.getElementById("report-output-textarea").value = generatedReports.r2;
+      generatedReports = { r_all, r_zoom, r_salon, r1, r3 };
+      window.setReportTab('r_all');
       document.getElementById("modal-report-view").classList.remove("hidden");
     };
 
     window.setReportTab = function(type) {
-      document.querySelectorAll("#report-type-nav button").forEach(b => b.className = "py-1 px-3 rounded-lg text-slate-400");
-      document.getElementById(`rtab-btn-${type}`).className = "py-1 px-3 rounded-lg font-bold bg-emerald-600 text-white";
+      document.querySelectorAll("#report-type-nav button").forEach(b => {
+        b.className = "py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap";
+      });
+      const activeBtn = document.getElementById(`rtab-btn-${type}`);
+      if (activeBtn) activeBtn.className = "py-1 px-2.5 rounded-lg font-bold bg-emerald-600 text-white whitespace-nowrap";
       document.getElementById("report-output-textarea").value = generatedReports[type] || "";
     };
 
