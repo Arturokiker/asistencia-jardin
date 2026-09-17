@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .chair-seat {
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -15,7 +15,14 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .tab-active { background-color: #4f46e5 !important; color: #ffffff !important; border-color: #6366f1 !important; }
-    .view-tab-active { border-bottom: 3px solid #6366f1; color: #ffffff !important; background-color: rgba(99, 102, 241, 0.15); }
+    .view-tab-active { border-bottom: 3px solid #6366f1; color: #ffffff !important; background-color: rgba(99, 102, 241, 0.18); }
+    .aisle-pattern {
+      background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px);
+      background-size: 8px 8px;
+    }
+    .stage-glow {
+      box-shadow: 0 4px 20px -2px rgba(245, 158, 11, 0.18);
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
@@ -173,41 +180,66 @@
       </div>
     </aside>
 
-    <!-- COLUMNA 2: SALÓN DEL REINO (MAPA DE SILLAS) -->
+    <!-- COLUMNA 2: SALÓN DEL REINO (MAPA ARQUITECTÓNICO DEL SALÓN) -->
     <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg overflow-hidden relative">
       <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para deshabilitar/habilitar</span>
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para habilitar/deshabilitar</span>
         <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
       </div>
 
-      <div class="bg-gradient-to-r from-slate-950 via-indigo-950/60 to-slate-950 border border-indigo-900/60 rounded-xl p-1.5 flex items-center justify-between flex-shrink-0 mb-2">
-        <span class="text-[10px] text-amber-400 font-bold pl-2">🎤 Atril</span>
-        <span class="text-xs font-black tracking-widest text-slate-200 uppercase">PLATAFORMA</span>
+      <!-- PLATAFORMA / ATRIL ELEVADO -->
+      <div class="stage-glow bg-gradient-to-r from-amber-950/40 via-amber-900/30 to-amber-950/40 border-2 border-amber-600/60 rounded-xl p-2 flex items-center justify-between flex-shrink-0 mb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-amber-500/20 border border-amber-500 text-amber-300 text-[10px] font-black rounded-lg uppercase tracking-wider flex items-center gap-1">
+            🎤 Atril
+          </span>
+          <span class="text-xs font-black tracking-widest text-amber-200 uppercase">PLATAFORMA PRINCIPAL</span>
+        </div>
         
-        <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
+        <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-0.5 rounded-lg border border-slate-700">
           <button onclick="adjustHallZoom(-0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">-</button>
-          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-8 text-center">100%</span>
+          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-8 text-center font-bold">100%</span>
           <button onclick="adjustHallZoom(0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">+</button>
           <button onclick="resetHallZoom()" class="text-[9px] px-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded ml-0.5">1:1</button>
         </div>
       </div>
 
-      <div class="flex-1 overflow-auto bg-slate-950/70 rounded-xl p-2 border border-slate-800 flex flex-col justify-between" id="hall-scroll-container">
+      <!-- NAVE CENTRAL: ISLAS Y PASILLO -->
+      <div class="flex-1 overflow-auto bg-slate-950/90 rounded-2xl p-2.5 border border-slate-800 flex flex-col justify-between" id="hall-scroll-container">
         <div id="hall-scalable-wrapper" class="transition-transform duration-150 origin-top" style="transform: scale(1);">
-          <div class="flex justify-center gap-1.5 sm:gap-3 min-w-max mx-auto py-1">
-            <div class="flex flex-col gap-1.5" id="grid-hall-left"></div>
+          
+          <div class="flex justify-center gap-2 sm:gap-4 min-w-max mx-auto py-1">
+            
+            <!-- ISLA IZQUIERDA -->
+            <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-2 flex flex-col shadow-inner">
+              <div class="text-center pb-1.5 mb-1 border-b border-slate-800/80">
+                <span class="text-[10px] font-black tracking-wider text-sky-400 uppercase">⬅️ Isla Izquierda</span>
+              </div>
+              <div class="flex flex-col gap-1.5" id="grid-hall-left"></div>
+            </div>
 
-            <div class="flex flex-col items-center justify-between py-1 px-1 border-x border-dashed border-slate-800 text-slate-600 text-[8px] font-bold">
-              <span style="writing-mode: vertical-rl;" class="tracking-widest">PASILLO</span>
-              <div class="my-2 flex flex-col items-center gap-1 bg-slate-900/90 border border-amber-900/60 p-1 rounded-xl shadow pointer-events-auto">
-                <span class="text-[7.5px] text-amber-400 font-bold uppercase">🎙️ Micro</span>
+            <!-- PASILLO CENTRAL -->
+            <div class="aisle-pattern flex flex-col items-center justify-between py-2 px-2 border-x border-dashed border-slate-800 text-slate-500 text-[8px] font-bold rounded-lg">
+              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-60">PASILLO</span>
+              
+              <!-- ESTACIONES DE MICRÓFONOS -->
+              <div class="my-2 flex flex-col items-center gap-1.5 bg-slate-900/95 border border-amber-600/70 p-1.5 rounded-xl shadow-lg pointer-events-auto">
+                <span class="text-[7.5px] text-amber-300 font-extrabold uppercase tracking-tight">🎙️ Micro Pasillo</span>
                 <div id="chair-mic-1"></div>
                 <div id="chair-mic-2"></div>
               </div>
-              <span style="writing-mode: vertical-rl;" class="tracking-widest">CENTRAL</span>
+
+              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-60">CENTRAL</span>
             </div>
 
-            <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
+            <!-- ISLA DERECHA -->
+            <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-2 flex flex-col shadow-inner">
+              <div class="text-center pb-1.5 mb-1 border-b border-slate-800/80">
+                <span class="text-[10px] font-black tracking-wider text-emerald-400 uppercase">Isla Derecha ➡️</span>
+              </div>
+              <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
+            </div>
+
           </div>
 
           <div id="editor-row-tools" class="hidden my-2 flex justify-center gap-2 flex-shrink-0">
@@ -215,30 +247,35 @@
             <button onclick="removeHallRow()" class="px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded-lg text-xs font-bold">- Fila</button>
           </div>
 
-          <div class="mt-2.5 pt-2 border-t border-slate-800 space-y-2 flex-shrink-0">
+          <!-- PARTE TRASERA: ENTRADA / SONIDO / SEGUNDA SALA -->
+          <div class="mt-3 pt-2.5 border-t-2 border-dashed border-slate-800 space-y-2 flex-shrink-0">
             <div class="grid grid-cols-12 gap-2 text-xs">
-              <div class="col-span-6 bg-emerald-950/30 border border-emerald-800/60 rounded-xl p-1.5 flex items-center justify-between">
+              
+              <!-- ÁREA DE ENTRADA Y ACOMODADORES -->
+              <div class="col-span-6 bg-emerald-950/25 border border-emerald-800/60 rounded-xl p-2 flex items-center justify-between">
                 <div>
-                  <div class="text-[9.5px] font-bold text-emerald-300">🚪 Entrada</div>
-                  <div class="text-[7.5px] text-slate-400">Acomodación</div>
+                  <div class="text-[10px] font-bold text-emerald-300 flex items-center gap-1">🚪 Entrada Principal</div>
+                  <div class="text-[8px] text-slate-400">Puestos de Acomodación</div>
                 </div>
                 <div class="flex gap-1" id="chairs-ushers-box"></div>
               </div>
 
-              <div class="col-span-6 bg-slate-900 border border-indigo-900/60 rounded-xl p-1.5 flex items-center justify-between">
+              <!-- CABINA DE SONIDO Y VÍDEO -->
+              <div class="col-span-6 bg-slate-900/90 border border-indigo-900/60 rounded-xl p-2 flex items-center justify-between">
                 <div>
-                  <div class="text-[9.5px] font-bold text-indigo-300">🎛️ Sonido</div>
-                  <div class="text-[7.5px] text-slate-400">Audio/Zoom</div>
+                  <div class="text-[10px] font-bold text-indigo-300 flex items-center gap-1">🎛️ Cabina Técnica</div>
+                  <div class="text-[8px] text-slate-400">Audio, Vídeo & Zoom</div>
                 </div>
                 <div class="flex gap-1" id="chairs-sound-box"></div>
               </div>
             </div>
 
-            <div class="bg-slate-900 border border-teal-900/50 rounded-xl p-1.5 shadow-inner">
-              <div class="flex items-center justify-between mb-1 pb-1 border-b border-slate-800">
-                <span class="text-[9.5px] font-bold text-teal-300 uppercase tracking-wide">🚪 Segunda Sala / Auxiliar</span>
-                <span class="text-[8.5px] text-slate-400 font-mono">
-                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-400 font-bold">0</strong>/<span id="max-sec-hall">14</span>
+            <!-- SEGUNDA SALA / SALA AUXILIAR -->
+            <div class="bg-slate-900 border border-teal-900/60 rounded-xl p-2 shadow-inner">
+              <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-800">
+                <span class="text-[10px] font-extrabold text-teal-300 uppercase tracking-wide flex items-center gap-1">🚪 Segunda Sala / Sala Auxiliar</span>
+                <span class="text-[9px] text-slate-400 font-mono">
+                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-300 font-bold">0</strong>/<span id="max-sec-hall">14</span>
                 </span>
               </div>
               <div class="grid grid-cols-7 gap-1" id="grid-hall-second"></div>
@@ -351,26 +388,62 @@
     </div>
   </main>
 
-  <!-- MODAL: ASIGNAR SILLA (CON LLENADO FAMILIAR CONTIGUO ⬅️ / ➡️) -->
+  <!-- MODAL: ASIGNAR SILLA (CON INFORMACIÓN COMPLETA Y DIRECCIÓN FAMILIAR ⬅️ / ➡️) -->
   <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+      
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
         <div>
-          <h3 class="text-xs font-bold text-white" id="modal-seat-title">Asignar Silla</h3>
-          <p class="text-[10px] text-slate-400" id="modal-seat-subtitle">Selecciona a la persona</p>
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5" id="modal-seat-title">🪑 Asignar Silla</h3>
+          <p class="text-[10px] text-slate-400" id="modal-seat-subtitle">Detalles y asignación</p>
         </div>
-        <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
+        <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕</button>
       </div>
 
+      <!-- FICHA DEL OCUPANTE ACTUAL (SI LA SILLA ESTÁ OCUPADA) -->
+      <div id="modal-occupant-card" class="hidden bg-slate-950 border border-indigo-900/80 rounded-xl p-2.5 space-y-2 flex-shrink-0 shadow-inner">
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+          <span class="text-[10px] font-black uppercase text-indigo-300 tracking-wider">Ocupante Actual de esta Silla</span>
+          <span id="modal-occ-role-badge" class="px-2 py-0.5 rounded text-[9px] font-bold">PUB</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span class="text-[9px] text-slate-400 block">Nombre Oficial</span>
+            <strong id="modal-occ-name" class="text-white text-[12px] block truncate">Nombre</strong>
+          </div>
+          <div>
+            <span class="text-[9px] text-slate-400 block">Nombre Corto (WhatsApp)</span>
+            <strong id="modal-occ-shortname" class="text-indigo-300 text-[12px] block truncate">Nombre Corto</strong>
+          </div>
+          <div>
+            <span class="text-[9px] text-slate-400 block">Familia & Rol</span>
+            <span id="modal-occ-family" class="text-slate-300 block truncate">Familia • Rol</span>
+          </div>
+          <div>
+            <span class="text-[9px] text-slate-400 block">Grupo de Servicio</span>
+            <span id="modal-occ-group" class="text-sky-400 font-bold block truncate">Grupo</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
+          <button id="modal-occ-btn-zoom" class="px-2.5 py-1 bg-blue-900 hover:bg-blue-800 text-blue-200 rounded-lg text-[10px] font-bold">
+            📹 Pasar a Zoom
+          </button>
+          <button onclick="vacateCurrentSeat()" class="px-2.5 py-1 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded-lg text-[10px] font-bold">
+            ✕ Liberar Silla
+          </button>
+        </div>
+      </div>
+
+      <!-- BUSCADOR CON FILTRADO EN TIEMPO REAL -->
       <div class="relative flex-shrink-0">
-        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" onkeyup="window.renderSeatList(this.value)" placeholder="Escribe el nombre o familia (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-        <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
+        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" onkeyup="window.renderSeatList(this.value)" placeholder="Buscar por nombre, apellido o familia (sin tildes)..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
       </div>
 
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5 max-h-60" id="modal-seat-people-list"></div>
+      <!-- LISTA DE HERMANOS CON LA MISMA INFORMACIÓN DE LA LISTA LATERAL -->
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5 max-h-64" id="modal-seat-people-list"></div>
 
       <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
-        <button onclick="vacateCurrentSeat()" id="btn-vacate-seat" class="text-[11px] px-3 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 rounded-lg border border-rose-800 hidden">Liberar Silla</button>
         <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="text-[11px] px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-900/60 rounded-lg font-medium ml-auto">+ Nuevo Integrante</button>
       </div>
     </div>
@@ -638,37 +711,35 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
-    // Normalizador universal de texto (sin tildes, minúsculas, sin espacios superfluos)
     function cleanStr(str) {
       if (!str) return "";
       return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
 
-    // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v10");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v11");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v10", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v11", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v10");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v11");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v10");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v11");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v10", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v11", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v10");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v11");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -690,9 +761,9 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_members_v10", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v10", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v10", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_members_v11", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v11", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v11", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -720,7 +791,7 @@
           deletedMemberIds: deletedMemberIds
         };
 
-        localStorage.setItem("asistencia_jardin_session_v10", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v11", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -858,6 +929,7 @@
       Storage.saveLocalAndCloud();
     };
 
+    // RENDERIZADO DEL SALÓN (REPARADO: APPENDCHILD EN LUGAR DE INNERHTML += PARA EVITAR DESTRUIR ONCLICK)
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -867,9 +939,15 @@
 
       hallLayout.rows.forEach((row, rIdx) => {
         const rNum = rIdx + 1;
+
+        // Fila Izquierda
         const rowL = document.createElement("div");
         rowL.className = "flex items-center gap-1";
-        rowL.innerHTML = `<span class="w-3 text-[9px] font-bold text-slate-500 text-right">F${rNum}</span>`;
+        
+        const spanL = document.createElement("span");
+        spanL.className = "w-3 text-[9px] font-bold text-slate-500 text-right";
+        spanL.innerText = `F${rNum}`;
+        rowL.appendChild(spanL);
 
         for (let s = 1; s <= row.left; s++) {
           const sid = `MAIN-L-R${rNum}-S${s}`;
@@ -878,37 +956,54 @@
         }
         leftBox.appendChild(rowL);
 
+        // Fila Derecha (REPARACIÓN CRÍTICA: se añade el span con appendChild para preservar listeners de las sillas)
         const rowR = document.createElement("div");
         rowR.className = "flex items-center gap-1";
+
         for (let s = 1; s <= row.right; s++) {
           const sid = `MAIN-R-R${rNum}-S${s}`;
           const isDis = (row.disabled || []).includes(sid);
           rowR.appendChild(createChair(sid, `D${s}`, "main", isDis));
         }
-        rowR.innerHTML += `<span class="w-3 text-[9px] font-bold text-slate-500 text-left">F${rNum}</span>`;
+
+        const spanR = document.createElement("span");
+        spanR.className = "w-3 text-[9px] font-bold text-slate-500 text-left";
+        spanR.innerText = `F${rNum}`;
+        rowR.appendChild(spanR);
+
         rightBox.appendChild(rowR);
       });
 
-      document.getElementById("chair-mic-1").innerHTML = "";
-      document.getElementById("chair-mic-2").innerHTML = "";
-      document.getElementById("chair-mic-1").appendChild(createChair("MIC-1", "Mic1", "mic", false));
-      document.getElementById("chair-mic-2").appendChild(createChair("MIC-2", "Mic2", "mic", false));
+      // Micrófonos de Pasillo
+      const mic1Box = document.getElementById("chair-mic-1");
+      const mic2Box = document.getElementById("chair-mic-2");
+      if (mic1Box) { mic1Box.innerHTML = ""; mic1Box.appendChild(createChair("MIC-1", "Mic1", "mic", false)); }
+      if (mic2Box) { mic2Box.innerHTML = ""; mic2Box.appendChild(createChair("MIC-2", "Mic2", "mic", false)); }
 
-      document.getElementById("chairs-ushers-box").innerHTML = "";
-      document.getElementById("chairs-ushers-box").appendChild(createChair("USHER-1", "Acom1", "usher", false));
-      document.getElementById("chairs-ushers-box").appendChild(createChair("USHER-2", "Acom2", "usher", false));
+      // Acomodadores y Sonido
+      const ushersBox = document.getElementById("chairs-ushers-box");
+      const soundBox = document.getElementById("chairs-sound-box");
+      if (ushersBox) {
+        ushersBox.innerHTML = "";
+        ushersBox.appendChild(createChair("USHER-1", "Acom1", "usher", false));
+        ushersBox.appendChild(createChair("USHER-2", "Acom2", "usher", false));
+      }
+      if (soundBox) {
+        soundBox.innerHTML = "";
+        soundBox.appendChild(createChair("BOOTH-1", "Son1", "booth", false));
+        soundBox.appendChild(createChair("BOOTH-2", "Son2", "booth", false));
+      }
 
-      document.getElementById("chairs-sound-box").innerHTML = "";
-      document.getElementById("chairs-sound-box").appendChild(createChair("BOOTH-1", "Son1", "booth", false));
-      document.getElementById("chairs-sound-box").appendChild(createChair("BOOTH-2", "Son2", "booth", false));
-
+      // Segunda Sala
       const secBox = document.getElementById("grid-hall-second");
-      secBox.innerHTML = "";
-      document.getElementById("max-sec-hall").innerText = hallLayout.secondHallSeats;
-      for (let s = 1; s <= hallLayout.secondHallSeats; s++) {
-        const sid = `SEC-S${s}`;
-        const isDis = (hallLayout.disabledSecSeats || []).includes(sid);
-        secBox.appendChild(createChair(sid, `S${s}`, "sec", isDis));
+      if (secBox) {
+        secBox.innerHTML = "";
+        document.getElementById("max-sec-hall").innerText = hallLayout.secondHallSeats;
+        for (let s = 1; s <= hallLayout.secondHallSeats; s++) {
+          const sid = `SEC-S${s}`;
+          const isDis = (hallLayout.disabledSecSeats || []).includes(sid);
+          secBox.appendChild(createChair(sid, `S${s}`, "sec", isDis));
+        }
       }
     }
 
@@ -929,17 +1024,17 @@
 
       const occupant = members.find(a => a.seatId === seatId);
       const colorMap = {
-        "Grupo 1": "bg-sky-600 border-sky-400 text-white",
-        "Grupo 2": "bg-emerald-600 border-emerald-400 text-white",
-        "Grupo 3": "bg-amber-600 border-amber-300 text-white",
-        "Grupo 4": "bg-purple-600 border-purple-400 text-white",
-        "Grupo 5": "bg-pink-600 border-pink-400 text-white",
-        "Visitante": "bg-slate-600 border-slate-400 text-white",
-        "Menor": "bg-teal-600 border-teal-300 text-white"
+        "Grupo 1": "bg-sky-600 border-sky-400 text-white shadow-sky-900/40",
+        "Grupo 2": "bg-emerald-600 border-emerald-400 text-white shadow-emerald-900/40",
+        "Grupo 3": "bg-amber-600 border-amber-300 text-white shadow-amber-900/40",
+        "Grupo 4": "bg-purple-600 border-purple-400 text-white shadow-purple-900/40",
+        "Grupo 5": "bg-pink-600 border-pink-400 text-white shadow-pink-900/40",
+        "Visitante": "bg-slate-600 border-slate-400 text-white shadow-slate-900/40",
+        "Menor": "bg-teal-600 border-teal-300 text-white shadow-teal-900/40"
       };
 
       if (occupant) {
-        const bg = colorMap[occupant.group] || "bg-indigo-600 border-indigo-400 text-white";
+        const bg = colorMap[occupant.group] || "bg-indigo-600 border-indigo-400 text-white shadow-indigo-900/40";
         el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center p-0.5 cursor-pointer border text-center shadow font-sans ${bg}`;
         const shortName = (occupant.shortName || occupant.name).split(" ")[0];
         el.innerHTML = `
@@ -948,10 +1043,10 @@
           ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black">✕</button>` : ''}
         `;
       } else {
-        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-slate-500 cursor-pointer ${isDesignModeActive ? 'border-amber-500/50 hover:border-amber-400' : ''}`;
+        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center bg-slate-950/85 hover:bg-slate-800 border border-slate-700/80 text-slate-400 cursor-pointer shadow-sm ${isDesignModeActive ? 'border-amber-500/60 hover:border-amber-400' : ''}`;
         el.innerHTML = `
           <span class="text-[11px] opacity-40">🪑</span>
-          <span class="text-[7px] font-mono opacity-50">${label}</span>
+          <span class="text-[7px] font-mono font-bold opacity-60">${label}</span>
           ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-rose-600 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8.5px] font-bold shadow">✕</button>` : ''}
         `;
       }
@@ -1339,28 +1434,56 @@
       });
     }
 
+    // APERTURA DEL MODAL CON FICHA COMPLETA DEL OCUPANTE
     function openSeatModal(seatId, label, type, occupant) {
       selectedSeatId = seatId;
       selectedSeatType = type;
-      document.getElementById("modal-seat-title").innerText = `Silla: ${label}`;
+      
+      let humanLabel = label;
+      if (seatId.startsWith("MAIN-")) {
+        const p = seatId.split("-");
+        humanLabel = `Fila ${p[2].replace("R","")} • ${p[1]==='L'?'Isla Izquierda':'Isla Derecha'} (${label})`;
+      } else if (seatId.startsWith("SEC-")) {
+        humanLabel = `Segunda Sala (${label})`;
+      }
+
+      document.getElementById("modal-seat-title").innerText = `🪑 Silla: ${humanLabel}`;
       const searchInput = document.getElementById("modal-seat-search");
       if (searchInput) searchInput.value = "";
 
-      const vacateBtn = document.getElementById("btn-vacate-seat");
+      const occCard = document.getElementById("modal-occupant-card");
       if (occupant) {
-        document.getElementById("modal-seat-subtitle").innerText = `Ocupada por: ${occupant.shortName || occupant.name}`;
-        vacateBtn?.classList.remove("hidden");
+        document.getElementById("modal-seat-subtitle").innerText = "Puesto actualmente ocupado";
+        document.getElementById("modal-occ-name").innerText = occupant.name;
+        document.getElementById("modal-occ-shortname").innerText = occupant.shortName || occupant.name;
+        document.getElementById("modal-occ-family").innerText = `${occupant.family} (${occupant.familyRole || 'Familiar'})`;
+        document.getElementById("modal-occ-group").innerText = occupant.group;
+
+        const roleBadge = document.getElementById("modal-occ-role-badge");
+        roleBadge.innerText = occupant.role;
+        roleBadge.className = `px-2 py-0.5 rounded text-[9px] font-bold ${
+          occupant.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
+          occupant.role==='Visitante'?'bg-slate-800 text-slate-300 border border-slate-700':
+          'bg-indigo-950 text-indigo-300 border border-indigo-800'
+        }`;
+
+        document.getElementById("modal-occ-btn-zoom").onclick = () => {
+          window.quickAddZoomPerson(occupant.id);
+          closeModal("modal-seat");
+        };
+
+        occCard.classList.remove("hidden");
       } else {
         document.getElementById("modal-seat-subtitle").innerText = "Silla libre. Toca a quién sentar:";
-        vacateBtn?.classList.add("hidden");
+        occCard.classList.add("hidden");
       }
 
       window.renderSeatList("");
       document.getElementById("modal-seat").classList.remove("hidden");
-      setTimeout(() => searchInput?.focus(), 50);
+      setTimeout(() => searchInput?.focus(), 60);
     }
 
-    // MODAL DE ASIGNACIÓN: FILTRADO INSTANTÁNEO Y BOTONES DE CONTROL DE DIRECCIÓN ⬅️ / ➡️
+    // MODAL DE ASIGNACIÓN: INFORMACIÓN IDÉNTICA A LA LISTA DE LA IZQUIERDA + BOTONES DE FAMILIA DIRECCIONALES
     window.renderSeatList = function(val) {
       const box = document.getElementById("modal-seat-people-list");
       if (!box) return;
@@ -1368,40 +1491,65 @@
       const term = cleanStr(val !== undefined ? val : document.getElementById("modal-seat-search")?.value);
       
       const filtered = members.filter(a => {
-        if (!term) return !a.location;
-        return cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term);
+        if (!term) return true;
+        return cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term) || cleanStr(a.aliasZoom).includes(term);
       });
 
       if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-4 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
+        box.innerHTML = `<div class="py-6 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
         return;
       }
 
       filtered.forEach(a => {
         const card = document.createElement("div");
-        card.className = "w-full p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 gap-2 shadow-sm";
+        const isCurrentSeat = a.seatId === selectedSeatId;
+        const isPlaced = !!a.location;
+
+        card.className = `w-full p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs border gap-2 shadow-sm transition-colors ${
+          isCurrentSeat ? 'bg-indigo-950/40 border-indigo-500/80 ring-1 ring-indigo-500' :
+          isPlaced ? 'bg-slate-950/60 border-slate-800/80 opacity-75' :
+          'bg-slate-950 border-slate-800 hover:border-slate-700'
+        }`;
         
         const unseatedFamily = members.filter(m => m.hogarId === a.hogarId && m.id !== a.id && !m.location);
         const hasFamily = unseatedFamily.length > 0;
 
+        let locBadge = "";
+        if (a.location === "main") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">En Salón (${a.seatId.replace('MAIN-','').replace('-',' ')})</span>`;
+        if (a.location === "sec") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">En Sala 2</span>`;
+        if (a.location === "zoom") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">En Zoom</span>`;
+
         card.innerHTML = `
           <div class="truncate min-w-0 flex-1">
-            <div class="font-bold text-white truncate text-[12px]">${a.shortName || a.name}</div>
-            <div class="text-[9.5px] text-slate-400">${a.family} • <span class="text-indigo-300 font-semibold">${a.group}</span> ${a.location ? '<span class="text-amber-400 font-bold ml-1">(Ya ubicado)</span>' : ''}</div>
+            <div class="flex items-center gap-1.5">
+              <strong class="text-white text-[12px] truncate">${a.shortName || a.name}</strong>
+              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-bold ${
+                a.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
+                a.role==='Visitante'?'bg-slate-800 text-slate-300':
+                'bg-indigo-950 text-indigo-300 border border-indigo-800'
+              }">${a.role}</span>
+              ${locBadge}
+            </div>
+            <div class="text-[9.5px] text-slate-400 mt-0.5">
+              ${a.family} (${a.familyRole || 'Otro'}) • <span class="text-indigo-300 font-semibold">${a.group}</span>
+              ${a.aliasZoom ? `• <span class="text-slate-500">Zoom: ${a.aliasZoom}</span>` : ''}
+            </div>
           </div>
+          
           <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0">
             ${hasFamily ? `
-              <div class="flex items-center gap-1 bg-slate-900 border border-teal-800/80 rounded-lg p-0.5">
-                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'left')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold" title="Sienta a la familia hacia la izquierda de esta silla">
+              <div class="flex items-center gap-1 bg-slate-900 border border-teal-700/80 rounded-lg p-0.5">
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'left')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold flex items-center gap-0.5" title="Sienta a la familia hacia la izquierda de esta silla">
                   ⬅️ Familia (${unseatedFamily.length + 1})
                 </button>
-                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'right')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold" title="Sienta a la familia hacia la derecha de esta silla">
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'right')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold flex items-center gap-0.5" title="Sienta a la familia hacia la derecha de esta silla">
                   ➡️ Familia (${unseatedFamily.length + 1})
                 </button>
               </div>
             ` : ''}
+            
             <button onclick="seatSinglePerson('${a.id}')" class="text-[10px] px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow">
-              ${hasFamily ? 'Solo él' : 'Sentar'}
+              ${hasFamily ? 'Solo él' : (isPlaced ? 'Mover Aquí' : 'Sentar')}
             </button>
           </div>
         `;
@@ -1420,7 +1568,7 @@
       }
     };
 
-    // ALGORITMO DIRECCIONAL INTELIGENTE: Sienta al hermano elegido y a su familia hacia la IZQUIERDA o DERECHA
+    // ALGORITMO DIRECCIONAL INTELIGENTE: ACOMODA EN PUESTOS CONTINUOS DE ESA MISMA FILA
     window.seatWholeFamilyDirectional = function(primaryId, hogarId, startSeatId, seatType, direction) {
       const primaryPerson = members.find(m => m.id === primaryId);
       const otherFamily = members.filter(m => m.hogarId === hogarId && m.id !== primaryId && !m.location);
@@ -1435,13 +1583,14 @@
         const startR = parseInt(parts[2].replace("R", ""));
         const startS = parseInt(parts[3].replace("S", ""));
 
-        // 1. Asignar puesto primario
+        // 1. Puesto primario
         primaryPerson.location = "main";
         primaryPerson.seatId = startSeatId;
         occupied.add(startSeatId);
         assignments.push(primaryPerson.shortName || primaryPerson.name);
 
         let memIdx = 1;
+        // Orden de exploración de filas: misma fila hacia adelante/atrás
         const rowOrder = [];
         for (let r = startR; r <= hallLayout.rows.length; r++) rowOrder.push(r);
         for (let r = startR - 1; r >= 1; r--) rowOrder.push(r);
@@ -1686,7 +1835,7 @@
 
       // REPORTE 3: Validación y Aprendizaje
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
-      r3 += `1. Conexiones operativas excluidas: Cuentas de sonido y anfitrión omitidas del conteo normativo.\n`;
+      r3 += `1. Conexiones operativas identificadas y excluidas: Cuentas de sonido y anfitrión omitidas del conteo normativo.\n`;
       r3 += `2. Salvedades de WhatsApp: Se aplicó la Regla 3 (solo se contabilizan quienes aparecen en Zoom).\n`;
       r3 += `3. Normalizaciones: Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
       r3 += `4. Nuevos dispositivos: Ninguna discrepancia crítica detectada.\n`;
