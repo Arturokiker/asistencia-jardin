@@ -192,11 +192,11 @@
     <!-- COLUMNA 2: SALÓN DEL REINO (DISEÑO ARQUITECTÓNICO CON PISO BLANCO) -->
     <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg overflow-hidden relative">
       <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta filas o pulsa una silla para deshabilitar/habilitar</span>
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor Activo: Toca una silla para deshabilitar o usa los botones de Fila</span>
         <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
       </div>
 
-      <!-- PLATAFORMA ELEVADA CON ACABADO EN ROBLE CÁLIDO -->
+      <!-- PLATAFORMA ELEVADA CON CONTROLES DIRECTOS DE FILAS (+ FILA / - FILA) -->
       <div class="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 text-amber-50 border-2 border-amber-500 rounded-xl p-2 flex items-center justify-between flex-shrink-0 mb-2.5 shadow-md">
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 bg-amber-950/80 border border-amber-400 text-amber-200 text-[10px] font-black rounded-lg uppercase tracking-wider flex items-center gap-1">
@@ -205,11 +205,14 @@
           <span class="text-xs font-black tracking-widest text-white uppercase drop-shadow">PLATAFORMA PRINCIPAL</span>
         </div>
         
-        <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-0.5 rounded-lg border border-slate-700">
+        <!-- CONTROLES DIRECTOS DE FILAS Y ZOOM -->
+        <div class="flex items-center gap-1 bg-slate-900/90 px-1.5 py-0.5 rounded-lg border border-slate-700">
+          <button onclick="addHallRow()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold shadow" title="Agregar fila al final">+ Fila</button>
+          <button onclick="removeHallRow()" class="px-2 py-0.5 bg-rose-700 hover:bg-rose-600 text-white rounded text-[10px] font-bold shadow" title="Quitar última fila">- Fila</button>
+          <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
           <button onclick="adjustHallZoom(-0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">-</button>
-          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-8 text-center font-bold">100%</span>
+          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-7 text-center font-bold">100%</span>
           <button onclick="adjustHallZoom(0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">+</button>
-          <button onclick="resetHallZoom()" class="text-[9px] px-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded ml-0.5">1:1</button>
         </div>
       </div>
 
@@ -249,11 +252,6 @@
               <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
             </div>
 
-          </div>
-
-          <div id="editor-row-tools" class="hidden my-2 flex justify-center gap-2 flex-shrink-0">
-            <button onclick="addHallRow()" class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow">+ Fila</button>
-            <button onclick="removeHallRow()" class="px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded-lg text-xs font-bold shadow">- Fila</button>
           </div>
 
           <!-- ÁREA POSTERIOR CLARA: ENTRADA / SONIDO / SEGUNDA SALA -->
@@ -397,63 +395,59 @@
     </div>
   </main>
 
-  <!-- MODAL: ASIGNAR SILLA (CON INFORMACIÓN COMPLETA Y DIRECCIÓN FAMILIAR ⬅️ / ➡️) -->
-  <div id="modal-seat" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
+  <!-- MODAL: ASIGNACIÓN RÁPIDA CONTINUA (BOTTOM SHEET EN MÓVIL PARA VER EL SALÓN DE FONDO) -->
+  <div id="modal-seat" class="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border-t-2 sm:border-2 border-indigo-500 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3.5 sm:p-4 shadow-2xl space-y-2.5 max-h-[65vh] sm:max-h-[90vh] flex flex-col">
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <div>
-          <h3 class="text-sm font-bold text-white flex items-center gap-1.5" id="modal-seat-title">🪑 Asignar Silla</h3>
-          <p class="text-[10px] text-slate-400" id="modal-seat-subtitle">Detalles y asignación</p>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div>
+            <h3 class="text-xs sm:text-sm font-bold text-white" id="modal-seat-title">🪑 Silla en Asignación</h3>
+            <p class="text-[9.5px] text-indigo-300" id="modal-seat-subtitle">Escribe y presiona Enter para avanzar de inmediato</p>
+          </div>
         </div>
-        <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕</button>
+        <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕ Cerrar</button>
       </div>
 
       <!-- FICHA DEL OCUPANTE ACTUAL -->
-      <div id="modal-occupant-card" class="hidden bg-slate-950 border border-indigo-900/80 rounded-xl p-2.5 space-y-2 flex-shrink-0 shadow-inner">
-        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
-          <span class="text-[10px] font-black uppercase text-indigo-300 tracking-wider">Ocupante Actual de esta Silla</span>
-          <span id="modal-occ-role-badge" class="px-2 py-0.5 rounded text-[9px] font-bold">PUB</span>
+      <div id="modal-occupant-card" class="hidden bg-slate-950 border border-indigo-900/80 rounded-xl p-2 space-y-1.5 flex-shrink-0 shadow-inner">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <span class="text-[9.5px] font-black uppercase text-indigo-300 tracking-wider">Ocupante Actual de esta Silla</span>
+          <span id="modal-occ-role-badge" class="px-2 py-0.5 rounded text-[8.5px] font-bold">PUB</span>
         </div>
-        <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="grid grid-cols-2 gap-1.5 text-xs">
           <div>
-            <span class="text-[9px] text-slate-400 block">Nombre Oficial</span>
-            <strong id="modal-occ-name" class="text-white text-[12px] block truncate">Nombre</strong>
+            <span class="text-[8.5px] text-slate-400 block">Nombre</span>
+            <strong id="modal-occ-name" class="text-white text-[11.5px] block truncate">Nombre</strong>
           </div>
           <div>
-            <span class="text-[9px] text-slate-400 block">Nombre Corto (WhatsApp)</span>
-            <strong id="modal-occ-shortname" class="text-indigo-300 text-[12px] block truncate">Nombre Corto</strong>
-          </div>
-          <div>
-            <span class="text-[9px] text-slate-400 block">Familia & Rol</span>
-            <span id="modal-occ-family" class="text-slate-300 block truncate">Familia • Rol</span>
-          </div>
-          <div>
-            <span class="text-[9px] text-slate-400 block">Grupo de Servicio</span>
-            <span id="modal-occ-group" class="text-sky-400 font-bold block truncate">Grupo</span>
+            <span class="text-[8.5px] text-slate-400 block">Nombre Corto</span>
+            <strong id="modal-occ-shortname" class="text-indigo-300 text-[11.5px] block truncate">Nombre Corto</strong>
           </div>
         </div>
-        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
-          <button id="modal-occ-btn-zoom" class="px-2.5 py-1 bg-blue-900 hover:bg-blue-800 text-blue-200 rounded-lg text-[10px] font-bold">
-            📹 Pasar a Zoom
+        <div class="flex items-center justify-end gap-1.5 pt-1 border-t border-slate-800/80">
+          <button id="modal-occ-btn-zoom" class="px-2 py-0.5 bg-blue-900 hover:bg-blue-800 text-blue-200 rounded text-[9.5px] font-bold">
+            📹 A Zoom
           </button>
-          <button onclick="vacateCurrentSeat()" class="px-2.5 py-1 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded-lg text-[10px] font-bold">
-            ✕ Liberar Silla
+          <button onclick="vacateCurrentSeat()" class="px-2 py-0.5 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded text-[9.5px] font-bold">
+            ✕ Liberar
           </button>
         </div>
       </div>
 
-      <!-- BUSCADOR EN TIEMPO REAL -->
+      <!-- BUSCADOR CON RESALTADO AUTOMÁTICO Y ENTER RÁPIDO -->
       <div class="relative flex-shrink-0">
-        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" onkeyup="window.renderSeatList(this.value)" placeholder="Buscar por nombre, apellido o familia (sin tildes)..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-        <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" placeholder="Escribe apellido o nombre (Presiona Enter para sentar)..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950 border-2 border-indigo-500/70 focus:border-indigo-400 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-400 shadow-sm">
+        <span class="absolute left-2.5 top-2 text-indigo-400 text-xs font-bold">⚡</span>
       </div>
 
-      <!-- LISTA DE HERMANOS CON LA MISMA INFORMACIÓN DE LA BARRA LATERAL -->
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5 max-h-64" id="modal-seat-people-list"></div>
+      <!-- LISTA DE HERMANOS CON LA MEJOR OPCIÓN RESALTADA -->
+      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pr-0.5" id="modal-seat-people-list"></div>
 
-      <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
-        <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="text-[11px] px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-900/60 rounded-lg font-medium ml-auto">+ Nuevo Integrante</button>
+      <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0 text-[10px]">
+        <span class="text-slate-400 text-[9.5px]">💡 Presiona <strong>Enter</strong> o toca <strong>Sentar</strong> para pasar a la siguiente silla</span>
+        <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-900/60 rounded-lg font-medium">+ Nuevo</button>
       </div>
     </div>
   </div>
@@ -608,7 +602,7 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTES DE ASISTENCIA (INTEGRA SALÓN + ZOOM CON PESTAÑAS) -->
+  <!-- MODAL: REPORTES DE ASISTENCIA CON INTEGRACIÓN DE SALÓN, ZOOM Y FALTANTES -->
   <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
@@ -706,6 +700,7 @@
     let selectedSeatId = null;
     let selectedSeatType = "main";
     let currentZoomDisplay = "grouped";
+    let highlightedCandidateId = null;
     let generatedReports = { r_all: "", r_zoom: "", r_salon: "", r1: "", r3: "" };
 
     let hallLayout = {
@@ -725,43 +720,47 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
-    // Normalizador universal de texto (sin tildes, minúsculas, sin espacios superfluos)
     function cleanStr(str) {
       if (!str) return "";
       return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
 
-    // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v12");
+        const storedLayout = localStorage.getItem("asistencia_jardin_layout_v13");
+        if (storedLayout) {
+          try { hallLayout = JSON.parse(storedLayout); } catch(e) {}
+        }
+
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v13");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v12", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v13", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v12");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v13");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v12");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v13");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v12", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v13", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v12");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v13");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
             if (s.meetingDate) document.getElementById("meeting-date-input").value = s.meetingDate;
             if (s.meetingType) document.getElementById("meeting-type-select").value = s.meetingType;
             if (s.zoomConnections) zoomConnections = s.zoomConnections;
+            if (s.layout && s.layout.rows) hallLayout = s.layout;
             if (s.assignments) {
               members.forEach(m => {
                 const a = s.assignments[m.id];
@@ -777,9 +776,10 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_members_v12", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v12", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v12", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_layout_v13", JSON.stringify(hallLayout));
+        localStorage.setItem("asistencia_jardin_members_v13", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v13", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v13", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -804,10 +804,11 @@
             family: c.family,
             memberIds: c.memberIds || []
           })),
-          deletedMemberIds: deletedMemberIds
+          deletedMemberIds: deletedMemberIds,
+          layout: hallLayout
         };
 
-        localStorage.setItem("asistencia_jardin_session_v12", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v13", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -864,6 +865,10 @@
           if (!docSnap.exists()) return;
           const remote = docSnap.data();
           if (remote.clientId === myClientId) return;
+
+          if (remote.layout && remote.layout.rows) {
+            hallLayout = remote.layout;
+          }
 
           if (remote.deletedMemberIds && Array.isArray(remote.deletedMemberIds)) {
             deletedMemberIds = remote.deletedMemberIds;
@@ -928,6 +933,7 @@
       populateHogarDropdown();
       refreshUI();
       initFirestoreRealtime();
+      bindKeyboardShortcuts();
 
       if (window.innerWidth < 1024) switchMobileView("hall");
     }
@@ -1249,7 +1255,7 @@
         const matchesSearch = !term || 
           cleanStr(a.name).includes(term) || 
           cleanStr(a.shortName).includes(term) || 
-          cleanStr(a.family).includes(term) ||
+          cleanStr(a.family).includes(term) || 
           cleanStr(a.id).includes(term);
         return matchesGroup && matchesSearch;
       });
@@ -1450,6 +1456,38 @@
       });
     }
 
+    // CALCULA LA SIGUIENTE SILLA CONTIGUA PARA EL RELLENO RÁPIDO CONTINUO
+    function getNextAvailableSeatId(currentSeatId) {
+      if (!currentSeatId) return null;
+      if (currentSeatId.startsWith("MAIN-")) {
+        const parts = currentSeatId.split("-");
+        const side = parts[1]; // "L" o "R"
+        const r = parseInt(parts[2].replace("R", ""));
+        const s = parseInt(parts[3].replace("S", ""));
+        const rowConfig = hallLayout.rows[r - 1];
+        const maxS = rowConfig[side === "L" ? "left" : "right"];
+
+        // Si hay una silla contigua en la misma fila
+        if (s < maxS) {
+          return `MAIN-${side}-R${r}-S${s + 1}`;
+        }
+        // Si llegó al final de la fila, avanza a la siguiente fila asiento 1
+        if (r < hallLayout.rows.length) {
+          return `MAIN-${side}-R${r + 1}-S1`;
+        }
+        // Si terminó la isla izquierda, pasa a la derecha
+        if (side === "L") {
+          return `MAIN-R-R1-S1`;
+        }
+      } else if (currentSeatId.startsWith("SEC-")) {
+        const s = parseInt(currentSeatId.replace("SEC-S", ""));
+        if (s < hallLayout.secondHallSeats) {
+          return `SEC-S${s + 1}`;
+        }
+      }
+      return null;
+    }
+
     // APERTURA DEL MODAL CON FICHA COMPLETA DEL OCUPANTE
     function openSeatModal(seatId, label, type, occupant) {
       selectedSeatId = seatId;
@@ -1472,12 +1510,10 @@
         document.getElementById("modal-seat-subtitle").innerText = "Puesto actualmente ocupado";
         document.getElementById("modal-occ-name").innerText = occupant.name;
         document.getElementById("modal-occ-shortname").innerText = occupant.shortName || occupant.name;
-        document.getElementById("modal-occ-family").innerText = `${occupant.family} (${occupant.familyRole || 'Familiar'})`;
-        document.getElementById("modal-occ-group").innerText = occupant.group;
 
         const roleBadge = document.getElementById("modal-occ-role-badge");
         roleBadge.innerText = occupant.role;
-        roleBadge.className = `px-2 py-0.5 rounded text-[9px] font-bold ${
+        roleBadge.className = `px-2 py-0.5 rounded text-[8.5px] font-bold ${
           occupant.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
           occupant.role==='Visitante'?'bg-slate-800 text-slate-300 border border-slate-700':
           'bg-indigo-950 text-indigo-300 border border-indigo-800'
@@ -1490,7 +1526,7 @@
 
         occCard.classList.remove("hidden");
       } else {
-        document.getElementById("modal-seat-subtitle").innerText = "Silla libre. Toca a quién sentar:";
+        document.getElementById("modal-seat-subtitle").innerText = "Escribe y pulsa Enter para sentar y avanzar de una vez";
         occCard.classList.add("hidden");
       }
 
@@ -1499,7 +1535,7 @@
       setTimeout(() => searchInput?.focus(), 60);
     }
 
-    // MODAL DE ASIGNACIÓN: INFORMACIÓN IDÉNTICA A LA BARRA LATERAL + BOTONES DE FAMILIA DIRECCIONALES
+    // MODAL DE ASIGNACIÓN: FILTRA, RESALTA LA MEJOR OPCIÓN Y PERMITE ENTER RÁPIDO
     window.renderSeatList = function(val) {
       const box = document.getElementById("modal-seat-people-list");
       if (!box) return;
@@ -1507,23 +1543,29 @@
       const term = cleanStr(val !== undefined ? val : document.getElementById("modal-seat-search")?.value);
       
       const filtered = members.filter(a => {
-        if (!term) return true;
+        if (!term) return !a.location;
         return cleanStr(a.name).includes(term) || cleanStr(a.shortName).includes(term) || cleanStr(a.family).includes(term) || cleanStr(a.aliasZoom).includes(term);
       });
 
       if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-6 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
+        highlightedCandidateId = null;
+        box.innerHTML = `<div class="py-4 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
         return;
       }
 
-      filtered.forEach(a => {
+      // La primera opción es la candidata destacada para presionar Enter
+      highlightedCandidateId = filtered[0].id;
+
+      filtered.forEach((a, idx) => {
+        const isTopPick = idx === 0 && term.length > 0;
         const card = document.createElement("div");
         const isCurrentSeat = a.seatId === selectedSeatId;
         const isPlaced = !!a.location;
 
-        card.className = `w-full p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs border gap-2 shadow-sm transition-colors ${
+        card.className = `w-full p-2 sm:p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs border gap-1.5 transition-all ${
+          isTopPick ? 'bg-indigo-950 border-indigo-400 ring-2 ring-indigo-500 shadow-md' :
           isCurrentSeat ? 'bg-indigo-950/40 border-indigo-500/80 ring-1 ring-indigo-500' :
-          isPlaced ? 'bg-slate-950/60 border-slate-800/80 opacity-75' :
+          isPlaced ? 'bg-slate-950/60 border-slate-800 opacity-70' :
           'bg-slate-950 border-slate-800 hover:border-slate-700'
         }`;
         
@@ -1531,13 +1573,14 @@
         const hasFamily = unseatedFamily.length > 0;
 
         let locBadge = "";
-        if (a.location === "main") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">En Salón (${a.seatId.replace('MAIN-','').replace('-',' ')})</span>`;
-        if (a.location === "sec") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">En Sala 2</span>`;
-        if (a.location === "zoom") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">En Zoom</span>`;
+        if (a.location === "main") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 border border-sky-800">En Salón (${a.seatId.replace('MAIN-','').replace('-',' ')})</span>`;
+        if (a.location === "sec") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-teal-950 text-teal-300 border border-teal-800">Sala 2</span>`;
+        if (a.location === "zoom") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 border border-blue-800">Zoom</span>`;
 
         card.innerHTML = `
-          <div class="truncate min-w-0 flex-1">
+          <div class="truncate min-w-0 flex-1 cursor-pointer" onclick="seatSinglePerson('${a.id}', true)">
             <div class="flex items-center gap-1.5">
+              ${isTopPick ? '<span class="text-amber-400 font-black text-xs">↵</span>' : ''}
               <strong class="text-white text-[12px] truncate">${a.shortName || a.name}</strong>
               <span class="text-[8.5px] px-1.5 py-0.2 rounded font-bold ${
                 a.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
@@ -1546,9 +1589,9 @@
               }">${a.role}</span>
               ${locBadge}
             </div>
-            <div class="text-[9.5px] text-slate-400 mt-0.5">
+            <div class="text-[9px] text-slate-400 mt-0.5 truncate">
               ${a.family} (${a.familyRole || 'Otro'}) • <span class="text-indigo-300 font-semibold">${a.group}</span>
-              ${a.aliasZoom ? `• <span class="text-slate-500">Zoom: ${a.aliasZoom}</span>` : ''}
+              ${a.aliasZoom ? `• Zoom: ${a.aliasZoom}` : ''}
             </div>
           </div>
           
@@ -1564,8 +1607,8 @@
               </div>
             ` : ''}
             
-            <button onclick="seatSinglePerson('${a.id}')" class="text-[10px] px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow">
-              ${hasFamily ? 'Solo él' : (isPlaced ? 'Mover Aquí' : 'Sentar')}
+            <button onclick="seatSinglePerson('${a.id}', true)" class="text-[10px] px-3 py-1 ${isTopPick ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-lg font-bold shadow flex items-center gap-1">
+              ${hasFamily ? 'Solo él' : 'Sentar ↵'}
             </button>
           </div>
         `;
@@ -1573,15 +1616,42 @@
       });
     };
 
-    window.seatSinglePerson = function(id) {
+    // VINCULA LA TECLA ENTER AL BUSCADOR DEL MODAL PARA SELECCIONAR LA MEJOR OPCIÓN AL INSTANTE
+    function bindKeyboardShortcuts() {
+      const input = document.getElementById("modal-seat-search");
+      if (!input) return;
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (highlightedCandidateId) {
+            window.seatSinglePerson(highlightedCandidateId, true);
+          }
+        }
+      });
+    }
+
+    // SIENTA A LA PERSONA Y AVANZA AUTOMÁTICAMENTE A LA SIGUIENTE SILLA CONTIGUA
+    window.seatSinglePerson = function(id, autoAdvance) {
       const p = members.find(a => a.id === id);
-      if (p) {
-        p.location = selectedSeatType;
-        p.seatId = selectedSeatId;
-        closeModal("modal-seat");
-        refreshUI();
-        showToast(`${p.shortName || p.name} ubicado.`);
+      if (!p) return;
+
+      p.location = selectedSeatType;
+      p.seatId = selectedSeatId;
+      refreshUI();
+      showToast(`${p.shortName || p.name} sentado.`);
+
+      // Si se pide auto-avance, pasa a la siguiente silla de la banca
+      if (autoAdvance) {
+        const nextSid = getNextAvailableSeatId(selectedSeatId);
+        if (nextSid) {
+          const occ = members.find(m => m.seatId === nextSid);
+          const pParts = nextSid.split("-");
+          const lbl = nextSid.startsWith("MAIN-") ? `${pParts[1]==='L'?'I':'D'}${pParts[3].replace('S','')}` : nextSid;
+          openSeatModal(nextSid, lbl, selectedSeatType, occ);
+          return;
+        }
       }
+      closeModal("modal-seat");
     };
 
     // ALGORITMO DIRECCIONAL INTELIGENTE: ACOMODA EN PUESTOS CONTINUOS DE ESA MISMA FILA
@@ -1595,7 +1665,7 @@
 
       if (startSeatId.startsWith("MAIN-")) {
         const parts = startSeatId.split("-");
-        const side = parts[1]; // "L" o "R"
+        const side = parts[1];
         const startR = parseInt(parts[2].replace("R", ""));
         const startS = parseInt(parts[3].replace("S", ""));
 
@@ -1721,7 +1791,6 @@
     window.toggleDesignMode = function() {
       isDesignModeActive = !isDesignModeActive;
       document.getElementById("editor-banner")?.classList.toggle("hidden", !isDesignModeActive);
-      document.getElementById("editor-row-tools")?.classList.toggle("hidden", !isDesignModeActive);
       renderHall();
     };
 
@@ -1736,15 +1805,26 @@
       window.adjustHallZoom(0);
     };
 
+    // AGREGAR / QUITAR FILAS CON PERSISTENCIA INMEDIATA
     window.addHallRow = function() {
       hallLayout.rows.push({ left: 4, right: 4, disabled: [] });
-      renderHall();
+      refreshUI();
+      showToast(`Fila ${hallLayout.rows.length} agregada.`);
     };
 
     window.removeHallRow = function() {
       if (hallLayout.rows.length > 1) {
-        hallLayout.rows.pop();
-        renderHall();
+        const removed = hallLayout.rows.pop();
+        // Liberar a las personas que estaban en esa fila
+        const rNum = hallLayout.rows.length + 1;
+        members.forEach(m => {
+          if (m.seatId && (m.seatId.includes(`MAIN-L-R${rNum}-`) || m.seatId.includes(`MAIN-R-R${rNum}-`))) {
+            m.location = null;
+            m.seatId = null;
+          }
+        });
+        refreshUI();
+        showToast(`Fila ${rNum} eliminada.`);
       }
     };
 
@@ -1758,7 +1838,7 @@
       showToast("Salón y Zoom listos para la nueva reunión.");
     };
 
-    // GENERADOR DE REPORTES COMPLETO: INTEGRA ASISTENCIA DE SALÓN Y ZOOM
+    // GENERADOR DE REPORTES COMPLETO: INTEGRA SALÓN, ZOOM Y AUSENTES/FALTANTES
     window.openReportModal = function() {
       const d = document.getElementById("meeting-date-input").value;
       const t = document.getElementById("meeting-type-select").value;
@@ -1767,36 +1847,38 @@
       // Clasificación de asistentes
       const presencialMembers = members.filter(a => a.location && a.location !== "zoom");
       const zoomMembers = members.filter(a => a.location === "zoom");
-      const allAttendees = members.filter(a => a.location);
+      const allPresent = members.filter(a => a.location);
+      const allAbsent = members.filter(a => !a.location);
 
       // Conteo general
       const totalPresential = presencialMembers.length;
       const totalZoom = zoomMembers.length;
-      const grandTotal = allAttendees.length;
+      const grandTotal = allPresent.length;
 
-      const totalPubs = allAttendees.filter(a => a.role !== 'Menor' && a.role !== 'Visitante').length;
-      const totalMenores = allAttendees.filter(a => a.role === 'Menor').length;
-      const totalVisitantes = allAttendees.filter(a => a.role === 'Visitante' || a.group === 'Visitante').length;
+      const totalPubs = allPresent.filter(a => a.role !== 'Menor' && a.role !== 'Visitante').length;
+      const totalMenores = allPresent.filter(a => a.role === 'Menor').length;
+      const totalVisitantes = allPresent.filter(a => a.role === 'Visitante' || a.group === 'Visitante').length;
 
-      // Función auxiliar para construir el listado por grupos con jerarquía
-      function buildGroupList(membersSubset, isGlobal) {
+      // Construye la lista de cada grupo detallando PRESENTES y FALTANTES/AUSENTES
+      function buildDetailedGroupSections(attendeesSubset, isGlobal) {
         let text = "";
         let globalNum = 1;
-        let pCount = 0;
+        let pPresentTotal = 0;
+        let pAbsentTotal = 0;
         let mCount = 0;
         let vCount = 0;
 
         for (let g = 1; g <= 5; g++) {
           const gKey = `Grupo ${g}`;
-          const gList = membersSubset.filter(a => a.group === gKey);
+          const gPresent = attendeesSubset.filter(a => a.group === gKey);
+          const gAbsent = allAbsent.filter(a => a.group === gKey && a.role !== 'Menor' && a.role !== 'Visitante');
 
-          if (gList.length > 0) {
-            text += `*GRUPO ${g}*\n`;
+          text += `*GRUPO ${g}*\n`;
+
+          if (gPresent.length > 0) {
             let gPubs = 0;
-
-            // Agrupar familias
             const fams = {};
-            gList.forEach(m => {
+            gPresent.forEach(m => {
               const fid = m.hogarId || "INDIV";
               if (!fams[fid]) fams[fid] = [];
               fams[fid].push(m);
@@ -1813,26 +1895,36 @@
                 let roleTag = "";
                 if (person.role === "Menor") { roleTag = " (Menor)"; mCount++; }
                 else if (person.role === "Visitante") { roleTag = " (Visitante)"; vCount++; }
-                else { gPubs++; pCount++; }
+                else { gPubs++; pPresentTotal++; }
 
-                // Etiqueta de ubicación si es reporte unificado
-                let locTag = "";
-                if (isGlobal) {
-                  locTag = person.location === "zoom" ? " [Zoom]" : "";
-                }
-
+                let locTag = isGlobal ? (person.location === "zoom" ? " [Zoom]" : "") : "";
                 const prefix = pIdx === 0 ? `- ` : `------ `;
                 text += `${prefix}${globalNum}. ${person.shortName || person.name}${roleTag}${locTag}\n`;
                 globalNum++;
               });
             });
 
-            text += `\n*Total Grupo ${g} = ${gPubs} publicadores*\n\n`;
+            text += `\n*Total Presentes Grupo ${g} = ${gPubs} publicadores*\n`;
+          } else {
+            text += `- (Sin publicadores presentes)\n*Total Presentes Grupo ${g} = 0*\n`;
           }
+
+          // Listado de Ausentes / Faltantes del Grupo
+          if (gAbsent.length > 0) {
+            pAbsentTotal += gAbsent.length;
+            text += `\n*Ausentes Grupo ${g} (${gAbsent.length}):*\n`;
+            gAbsent.forEach(abs => {
+              text += `  • ${abs.shortName || abs.name}\n`;
+            });
+          } else {
+            text += `\n*Ausentes Grupo ${g}:* 0 (¡Todos presentes!)\n`;
+          }
+
+          text += `\n───────────────────────────\n\n`;
         }
 
-        // Menores y visitantes independientes
-        const others = membersSubset.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
+        // Menores y visitantes independientes presentes
+        const others = attendeesSubset.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
         if (others.length > 0) {
           text += `*MENORES Y VISITANTES*\n`;
           others.forEach(person => {
@@ -1846,52 +1938,56 @@
           text += `\n`;
         }
 
-        return { text, totalCount: globalNum - 1, pCount, mCount, vCount };
+        return { text, totalCount: globalNum - 1, pPresentTotal, pAbsentTotal, mCount, vCount };
       }
 
-      // REPORTE UNIFICADO (SALÓN + ZOOM)
-      const fullData = buildGroupList(allAttendees, true);
+      // 1. REPORTE UNIFICADO COMPLETO (SALÓN + ZOOM + FALTANTES)
+      const fullData = buildDetailedGroupSections(allPresent, true);
       let r_all = `*REPORTE DE ASISTENCIA - CONGREGACIÓN JARDÍN*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_all += `📊 *CONSOLIDADO GENERAL*\n`;
       r_all += `• Salón (Presencial): *${totalPresential}*\n`;
       r_all += `• Zoom (Virtual): *${totalZoom}*\n`;
-      r_all += `🔥 *GRAN TOTAL DE ASISTENCIA:* *${grandTotal}*\n`;
-      r_all += `• Publicadores: *${totalPubs}* | Menores: *${totalMenores}* | Visitantes: *${totalVisitantes}*\n\n`;
-      r_all += `═══════════════════════════\n🏛️ *DESGLOSE GENERAL DE ASISTENTES*\n═══════════════════════════\n\n`;
+      r_all += `🔥 *GRAN TOTAL PRESENTES:* *${grandTotal}*\n`;
+      r_all += `• Publicadores Presentes: *${totalPubs}*\n`;
+      r_all += `• Menores Presentes: *${totalMenores}*\n`;
+      r_all += `• Visitantes: *${totalVisitantes}*\n`;
+      r_all += `❌ *TOTAL AUSENTES/FALTANTES:* *${fullData.pAbsentTotal} publicadores*\n\n`;
+      r_all += `═══════════════════════════\n🏛️ *DESGLOSE POR GRUPOS Y AUSENCIAS*\n═══════════════════════════\n\n`;
       r_all += fullData.text;
 
-      // REPORTE EXCLUSIVO ZOOM (REGLA OFICIAL DE 3 REPORTES)
-      const zoomData = buildGroupList(zoomMembers, false);
+      // 2. REPORTE EXCLUSIVO ZOOM (FORMATO NORMATIVO R2)
+      const zoomData = buildDetailedGroupSections(zoomMembers, false);
       let r_zoom = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
       r_zoom += zoomData.text;
       r_zoom += `*Total Menores = ${zoomData.mCount}*\n`;
       r_zoom += `*Total Visitantes = ${zoomData.vCount}*\n`;
-      r_zoom += `*Total Publicadores = ${zoomData.pCount}*\n\n`;
+      r_zoom += `*Total Publicadores = ${zoomData.pPresentTotal}*\n\n`;
       r_zoom += `*TOTAL ASISTENCIA VIRTUAL:* ${zoomData.totalCount}`;
 
-      // REPORTE EXCLUSIVO SALÓN (PRESENCIAL)
-      const salonData = buildGroupList(presencialMembers, false);
+      // 3. REPORTE EXCLUSIVO SALÓN (PRESENCIAL)
+      const salonData = buildDetailedGroupSections(presencialMembers, false);
       let r_salon = `*REPORTE ASISTENCIA SALÓN (PRESENCIAL)*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_salon += salonData.text;
       r_salon += `*Total Menores = ${salonData.mCount}*\n`;
       r_salon += `*Total Visitantes = ${salonData.vCount}*\n`;
-      r_salon += `*Total Publicadores = ${salonData.pCount}*\n\n`;
+      r_salon += `*Total Publicadores = ${salonData.pPresentTotal}*\n\n`;
       r_salon += `*TOTAL ASISTENCIA SALÓN:* ${salonData.totalCount}`;
 
       // REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO
       let r1 = `--- REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO ---\n\n`;
       r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Vídeo Salón del Reino (Cabina de transmisión)\n   - Anfitrión / Acomodador\n\n`;
-      r1 += `2. Resumen General:\n`;
+      r1 += `2. Balance de Asistencia y Ausencias:\n`;
       r1 += `   - Presencial en Salón: ${totalPresential}\n`;
       r1 += `   - Virtual en Zoom: ${totalZoom}\n`;
+      r1 += `   - Gran Total Presentes: ${grandTotal}\n`;
+      r1 += `   - Total Publicadores Faltantes: ${fullData.pAbsentTotal}\n`;
       r1 += `   - Conexiones efectivas de hogares Zoom: ${zoomConnections.length}\n`;
-      r1 += `   - Gran Total de Asistentes: ${grandTotal}\n`;
 
       // REPORTE 3: VALIDACIÓN Y APRENDIZAJE
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
-      r3 += `1. Conexiones operativas excluidas del conteo normativo.\n`;
-      r3 += `2. Salvedades de WhatsApp cruzadas contra presencia en Zoom.\n`;
-      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
+      r3 += `1. Conexiones operativas identificadas y excluidas del conteo normativo.\n`;
+      r3 += `2. Salvedades de WhatsApp cotejadas visualmente contra Zoom (Regla 3).\n`;
+      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra (75 integrantes).\n`;
 
       generatedReports = { r_all, r_zoom, r_salon, r1, r3 };
       window.setReportTab('r_all');
@@ -2029,7 +2125,7 @@
     };
 
     window.downloadSessionJSON = function() {
-      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, hogares, zoomConnections }));
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, hogares, zoomConnections, hallLayout }));
       const a = document.createElement("a");
       a.href = str;
       a.download = `asistencia_jardin_${document.getElementById("meeting-date-input").value}.json`;
@@ -2037,7 +2133,7 @@
     };
 
     window.copySessionJSON = function() {
-      navigator.clipboard.writeText(JSON.stringify({ members, hogares, zoomConnections }));
+      navigator.clipboard.writeText(JSON.stringify({ members, hogares, zoomConnections, hallLayout }));
       showToast("JSON copiado al portapapeles.");
     };
 
