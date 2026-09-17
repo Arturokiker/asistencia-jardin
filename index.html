@@ -4,664 +4,475 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Control de Asistencia - Congregación Jardín</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .chair-seat {
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #020617; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    
+    /* Encabezado */
+    header { background-color: #0f172a; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 40; padding: 8px 12px; }
+    .header-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; max-width: 1600px; margin: 0 auto; }
+    
+    /* Botones y Badges */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 10px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+    .btn:active { transform: scale(0.96); }
+    .btn-indigo { background-color: #4f46e5; color: #ffffff; }
+    .btn-emerald { background-color: #059669; color: #ffffff; }
+    .btn-rose { background-color: #881337; color: #fecdd3; border-color: #9f1239; }
+    .btn-amber { background-color: rgba(217, 119, 6, 0.2); color: #fcd34d; border-color: rgba(245, 158, 11, 0.5); }
+    .btn-dark { background-color: #1e293b; color: #cbd5e1; border-color: #334155; }
+    .btn-teal { background-color: #0f766e; color: #ccfbf1; border-color: #14b8a6; }
+    
+    /* Métricas Globales */
+    .metrics-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; background-color: #020617; padding: 4px 10px; border-radius: 10px; border: 1px solid #1e293b; font-size: 10px; overflow-x: auto; }
+    .metric-item { text-align: center; padding: 0 4px; white-space: nowrap; }
+    .metric-val { font-size: 13px; font-weight: 900; display: block; }
+    .metric-sep { width: 1px; height: 18px; background-color: #1e293b; }
+
+    /* Barra Móvil */
+    .mobile-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; border-top: 1px solid #1e293b; padding-top: 6px; margin-top: 6px; }
+    .tab-btn { padding: 6px 2px; text-align: center; border-radius: 8px; font-size: 11px; font-weight: 700; color: #94a3b8; background: transparent; border: none; cursor: pointer; }
+    .tab-btn.active { color: #ffffff; background-color: rgba(99, 102, 241, 0.2); border-bottom: 2px solid #6366f1; }
+
+    /* Layout Principal */
+    main { flex: 1; display: grid; grid-template-columns: 1fr; gap: 12px; padding: 10px; max-width: 1600px; margin: 0 auto; width: 100%; }
+    @media (min-width: 1024px) {
+      main { grid-template-columns: 4fr 5fr 3fr; }
+      .mobile-nav { display: none; }
     }
-    .chair-seat:active { transform: scale(0.92); }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .tab-active { background-color: #4f46e5 !important; color: #ffffff !important; border-color: #6366f1 !important; }
-    .view-tab-active { border-bottom: 3px solid #6366f1; color: #ffffff !important; background-color: rgba(99, 102, 241, 0.18); }
-    .tile-floor {
-      background-color: #f1f5f9;
+    
+    .panel-box { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; height: calc(100vh - 10.5rem); overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    
+    /* Piso Blanco del Salón */
+    .kingdom-hall-floor {
+      flex: 1;
+      background-color: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px;
+      overflow: auto;
       background-image: 
-        linear-gradient(to right, rgba(203, 213, 225, 0.6) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(203, 213, 225, 0.6) 1px, transparent 1px);
+        linear-gradient(to right, rgba(203, 213, 225, 0.7) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(203, 213, 225, 0.7) 1px, transparent 1px);
       background-size: 24px 24px;
     }
-    .aisle-walkway {
-      background: repeating-linear-gradient(
-        45deg,
-        #fef3c7,
-        #fef3c7 6px,
-        #fde68a 6px,
-        #fde68a 12px
-      );
+    .island-card {
+      background-color: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
+    .aisle-corridor {
+      background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 6px, #fde68a 6px, #fde68a 12px);
+      border-left: 2px dashed #f59e0b;
+      border-right: 2px dashed #f59e0b;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      color: #92400e;
+      font-size: 8px;
+      font-weight: 900;
+    }
+
+    /* Sillas */
+    .chair-seat {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      border: 1.5px solid transparent;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .chair-vacant {
+      background-color: #ffffff;
+      border-color: #cbd5e1;
+      color: #64748b;
+    }
+    .chair-vacant:hover { background-color: #f1f5f9; border-color: #94a3b8; }
+    
+    /* Modales */
+    .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.65); backdrop-filter: blur(2px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 12px; }
+    .modal-sheet { background-color: #0f172a; border: 2px solid #334155; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; display: flex; flex-direction: column; padding: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+    
+    @media (max-width: 640px) {
+      .modal-sheet-mobile {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        max-height: 68vh;
+        animation: slideUp 0.18s ease-out;
+      }
+      .modal-overlay { align-items: flex-end; padding: 0; }
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+<body>
 
   <!-- BANNER DE DIAGNÓSTICO EN TIEMPO REAL -->
-  <div id="cloud-diagnostic-banner" class="bg-slate-900 border-b border-slate-800 px-3 py-1.5 text-[11px] flex items-center justify-between transition-colors">
-    <div class="flex items-center gap-2">
+  <div id="cloud-diagnostic-banner" style="background-color: #0f172a; border-bottom: 1px solid #1e293b; padding: 5px 12px; font-size: 11px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 6px;">
       <span id="cloud-status-icon">🔄</span>
-      <span id="cloud-status-msg" class="font-medium text-slate-300">Conectando con Firebase...</span>
+      <span id="cloud-status-msg" style="color: #cbd5e1; font-weight: 600;">Conectando con Firebase...</span>
     </div>
-    <button onclick="testCloudConnection(true)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-bold">
+    <button onclick="testCloudConnection(true)" class="btn btn-dark" style="font-size: 10px; padding: 2px 8px;">
       Probar Nube
     </button>
   </div>
 
   <!-- CABECERA PRINCIPAL -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-3 py-2 shadow-xl">
-    <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-2.5">
-      
-      <div class="flex items-center justify-between w-full lg:w-auto gap-2">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-600/30">
-            🏛️
-          </div>
+  <header>
+    <div class="header-row">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 32px; height: 32px; background-color: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🏛️</div>
           <div>
-            <h1 class="text-sm font-bold text-white leading-tight">Asistencia Jardín</h1>
-            <p class="text-[9px] text-slate-400 font-mono">Los Palmitos – Sucre</p>
+            <h1 style="font-size: 13px; font-weight: 800; line-height: 1.1;">Asistencia Jardín</h1>
+            <p style="font-size: 9px; color: #94a3b8; font-family: monospace;">Los Palmitos – Sucre</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 text-xs">
-          <select id="meeting-type-select" onchange="onMetadataChange()" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
-            <option value="Entre semana" class="bg-slate-900 text-white">📅 Entre semana</option>
-            <option value="Fin de semana" class="bg-slate-900 text-white">📅 Fin de semana</option>
+        <div style="display: flex; align-items: center; gap: 4px; background-color: #020617; padding: 3px 6px; border-radius: 8px; border: 1px solid #1e293b;">
+          <select id="meeting-type-select" onchange="onMetadataChange()" style="background: transparent; color: #a5b4fc; font-size: 11px; font-weight: 700; border: none; outline: none; cursor: pointer;">
+            <option value="Entre semana" style="background-color: #0f172a; color: #fff;">Entre semana</option>
+            <option value="Fin de semana" style="background-color: #0f172a; color: #fff;">Fin de semana</option>
           </select>
-          <input type="date" id="meeting-date-input" onchange="onMetadataChange()" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
+          <input type="date" id="meeting-date-input" onchange="onMetadataChange()" style="background: transparent; color: #cbd5e1; font-size: 11px; border: none; outline: none; cursor: pointer;">
         </div>
 
-        <div class="flex items-center gap-1 lg:hidden">
-          <button onclick="toggleDesignMode()" class="px-2 py-1 bg-amber-600/30 border border-amber-500/50 text-amber-300 rounded-lg text-xs font-bold" title="Editar Sillas">✏️</button>
-          <button onclick="startNewMeetingSession()" class="px-2 py-1 bg-rose-950 border border-rose-800 text-rose-300 rounded-lg text-xs font-bold shadow">🔄 Nueva</button>
-          <button onclick="openReportModal()" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold shadow">Reporte</button>
+        <div style="display: flex; gap: 4px;">
+          <button onclick="startNewMeetingSession()" class="btn btn-rose" style="padding: 4px 8px; font-size: 10px;">🔄 Nueva</button>
+          <button onclick="openReportModal()" class="btn btn-emerald" style="padding: 4px 10px; font-size: 10px;">Reporte</button>
         </div>
       </div>
 
-      <!-- Métricas Globales en Vivo -->
-      <div class="flex items-center justify-between w-full lg:w-auto gap-1 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 text-[10px]">
-        <div class="text-center px-1.5">
-          <span class="text-slate-400 block font-semibold">Salón Pral</span>
-          <span id="stat-main" class="text-xs sm:text-sm font-black text-sky-400">0</span>
+      <!-- Métricas Globales -->
+      <div class="metrics-bar" style="width: 100%;">
+        <div class="metric-item">
+          <span style="color: #94a3b8; font-size: 9px; font-weight: 700;">Salón Pral</span>
+          <span id="stat-main" class="metric-val" style="color: #38bdf8;">0</span>
         </div>
-        <div class="w-px h-5 bg-slate-800"></div>
-        <div class="text-center px-1.5">
-          <span class="text-slate-400 block font-semibold">Sala 2</span>
-          <span id="stat-sec" class="text-xs sm:text-sm font-black text-teal-400">0</span>
+        <div class="metric-sep"></div>
+        <div class="metric-item">
+          <span style="color: #94a3b8; font-size: 9px; font-weight: 700;">Sala 2</span>
+          <span id="stat-sec" class="metric-val" style="color: #2dd4bf;">0</span>
         </div>
-        <div class="w-px h-5 bg-slate-800"></div>
-        <div class="text-center px-1.5">
-          <span class="text-slate-400 block font-semibold">Asignados</span>
-          <span id="stat-tasks" class="text-xs sm:text-sm font-black text-amber-400">0</span>
+        <div class="metric-sep"></div>
+        <div class="metric-item">
+          <span style="color: #94a3b8; font-size: 9px; font-weight: 700;">Cabina/Acom</span>
+          <span id="stat-tasks" class="metric-val" style="color: #fbbf24;">0</span>
         </div>
-        <div class="w-px h-5 bg-slate-800"></div>
-        <div class="text-center px-1.5">
-          <span class="text-emerald-400 block font-bold">Presencial</span>
-          <span id="stat-presential" class="text-xs sm:text-sm font-black text-emerald-400">0</span>
+        <div class="metric-sep"></div>
+        <div class="metric-item">
+          <span style="color: #34d399; font-size: 9px; font-weight: 800;">Presencial</span>
+          <span id="stat-presential" class="metric-val" style="color: #34d399;">0</span>
         </div>
-        <div class="w-px h-5 bg-slate-800"></div>
-        <div class="text-center px-1.5">
-          <span class="text-blue-400 block font-bold">Zoom</span>
-          <span id="stat-zoom" class="text-xs sm:text-sm font-black text-blue-400">0</span>
+        <div class="metric-sep"></div>
+        <div class="metric-item">
+          <span style="color: #60a5fa; font-size: 9px; font-weight: 800;">Zoom</span>
+          <span id="stat-zoom" class="metric-val" style="color: #60a5fa;">0</span>
         </div>
-        <div class="w-px h-5 bg-slate-800"></div>
-        <div class="text-center px-2.5 bg-indigo-950/80 rounded-lg border border-indigo-800 py-0.5">
-          <span class="text-indigo-300 block font-extrabold">GRAN TOTAL</span>
-          <span id="stat-grand" class="text-xs sm:text-sm font-black text-indigo-200">0</span>
+        <div class="metric-sep"></div>
+        <div class="metric-item" style="background-color: rgba(79, 70, 229, 0.2); padding: 2px 8px; border-radius: 6px; border: 1px solid #4f46e5;">
+          <span style="color: #c7d2fe; font-size: 9px; font-weight: 900;">GRAN TOTAL</span>
+          <span id="stat-grand" class="metric-val" style="color: #ffffff;">0</span>
         </div>
-      </div>
-
-      <!-- Barra Escritorio -->
-      <div class="hidden lg:flex items-center gap-1.5">
-        <button onclick="switchView('salon')" id="btn-tab-salon" class="px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1">
-          <span>🏛️ Salón & Zoom</span>
-        </button>
-        <button onclick="switchView('db')" id="btn-tab-db" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow flex items-center gap-1">
-          <span>👥 Base de Datos</span>
-        </button>
-        <button onclick="toggleDesignMode()" id="btn-toggle-design" class="px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold flex items-center gap-1">
-          <span>✏️ Editar Sillas</span>
-        </button>
-        <button onclick="startNewMeetingSession()" class="px-2.5 py-1.5 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
-          <span>🔄 Nueva Reunión</span>
-        </button>
-        <button onclick="openBackupModal()" class="px-2.5 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
-          <span>💾 Backup</span>
-        </button>
-        <button onclick="openReportModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-900/40">
-          📋 Reporte WhatsApp
-        </button>
       </div>
     </div>
 
     <!-- Navegación Móvil -->
-    <div class="grid grid-cols-4 gap-1 mt-2 lg:hidden border-t border-slate-800 pt-1.5 text-[11px] font-semibold text-slate-400">
-      <button onclick="switchMobileView('hall')" id="mob-nav-hall" class="py-1.5 text-center rounded-lg view-tab-active">🏛️ Salón</button>
-      <button onclick="switchMobileView('list')" id="mob-nav-list" class="py-1.5 text-center rounded-lg">📋 Lista</button>
-      <button onclick="switchMobileView('zoom')" id="mob-nav-zoom" class="py-1.5 text-center rounded-lg">💻 Zoom</button>
-      <button onclick="switchMobileView('db')" id="mob-nav-db" class="py-1.5 text-center rounded-lg">👥 Base Datos</button>
+    <div class="mobile-nav">
+      <button onclick="switchMobileView('hall')" id="mob-nav-hall" class="tab-btn active">🏛️ Salón</button>
+      <button onclick="switchMobileView('list')" id="mob-nav-list" class="tab-btn">📋 Lista</button>
+      <button onclick="switchMobileView('zoom')" id="mob-nav-zoom" class="tab-btn">💻 Zoom</button>
+      <button onclick="switchMobileView('db')" id="mob-nav-db" class="tab-btn">👥 Base Datos</button>
     </div>
   </header>
 
-  <!-- VISTA 1: SALÓN + LISTADO + ZOOM -->
-  <main id="view-salon-mode" class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
+  <!-- VISTA 1: SALÓN + LISTA + ZOOM -->
+  <main id="view-salon-mode">
     
     <!-- COLUMNA 1: LISTADO LATERAL DE HERMANOS -->
-    <aside id="panel-directory-col" class="lg:col-span-4 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
-      <div class="space-y-2 mb-2 flex-shrink-0">
-        <div class="relative">
-          <input type="text" id="dir-search-input" oninput="window.filterDirectory(this.value)" onkeyup="window.filterDirectory(this.value)" placeholder="Buscar hermano o familia (sin tildes)..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-          <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
-          <button onclick="clearDirectorySearch()" id="dir-clear-search" class="hidden absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs">✕</button>
+    <aside id="panel-directory-col" class="panel-box">
+      <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; flex-shrink: 0;">
+        <div style="position: relative;">
+          <input type="text" id="dir-search-input" oninput="window.filterDirectory(this.value)" placeholder="Buscar hermano o familia (sin tildes)..." style="width: 100%; padding: 6px 24px 6px 26px; font-size: 11px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;">
+          <span style="position: absolute; left: 8px; top: 6px; font-size: 11px; color: #64748b;">🔍</span>
+          <button onclick="clearDirectorySearch()" id="dir-clear-search" style="display: none; position: absolute; right: 8px; top: 5px; color: #94a3b8; background: none; border: none; cursor: pointer; font-size: 11px;">✕</button>
         </div>
 
-        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 text-[11px]" id="group-filters-wrapper">
-          <button onclick="setFilterGroup('TODOS')" class="filter-pill tab-active px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-medium whitespace-nowrap" data-g="TODOS">Todos</button>
-          <button onclick="setFilterGroup('Grupo 1')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-sky-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 1">G1</button>
-          <button onclick="setFilterGroup('Grupo 2')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-emerald-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 2">G2</button>
-          <button onclick="setFilterGroup('Grupo 3')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-amber-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 3">G3</button>
-          <button onclick="setFilterGroup('Grupo 4')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-purple-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 4">G4</button>
-          <button onclick="setFilterGroup('Grupo 5')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-pink-400 border border-slate-800 font-medium whitespace-nowrap" data-g="Grupo 5">G5</button>
-          <button onclick="setFilterGroup('Menor')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-teal-300 border border-slate-800 font-medium whitespace-nowrap" data-g="Menor">Menores</button>
-          <button onclick="setFilterGroup('Visitante')" class="filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-slate-300 border border-slate-800 font-medium whitespace-nowrap" data-g="Visitante">Vis</button>
+        <div style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;" class="no-scrollbar" id="group-filters-wrapper">
+          <button onclick="setFilterGroup('TODOS')" class="btn btn-indigo" data-g="TODOS" style="padding: 3px 8px; font-size: 10px;">Todos</button>
+          <button onclick="setFilterGroup('Grupo 1')" class="btn btn-dark" data-g="Grupo 1" style="padding: 3px 8px; font-size: 10px; color: #38bdf8;">G1</button>
+          <button onclick="setFilterGroup('Grupo 2')" class="btn btn-dark" data-g="Grupo 2" style="padding: 3px 8px; font-size: 10px; color: #34d399;">G2</button>
+          <button onclick="setFilterGroup('Grupo 3')" class="btn btn-dark" data-g="Grupo 3" style="padding: 3px 8px; font-size: 10px; color: #fbbf24;">G3</button>
+          <button onclick="setFilterGroup('Grupo 4')" class="btn btn-dark" data-g="Grupo 4" style="padding: 3px 8px; font-size: 10px; color: #c084fc;">G4</button>
+          <button onclick="setFilterGroup('Grupo 5')" class="btn btn-dark" data-g="Grupo 5" style="padding: 3px 8px; font-size: 10px; color: #f472b6;">G5</button>
+          <button onclick="setFilterGroup('Menor')" class="btn btn-dark" data-g="Menor" style="padding: 3px 8px; font-size: 10px; color: #2dd4bf;">Menores</button>
+          <button onclick="setFilterGroup('Visitante')" class="btn btn-dark" data-g="Visitante" style="padding: 3px 8px; font-size: 10px; color: #cbd5e1;">Vis</button>
         </div>
 
-        <div class="grid grid-cols-3 gap-1 text-[10px] bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <button onclick="setStatusFilter('ALL')" id="st-filter-all" class="py-1 rounded-lg font-bold bg-indigo-600 text-white">Todos (<span id="st-cnt-all">0</span>)</button>
-          <button onclick="setStatusFilter('PENDING')" id="st-filter-pen" class="py-1 rounded-lg text-slate-400">Sin Ubicar (<span id="st-cnt-pen">0</span>)</button>
-          <button onclick="setStatusFilter('PLACED')" id="st-filter-pla" class="py-1 rounded-lg text-slate-400">Ubicados (<span id="st-cnt-pla">0</span>)</button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-1.5 pt-0.5">
-          <button onclick="openEditMemberModal(null)" class="w-full py-1.5 bg-slate-950 hover:bg-slate-800 border border-dashed border-indigo-700/60 rounded-xl text-[11px] text-indigo-300 font-medium flex items-center justify-center gap-1">
-            <span>+ Nuevo Hermano</span>
-          </button>
-          <button onclick="switchView('db')" class="w-full py-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800/60 rounded-xl text-[11px] text-emerald-300 font-bold flex items-center justify-center gap-1">
-            <span>👥 Abrir Base Datos</span>
-          </button>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background-color: #020617; padding: 3px; border-radius: 8px; border: 1px solid #1e293b; font-size: 10px;">
+          <button onclick="setStatusFilter('ALL')" id="st-filter-all" style="padding: 4px; border-radius: 6px; font-weight: 700; background-color: #4f46e5; color: #fff; border: none; cursor: pointer;">Todos (<span id="st-cnt-all">0</span>)</button>
+          <button onclick="setStatusFilter('PENDING')" id="st-filter-pen" style="padding: 4px; border-radius: 6px; font-weight: 600; color: #94a3b8; background: transparent; border: none; cursor: pointer;">Sin Ubicar (<span id="st-cnt-pen">0</span>)</button>
+          <button onclick="setStatusFilter('PLACED')" id="st-filter-pla" style="padding: 4px; border-radius: 6px; font-weight: 600; color: #94a3b8; background: transparent; border: none; cursor: pointer;">Ubicados (<span id="st-cnt-pla">0</span>)</button>
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pr-0.5" id="directory-list-container"></div>
+      <div class="no-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;" id="directory-list-container"></div>
 
-      <div class="mt-2 pt-2 border-t border-slate-800 text-[10px] flex justify-between text-slate-400 flex-shrink-0">
-        <span>Directorio: <strong id="foot-total-members" class="text-white font-mono">0</strong></span>
-        <span>Presentes: <strong id="foot-total-placed" class="text-emerald-400 font-bold font-mono">0</strong></span>
+      <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #1e293b; font-size: 10px; display: flex; justify-content: space-between; color: #94a3b8; flex-shrink: 0;">
+        <span>Directorio: <strong id="foot-total-members" style="color: #fff; font-family: monospace;">0</strong></span>
+        <span>Presentes: <strong id="foot-total-placed" style="color: #34d399; font-weight: 700; font-family: monospace;">0</strong></span>
       </div>
     </aside>
 
-    <!-- COLUMNA 2: SALÓN DEL REINO (DISEÑO ARQUITECTÓNICO CON PISO BLANCO) -->
-    <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg overflow-hidden relative">
-      <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor Activo: Toca una silla para deshabilitar o usa los botones de Fila</span>
-        <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
-      </div>
-
-      <!-- PLATAFORMA ELEVADA CON CONTROLES DIRECTOS DE FILAS (+ FILA / - FILA) -->
-      <div class="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 text-amber-50 border-2 border-amber-500 rounded-xl p-2 flex items-center justify-between flex-shrink-0 mb-2.5 shadow-md">
-        <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 bg-amber-950/80 border border-amber-400 text-amber-200 text-[10px] font-black rounded-lg uppercase tracking-wider flex items-center gap-1">
-            🎤 Atril
-          </span>
-          <span class="text-xs font-black tracking-widest text-white uppercase drop-shadow">PLATAFORMA PRINCIPAL</span>
+    <!-- COLUMNA 2: SALÓN DEL REINO CON PISO BLANCO -->
+    <section id="panel-hall-col" class="panel-box" style="padding: 8px;">
+      
+      <!-- PLATAFORMA PRINCIPAL CON BOTONES DIRECTOS + FILA / - FILA -->
+      <div style="background: linear-gradient(to right, #92400e, #b45309, #92400e); border: 2px solid #f59e0b; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="background-color: rgba(0,0,0,0.5); border: 1px solid #fbbf24; color: #fde68a; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 6px;">🎤 ATRIL</span>
+          <span style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; color: #ffffff;">PLATAFORMA</span>
         </div>
-        
-        <!-- CONTROLES DIRECTOS DE FILAS Y ZOOM -->
-        <div class="flex items-center gap-1 bg-slate-900/90 px-1.5 py-0.5 rounded-lg border border-slate-700">
-          <button onclick="addHallRow()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded text-[10px] font-bold shadow" title="Agregar fila al final">+ Fila</button>
-          <button onclick="removeHallRow()" class="px-2 py-0.5 bg-rose-700 hover:bg-rose-600 text-white rounded text-[10px] font-bold shadow" title="Quitar última fila">- Fila</button>
-          <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
-          <button onclick="adjustHallZoom(-0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">-</button>
-          <span id="zoom-lvl-txt" class="text-[10px] font-mono text-indigo-300 w-7 text-center font-bold">100%</span>
-          <button onclick="adjustHallZoom(0.15)" class="w-5 h-5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold">+</button>
+
+        <div style="display: flex; align-items: center; gap: 4px; background-color: rgba(15, 23, 42, 0.9); padding: 2px 6px; border-radius: 8px; border: 1px solid #475569;">
+          <button onclick="addHallRow()" class="btn btn-emerald" style="padding: 3px 6px; font-size: 9px;">+ Fila</button>
+          <button onclick="removeHallRow()" class="btn btn-rose" style="padding: 3px 6px; font-size: 9px;">- Fila</button>
+          <div style="width: 1px; height: 14px; background-color: #475569; margin: 0 2px;"></div>
+          <button onclick="adjustHallZoom(-0.15)" style="background: none; border: none; color: #cbd5e1; font-weight: 900; cursor: pointer; padding: 0 3px;">-</button>
+          <span id="zoom-lvl-txt" style="font-size: 9px; font-family: monospace; font-weight: 700; color: #a5b4fc; min-width: 32px; text-align: center;">100%</span>
+          <button onclick="adjustHallZoom(0.15)" style="background: none; border: none; color: #cbd5e1; font-weight: 900; cursor: pointer; padding: 0 3px;">+</button>
         </div>
       </div>
 
-      <!-- NAVE DEL SALÓN CON PISO BLANCO / PORCELANA CLARA -->
-      <div class="flex-1 overflow-auto tile-floor rounded-2xl p-2.5 border-2 border-slate-300 flex flex-col justify-between shadow-inner" id="hall-scroll-container">
-        <div id="hall-scalable-wrapper" class="transition-transform duration-150 origin-top" style="transform: scale(1);">
+      <!-- PISO DE PORCELANA CLARA DEL SALÓN -->
+      <div class="kingdom-hall-floor no-scrollbar" id="hall-scroll-container">
+        <div id="hall-scalable-wrapper" style="transition: transform 0.15s; transform-origin: top center;">
           
-          <div class="flex justify-center gap-2 sm:gap-4 min-w-max mx-auto py-1">
+          <div style="display: flex; justify-content: center; gap: 8px; min-width: max-content; margin: 0 auto;">
             
-            <!-- ISLA IZQUIERDA (MÓDULO BLANCO ELEVADO) -->
-            <div class="bg-white border-2 border-slate-300/90 rounded-2xl p-2.5 flex flex-col shadow-sm">
-              <div class="text-center pb-1 mb-1.5 border-b border-slate-200">
-                <span class="text-[10px] font-black tracking-wider text-sky-700 uppercase">⬅️ Isla Izquierda</span>
+            <!-- ISLA IZQUIERDA -->
+            <div class="island-card">
+              <div style="text-align: center; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0;">
+                <span style="font-size: 10px; font-weight: 900; color: #0284c7; text-transform: uppercase;">⬅️ Isla Izquierda</span>
               </div>
-              <div class="flex flex-col gap-1.5" id="grid-hall-left"></div>
+              <div style="display: flex; flex-direction: column; gap: 6px;" id="grid-hall-left"></div>
             </div>
 
-            <!-- PASILLO CENTRAL CLARO -->
-            <div class="aisle-walkway flex flex-col items-center justify-between py-2 px-2 border-x-2 border-dashed border-amber-400/80 text-amber-900 text-[8px] font-black rounded-lg shadow-sm">
-              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-80">PASILLO</span>
+            <!-- PASILLO CENTRAL -->
+            <div class="aisle-corridor">
+              <span style="writing-mode: vertical-rl; letter-spacing: 0.15em;">PASILLO</span>
               
-              <!-- MICRÓFONOS DE PASILLO -->
-              <div class="my-2 flex flex-col items-center gap-1.5 bg-white border-2 border-amber-500 p-1.5 rounded-xl shadow-md pointer-events-auto">
-                <span class="text-[7.5px] text-amber-900 font-extrabold uppercase tracking-tight">🎙️ Micro</span>
+              <!-- MICRÓFONOS -->
+              <div style="background-color: #ffffff; border: 2px solid #f59e0b; padding: 4px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                <span style="font-size: 7px; color: #92400e; font-weight: 900;">🎙️ MICRO</span>
                 <div id="chair-mic-1"></div>
                 <div id="chair-mic-2"></div>
               </div>
 
-              <span style="writing-mode: vertical-rl;" class="tracking-widest opacity-80">CENTRAL</span>
+              <span style="writing-mode: vertical-rl; letter-spacing: 0.15em;">CENTRAL</span>
             </div>
 
-            <!-- ISLA DERECHA (MÓDULO BLANCO ELEVADO) -->
-            <div class="bg-white border-2 border-slate-300/90 rounded-2xl p-2.5 flex flex-col shadow-sm">
-              <div class="text-center pb-1 mb-1.5 border-b border-slate-200">
-                <span class="text-[10px] font-black tracking-wider text-emerald-700 uppercase">Isla Derecha ➡️</span>
+            <!-- ISLA DERECHA -->
+            <div class="island-card">
+              <div style="text-align: center; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0;">
+                <span style="font-size: 10px; font-weight: 900; color: #059669; text-transform: uppercase;">Isla Derecha ➡️</span>
               </div>
-              <div class="flex flex-col gap-1.5" id="grid-hall-right"></div>
+              <div style="display: flex; flex-direction: column; gap: 6px;" id="grid-hall-right"></div>
             </div>
 
           </div>
 
-          <!-- ÁREA POSTERIOR CLARA: ENTRADA / SONIDO / SEGUNDA SALA -->
-          <div class="mt-3 pt-2.5 border-t-2 border-dashed border-slate-300 space-y-2 flex-shrink-0">
-            <div class="grid grid-cols-12 gap-2 text-xs">
+          <!-- ÁREA TRASERA: ENTRADA / CABINA / SEGUNDA SALA -->
+          <div style="margin-top: 10px; padding-top: 8px; border-top: 2px dashed #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
               
-              <!-- ENTRADA Y ACOMODACIÓN -->
-              <div class="col-span-6 bg-white border-2 border-emerald-300 rounded-xl p-2 flex items-center justify-between shadow-sm">
+              <div style="background-color: #ffffff; border: 2px solid #a7f3d0; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                  <div class="text-[10px] font-extrabold text-emerald-800 flex items-center gap-1">🚪 Entrada Principal</div>
-                  <div class="text-[8px] text-slate-500">Puestos de Acomodación</div>
+                  <div style="font-size: 9.5px; font-weight: 900; color: #065f46;">🚪 Entrada Principal</div>
+                  <div style="font-size: 7.5px; color: #64748b;">Acomodación</div>
                 </div>
-                <div class="flex gap-1" id="chairs-ushers-box"></div>
+                <div style="display: flex; gap: 4px;" id="chairs-ushers-box"></div>
               </div>
 
-              <!-- CABINA DE SONIDO Y VÍDEO -->
-              <div class="col-span-6 bg-white border-2 border-indigo-300 rounded-xl p-2 flex items-center justify-between shadow-sm">
+              <div style="background-color: #ffffff; border: 2px solid #c7d2fe; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                  <div class="text-[10px] font-extrabold text-indigo-800 flex items-center gap-1">🎛️ Cabina Técnica</div>
-                  <div class="text-[8px] text-slate-500">Audio, Vídeo & Zoom</div>
+                  <div style="font-size: 9.5px; font-weight: 900; color: #3730a3;">🎛️ Cabina Técnica</div>
+                  <div style="font-size: 7.5px; color: #64748b;">Audio & Zoom</div>
                 </div>
-                <div class="flex gap-1" id="chairs-sound-box"></div>
+                <div style="display: flex; gap: 4px;" id="chairs-sound-box"></div>
               </div>
             </div>
 
-            <!-- SEGUNDA SALA / SALA AUXILIAR -->
-            <div class="bg-white border-2 border-teal-400 rounded-xl p-2 shadow-sm">
-              <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200">
-                <span class="text-[10px] font-extrabold text-teal-800 uppercase tracking-wide flex items-center gap-1">🚪 Segunda Sala / Sala Auxiliar</span>
-                <span class="text-[9px] text-slate-600 font-mono font-bold">
-                  Ocupadas: <strong id="cnt-sec-hall" class="text-teal-700 font-black">0</strong>/<span id="max-sec-hall">14</span>
-                </span>
+            <div style="background-color: #ffffff; border: 2px solid #99f6e4; border-radius: 10px; padding: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-bottom: 3px; border-bottom: 1px solid #e2e8f0;">
+                <span style="font-size: 9.5px; font-weight: 900; color: #115e59;">🚪 Segunda Sala / Auxiliar</span>
+                <span style="font-size: 8.5px; color: #475569; font-family: monospace;">Ocupadas: <strong id="cnt-sec-hall" style="color: #0f766e;">0</strong>/<span id="max-sec-hall">14</span></span>
               </div>
-              <div class="grid grid-cols-7 gap-1" id="grid-hall-second"></div>
+              <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;" id="grid-hall-second"></div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
 
-    <!-- COLUMNA 3: SALA VIRTUAL ZOOM -->
-    <section id="panel-zoom-col" class="lg:col-span-3 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-10rem)] shadow-lg">
-      <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 flex-shrink-0">
-        <div class="flex items-center gap-1.5">
-          <div class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">📹</div>
+    <!-- COLUMNA 3: ZOOM -->
+    <section id="panel-zoom-col" class="panel-box">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 6px; margin-bottom: 6px; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 14px;">📹</span>
           <div>
-            <h2 class="text-xs font-bold text-white leading-tight">Conexiones Zoom</h2>
-            <p class="text-[9px] text-slate-400">Dispositivos activos</p>
+            <h2 style="font-size: 12px; font-weight: 800; color: #fff;">Conexiones Zoom</h2>
+            <p style="font-size: 8.5px; color: #94a3b8;">Dispositivos y llamadas</p>
           </div>
         </div>
-
-        <div class="flex items-center gap-1">
-          <button onclick="openQuickZoomModal()" class="text-[10px] font-bold px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors shadow">
-            ➕ Agregar
-          </button>
-          <button onclick="newZoomGroupPrompt()" class="text-[10px] font-bold px-2 py-1 bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white rounded-lg border border-blue-500/40 transition-colors">
-            + Conexión
-          </button>
-          <button onclick="openPasteZoomModal()" class="text-[10px] font-bold px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors">
-            Pegar
-          </button>
-        </div>
+        <button onclick="openQuickZoomModal()" class="btn btn-emerald" style="padding: 4px 8px; font-size: 10px;">➕ Agregar</button>
       </div>
 
-      <div class="grid grid-cols-2 gap-1 mb-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] flex-shrink-0">
-        <button onclick="setZoomViewMode('grouped')" id="btn-zoom-view-grouped" class="py-1 rounded-lg font-bold bg-blue-600 text-white">Por Conexión</button>
-        <button onclick="setZoomViewMode('individual')" id="btn-zoom-view-individual" class="py-1 rounded-lg text-slate-400">Por Persona</button>
-      </div>
+      <div class="no-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;" id="zoom-cards-container"></div>
 
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-0.5" id="zoom-cards-container"></div>
-
-      <div class="mt-2 pt-2 border-t border-slate-800 text-[10px] flex justify-between text-slate-400 flex-shrink-0">
-        <span>Conexiones: <strong id="cnt-zoom-devices" class="text-blue-300 font-mono">0</strong></span>
-        <span>Asistentes Virtuales: <strong id="cnt-zoom-people" class="text-blue-400 font-bold font-mono">0</strong></span>
+      <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #1e293b; font-size: 10px; display: flex; justify-content: space-between; color: #94a3b8; flex-shrink: 0;">
+        <span>Dispositivos: <strong id="cnt-zoom-devices" style="color: #93c5fd; font-family: monospace;">0</strong></span>
+        <span>Virtuales: <strong id="cnt-zoom-people" style="color: #60a5fa; font-weight: 700; font-family: monospace;">0</strong></span>
       </div>
     </section>
 
   </main>
 
-  <!-- VISTA 2: BASE DE DATOS E INTEGRANTES -->
-  <main id="view-db-mode" class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-4 hidden flex-col space-y-3">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2.5 shadow-lg">
-      <div class="flex items-center gap-2">
-        <span class="text-lg">👥</span>
-        <div>
-          <h2 class="text-sm font-bold text-white leading-tight">Directorio Oficial de Integrantes y Familias</h2>
-          <p class="text-[10px] text-slate-400">Sincronización en vivo entre Computador y Celular</p>
-        </div>
+  <!-- VISTA 2: BASE DE DATOS -->
+  <main id="view-db-mode" style="display: none; padding: 12px;">
+    <div style="background-color: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
+      <div>
+        <h2 style="font-size: 13px; font-weight: 800; color: #fff;">👥 Directorio Oficial de Integrantes y Familias</h2>
+        <p style="font-size: 9.5px; color: #94a3b8;">Sincronización en vivo entre Computador y Celular</p>
       </div>
-
-      <div class="flex items-center gap-2 flex-wrap">
-        <button onclick="openEditMemberModal(null)" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
-          <span>+ Nuevo Integrante</span>
-        </button>
-        <button onclick="openHogaresModal()" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
-          <span>🏠 Catálogo de Hogares</span>
-        </button>
-        <button onclick="downloadCSV()" class="px-3 py-1.5 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-200 rounded-xl text-xs font-bold shadow flex items-center gap-1">
-          <span>📊 Descargar CSV</span>
-        </button>
-        <button onclick="switchView('salon')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">
-          <span>✕ Volver al Salón</span>
-        </button>
+      <div style="display: flex; gap: 6px;">
+        <button onclick="openEditMemberModal(null)" class="btn btn-indigo">+ Nuevo Integrante</button>
+        <button onclick="switchView('salon')" class="btn btn-dark">✕ Volver al Salón</button>
       </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
-      <div class="relative flex-1">
-        <input type="text" id="db-search-input" oninput="window.renderDBTable(this.value)" onkeyup="window.renderDBTable(this.value)" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." class="w-full pl-8 pr-4 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-        <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
-      </div>
-
-      <select id="db-group-select-filter" onchange="window.renderDBTable()" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-semibold focus:outline-none">
-        <option value="ALL">Todos los Grupos</option>
-        <option value="Grupo 1">Grupo 1</option>
-        <option value="Grupo 2">Grupo 2</option>
-        <option value="Grupo 3">Grupo 3</option>
-        <option value="Grupo 4">Grupo 4</option>
-        <option value="Grupo 5">Grupo 5</option>
-        <option value="Visitante">Visitantes</option>
-        <option value="Menor">Menores</option>
-      </select>
+    <div style="margin-bottom: 10px;">
+      <input type="text" id="db-search-input" oninput="window.renderDBTable(this.value)" placeholder="Buscar por nombre, apellido, hogar o alias (sin tildes)..." style="width: 100%; padding: 8px 12px; font-size: 11px; background-color: #020617; border: 1px solid #1e293b; border-radius: 10px; color: #fff; outline: none;">
     </div>
 
-    <div class="flex-1 overflow-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-inner max-h-[calc(100vh-16rem)]">
-      <table class="w-full text-left text-xs text-slate-300">
-        <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase sticky top-0 border-b border-slate-800 z-10">
+    <div style="background-color: #0f172a; border: 1px solid #1e293b; border-radius: 14px; overflow: auto; max-height: calc(100vh - 14rem);">
+      <table style="width: 100%; text-align: left; font-size: 11px; border-collapse: collapse;">
+        <thead style="background-color: #020617; color: #94a3b8; font-size: 9.5px; text-transform: uppercase; position: sticky; top: 0;">
           <tr>
-            <th class="p-2.5">ID / Integrante Oficial</th>
-            <th class="p-2.5">Nombre Corto (WhatsApp)</th>
-            <th class="p-2.5">Hogar / Familia</th>
-            <th class="p-2.5 text-center">Rol Fam.</th>
-            <th class="p-2.5 text-center">Grupo</th>
-            <th class="p-2.5 text-center">Rol</th>
-            <th class="p-2.5">Alias Zoom</th>
-            <th class="p-2.5 text-right">Acciones</th>
+            <th style="padding: 8px 10px;">ID / Integrante</th>
+            <th style="padding: 8px 10px;">Nombre Corto</th>
+            <th style="padding: 8px 10px;">Hogar</th>
+            <th style="padding: 8px 10px; text-align: center;">Rol Fam.</th>
+            <th style="padding: 8px 10px; text-align: center;">Grupo</th>
+            <th style="padding: 8px 10px; text-align: center;">Rol</th>
+            <th style="padding: 8px 10px; text-align: right;">Acciones</th>
           </tr>
         </thead>
-        <tbody id="db-members-table-body" class="divide-y divide-slate-800 font-mono text-[11px]"></tbody>
+        <tbody id="db-members-table-body" style="font-family: monospace; font-size: 11px;"></tbody>
       </table>
     </div>
   </main>
 
-  <!-- MODAL: ASIGNACIÓN RÁPIDA CONTINUA (BOTTOM SHEET EN MÓVIL PARA VER EL SALÓN DE FONDO) -->
-  <div id="modal-seat" class="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-    <div class="bg-slate-900 border-t-2 sm:border-2 border-indigo-500 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3.5 sm:p-4 shadow-2xl space-y-2.5 max-h-[65vh] sm:max-h-[90vh] flex flex-col">
+  <!-- MODAL: ASIGNACIÓN RÁPIDA CONTINUA (BOTTOM SHEET EN MÓVIL) -->
+  <div id="modal-seat" class="modal-overlay hidden">
+    <div class="modal-sheet modal-sheet-mobile">
       
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 8px; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #34d399; display: inline-block;"></span>
           <div>
-            <h3 class="text-xs sm:text-sm font-bold text-white" id="modal-seat-title">🪑 Silla en Asignación</h3>
-            <p class="text-[9.5px] text-indigo-300" id="modal-seat-subtitle">Escribe y presiona Enter para avanzar de inmediato</p>
+            <h3 id="modal-seat-title" style="font-size: 12.5px; font-weight: 800; color: #fff;">🪑 Asignar Silla</h3>
+            <p id="modal-seat-subtitle" style="font-size: 9.5px; color: #a5b4fc;">Escribe y presiona Enter para sentar y pasar a la siguiente</p>
           </div>
         </div>
-        <button onclick="closeModal('modal-seat')" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕ Cerrar</button>
+        <button onclick="closeModal('modal-seat')" style="background: none; border: none; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;">✕ Cerrar</button>
       </div>
 
-      <!-- FICHA DEL OCUPANTE ACTUAL -->
-      <div id="modal-occupant-card" class="hidden bg-slate-950 border border-indigo-900/80 rounded-xl p-2 space-y-1.5 flex-shrink-0 shadow-inner">
-        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
-          <span class="text-[9.5px] font-black uppercase text-indigo-300 tracking-wider">Ocupante Actual de esta Silla</span>
-          <span id="modal-occ-role-badge" class="px-2 py-0.5 rounded text-[8.5px] font-bold">PUB</span>
+      <!-- Ficha del Ocupante Actual -->
+      <div id="modal-occupant-card" style="display: none; background-color: #020617; border: 1px solid #312e81; border-radius: 10px; padding: 6px 8px; margin-bottom: 6px; flex-shrink: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 9px; font-weight: 800; color: #a5b4fc;">OCUPANTE ACTUAL</span>
+          <span id="modal-occ-role-badge" style="font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 4px;">PUB</span>
         </div>
-        <div class="grid grid-cols-2 gap-1.5 text-xs">
-          <div>
-            <span class="text-[8.5px] text-slate-400 block">Nombre</span>
-            <strong id="modal-occ-name" class="text-white text-[11.5px] block truncate">Nombre</strong>
-          </div>
-          <div>
-            <span class="text-[8.5px] text-slate-400 block">Nombre Corto</span>
-            <strong id="modal-occ-shortname" class="text-indigo-300 text-[11.5px] block truncate">Nombre Corto</strong>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+          <strong id="modal-occ-name" style="font-size: 11.5px; color: #fff;">Nombre</strong>
+          <div style="display: flex; gap: 4px;">
+            <button id="modal-occ-btn-zoom" class="btn btn-indigo" style="padding: 2px 6px; font-size: 9px;">📹 A Zoom</button>
+            <button onclick="vacateCurrentSeat()" class="btn btn-rose" style="padding: 2px 6px; font-size: 9px;">✕ Liberar</button>
           </div>
         </div>
-        <div class="flex items-center justify-end gap-1.5 pt-1 border-t border-slate-800/80">
-          <button id="modal-occ-btn-zoom" class="px-2 py-0.5 bg-blue-900 hover:bg-blue-800 text-blue-200 rounded text-[9.5px] font-bold">
-            📹 A Zoom
-          </button>
-          <button onclick="vacateCurrentSeat()" class="px-2 py-0.5 bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 rounded text-[9.5px] font-bold">
-            ✕ Liberar
-          </button>
-        </div>
       </div>
 
-      <!-- BUSCADOR CON RESALTADO AUTOMÁTICO Y ENTER RÁPIDO -->
-      <div class="relative flex-shrink-0">
-        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" placeholder="Escribe apellido o nombre (Presiona Enter para sentar)..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950 border-2 border-indigo-500/70 focus:border-indigo-400 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-400 shadow-sm">
-        <span class="absolute left-2.5 top-2 text-indigo-400 text-xs font-bold">⚡</span>
+      <!-- Buscador Rápido -->
+      <div style="position: relative; margin-bottom: 6px; flex-shrink: 0;">
+        <input type="text" id="modal-seat-search" oninput="window.renderSeatList(this.value)" placeholder="Escribe apellido o nombre (Enter para sentar)..." style="width: 100%; padding: 7px 10px 7px 28px; font-size: 11.5px; background-color: #020617; border: 2px solid #4f46e5; border-radius: 10px; color: #fff; outline: none;">
+        <span style="position: absolute; left: 8px; top: 7px; color: #818cf8; font-size: 11px;">⚡</span>
       </div>
 
-      <!-- LISTA DE HERMANOS CON LA MEJOR OPCIÓN RESALTADA -->
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pr-0.5" id="modal-seat-people-list"></div>
+      <!-- Lista de Hermanos -->
+      <div id="modal-seat-people-list" class="no-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
 
-      <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between gap-2 flex-shrink-0 text-[10px]">
-        <span class="text-slate-400 text-[9.5px]">💡 Presiona <strong>Enter</strong> o toca <strong>Sentar</strong> para pasar a la siguiente silla</span>
-        <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-900/60 rounded-lg font-medium">+ Nuevo</button>
+      <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: #94a3b8; flex-shrink: 0;">
+        <span>💡 Enter o Sentar avanza a la siguiente silla de al lado</span>
+        <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="btn btn-dark" style="padding: 2px 6px; font-size: 9px;">+ Nuevo</button>
       </div>
+
     </div>
   </div>
 
-  <!-- MODAL: EDITAR / CREAR INTEGRANTE -->
-  <div id="modal-edit-member" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5" id="modal-member-header"><span>👤</span> Registrar Integrante</h3>
-        <button onclick="closeModal('modal-edit-member')" class="text-slate-400 hover:text-white text-sm">✕</button>
+  <!-- MODAL: REPORTES DE ASISTENCIA (SALÓN + ZOOM + FALTANTES POR GRUPO) -->
+  <div id="modal-report-view" class="modal-overlay hidden">
+    <div class="modal-sheet" style="max-width: 680px; max-height: 92vh;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 8px; flex-shrink: 0;">
+        <h3 style="font-size: 13px; font-weight: 800; color: #fff;">📋 Reportes de Asistencia de la Congregación</h3>
+        <button onclick="closeModal('modal-report-view')" style="background: none; border: none; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;">✕ Cerrar</button>
       </div>
 
-      <input type="hidden" id="form-member-id">
-
-      <div class="space-y-2 text-xs">
-        <div>
-          <label class="block text-slate-400 mb-0.5">Nombre Completo Oficial</label>
-          <input type="text" id="form-member-name" placeholder="Ej: Oscar Enrique Arteaga Mendez" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-0.5">Nombre Corto (Para WhatsApp)</label>
-          <input type="text" id="form-member-shortname" placeholder="Ej: Oscar Arteaga" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-indigo-200 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-0.5">Familia / Hogar</label>
-            <select id="form-member-hogar" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none"></select>
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-0.5">Rol Familiar</label>
-            <select id="form-member-familyrole" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
-              <option value="Padre">Padre / Cabeza</option>
-              <option value="Esposo">Esposo</option>
-              <option value="Madre">Madre</option>
-              <option value="Esposa">Esposa</option>
-              <option value="Hijo">Hijo</option>
-              <option value="Hija">Hija</option>
-              <option value="Soltero/a">Soltero/a</option>
-              <option value="Otro" selected>Otro</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-0.5">Grupo de Servicio</label>
-            <select id="form-member-group" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
-              <option value="Grupo 1">Grupo 1</option>
-              <option value="Grupo 2">Grupo 2</option>
-              <option value="Grupo 3">Grupo 3</option>
-              <option value="Grupo 4">Grupo 4</option>
-              <option value="Grupo 5">Grupo 5</option>
-              <option value="Visitante">Visitante</option>
-              <option value="Menor">Menor</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-0.5">Rol Congregacional</label>
-            <select id="form-member-role" class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
-              <option value="PUB">Publicador (PUB)</option>
-              <option value="PR">Precursor (PR)</option>
-              <option value="SM">Siervo Ministerial (SM)</option>
-              <option value="ANC">Anciano (ANC)</option>
-              <option value="PNB">Pub. No Bautizado (PNB)</option>
-              <option value="Menor">Menor</option>
-              <option value="Visitante">Visitante</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-0.5">Alias Zoom Habitual</label>
-          <input type="text" id="form-member-aliaszoom" placeholder="Ej: Familia Arteaga..." class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none">
-        </div>
+      <div style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 6px;" class="no-scrollbar" id="report-type-nav">
+        <button onclick="setReportTab('r_all')" id="rtab-btn-r_all" class="btn btn-emerald" style="white-space: nowrap;">Completo (Salón + Zoom + Faltantes)</button>
+        <button onclick="setReportTab('r_zoom')" id="rtab-btn-r_zoom" class="btn btn-dark" style="white-space: nowrap;">Solo Zoom (R2)</button>
+        <button onclick="setReportTab('r_salon')" id="rtab-btn-r_salon" class="btn btn-dark" style="white-space: nowrap;">Solo Salón</button>
+        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="btn btn-dark" style="white-space: nowrap;">Evaluación (R1)</button>
+        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="btn btn-dark" style="white-space: nowrap;">Validación (R3)</button>
       </div>
 
-      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-        <button onclick="deleteMemberFromForm()" id="btn-delete-member-form" class="text-xs text-rose-400 hover:underline hidden font-bold">🗑️ Eliminar Integrante</button>
-        <div class="flex gap-2 ml-auto">
-          <button onclick="closeModal('modal-edit-member')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cancelar</button>
-          <button onclick="saveMemberForm()" class="text-xs px-3.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow">Guardar</button>
+      <textarea id="report-output-textarea" style="flex: 1; width: 100%; background-color: #020617; border: 1px solid #1e293b; border-radius: 10px; color: #34d399; font-family: monospace; font-size: 11px; padding: 10px; outline: none; line-height: 1.5; resize: none;" readonly></textarea>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; flex-shrink: 0;">
+        <span id="toast-copied-alert" style="color: #34d399; font-size: 11px; font-weight: 700; opacity: 0; transition: opacity 0.2s;">¡Copiado al portapapeles!</span>
+        <div style="display: flex; gap: 6px;">
+          <button onclick="closeModal('modal-report-view')" class="btn btn-dark">Cerrar</button>
+          <button onclick="copyReportText()" class="btn btn-emerald">Copiar Reporte</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CATÁLOGO DE HOGARES -->
-  <div id="modal-hogares" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>🏠</span> Catálogo Maestro de Hogares</h3>
-        <button onclick="closeModal('modal-hogares')" class="text-slate-400 hover:text-white text-sm">✕</button>
-      </div>
-      <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 flex-shrink-0">
-        <div class="flex gap-2">
-          <input type="text" id="form-hogar-name" placeholder="Nombre de Familia..." class="flex-1 px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
-          <select id="form-hogar-group" class="px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-indigo-300">
-            <option value="Grupo 1">Grupo 1</option>
-            <option value="Grupo 2">Grupo 2</option>
-            <option value="Grupo 3">Grupo 3</option>
-            <option value="Grupo 4">Grupo 4</option>
-            <option value="Grupo 5">Grupo 5</option>
-            <option value="Visitante">Visitante</option>
-          </select>
-        </div>
-        <div class="flex justify-end gap-1.5">
-          <button onclick="saveNewHogar()" class="px-3 py-1 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-lg text-xs shadow">+ Crear Hogar</button>
-        </div>
-      </div>
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="hogares-table-list"></div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
-        <button onclick="closeModal('modal-hogares')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: AGREGAR RÁPIDAMENTE A ZOOM -->
-  <div id="modal-quick-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <div>
-          <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📹</span> Conectar Persona a Zoom</h3>
-          <p class="text-[10px] text-slate-400">Toca para sumar o retirar de Zoom</p>
-        </div>
-        <button onclick="closeModal('modal-quick-zoom')" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
-      </div>
-      <div class="relative flex-shrink-0">
-        <input type="text" id="quick-zoom-search-input" oninput="window.renderQuickZoomList(this.value)" onkeyup="window.renderQuickZoomList(this.value)" placeholder="Buscar hermano, menor o visitante (sin tildes)..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-        <span class="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
-      </div>
-      <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-0.5 max-h-60" id="quick-zoom-people-results"></div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
-        <button onclick="closeModal('modal-quick-zoom')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: PEGAR REPORTE WHATSAPP -->
-  <div id="modal-paste-zoom" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-4 shadow-2xl space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📹</span> Sincronizar Asistencia Zoom por Texto</h3>
-        <button onclick="closeModal('modal-paste-zoom')" class="text-slate-400 hover:text-white text-sm">✕</button>
-      </div>
-      <p class="text-[11px] text-slate-300">Pega los mensajes de WhatsApp o notas:</p>
-      <textarea id="paste-zoom-textarea" rows="8" placeholder="Ejemplo:&#10;[26/8, 6:31 p.m.] Jamer Y Fabiola Hernández: (Jamer, Jamer A, Fabiola=3)&#10;[26/8, 6:34 p.m.] María de Castro: (María, Nalieth=2)..." class="w-full p-2.5 bg-slate-950 font-mono text-xs text-blue-300 rounded-xl border border-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"></textarea>
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800 gap-2">
-        <button onclick="loadSampleZoomText()" class="text-[10px] px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg border border-slate-700">Cargar Ejemplo</button>
-        <div class="flex gap-2">
-          <button onclick="closeModal('modal-paste-zoom')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cancelar</button>
-          <button onclick="processPastedZoomText()" class="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow">Procesar Zoom</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: REPORTES DE ASISTENCIA CON INTEGRACIÓN DE SALÓN, ZOOM Y FALTANTES -->
-  <div id="modal-report-view" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[95vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📋</span> Reportes de Asistencia de la Congregación</h3>
-        <button onclick="closeModal('modal-report-view')" class="text-slate-400 hover:text-white text-sm font-bold">✕</button>
-      </div>
-      
-      <div class="flex gap-1 overflow-x-auto no-scrollbar bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs flex-shrink-0" id="report-type-nav">
-        <button onclick="setReportTab('r_all')" id="rtab-btn-r_all" class="py-1 px-2.5 rounded-lg font-bold bg-emerald-600 text-white whitespace-nowrap">Completo (Salón + Zoom)</button>
-        <button onclick="setReportTab('r_zoom')" id="rtab-btn-r_zoom" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Solo Zoom (R2 Oficial)</button>
-        <button onclick="setReportTab('r_salon')" id="rtab-btn-r_salon" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Solo Salón</button>
-        <button onclick="setReportTab('r1')" id="rtab-btn-r1" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Evaluación (R1)</button>
-        <button onclick="setReportTab('r3')" id="rtab-btn-r3" class="py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap">Validación (R3)</button>
-      </div>
-
-      <textarea id="report-output-textarea" rows="16" class="w-full p-2.5 bg-slate-950 font-mono text-[11px] text-emerald-300 rounded-xl border border-slate-800 focus:outline-none select-text flex-1 leading-relaxed" readonly></textarea>
-      
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
-        <span id="toast-copied-alert" class="text-[11px] text-emerald-400 font-bold opacity-0 transition-opacity">¡Copiado al portapapeles!</span>
-        <div class="flex gap-2">
-          <button onclick="closeModal('modal-report-view')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
-          <button onclick="copyReportText()" class="text-xs px-3.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow">Copiar Reporte</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: BACKUP Y DESCARGA -->
-  <div id="modal-backup" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 shadow-2xl space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <div class="flex items-center gap-1.5">
-          <span class="text-base">💾</span>
-          <h3 class="text-xs font-bold text-white">Guardar y Respaldar</h3>
-        </div>
-        <button onclick="closeModal('modal-backup')" class="text-slate-400 hover:text-white text-sm">✕</button>
-      </div>
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <button onclick="downloadSessionJSON()" class="p-3 bg-indigo-950 hover:bg-indigo-900 border border-indigo-800 text-indigo-200 rounded-xl font-bold flex flex-col items-center justify-center text-center shadow">
-          <span>💾 Descargar JSON</span>
-          <span class="text-[9px] font-normal opacity-75 mt-0.5">Sesión completa</span>
-        </button>
-        <button onclick="copySessionJSON()" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl font-bold flex flex-col items-center justify-center text-center shadow">
-          <span>📋 Copiar JSON</span>
-          <span class="text-[9px] font-normal opacity-75 mt-0.5">Al portapapeles</span>
-        </button>
-      </div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeModal('modal-backup')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white text-xs px-3.5 py-2 rounded-xl shadow-2xl opacity-0 transform translate-y-10 transition-all duration-200 z-50 pointer-events-none">
+  <!-- TOAST NOTIFICACIÓN -->
+  <div id="toast" style="position: fixed; bottom: 16px; right: 16px; background-color: #0f172a; border: 1px solid #334155; color: #fff; font-size: 11px; font-weight: 700; padding: 8px 14px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); opacity: 0; transform: translateY(20px); transition: all 0.2s; z-index: 60; pointer-events: none;">
     <span id="toast-txt">Notificación</span>
   </div>
 
-  <!-- SCRIPT MAESTRO DE SINCRONIZACIÓN Y BÚSQUEDA INSTANTÁNEA -->
+  <!-- SCRIPT MAESTRO DE SINCRONIZACIÓN Y RELLENO CONTINUO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -685,7 +496,7 @@
     let db = null;
     let isCloudOnline = false;
 
-    // Directorio Maestro Oficial
+    // Directorio Maestro Semilla
     const defaultSeedHogares = [{"id": "H001", "name": "Perez Florez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H002", "name": "Revollo", "membersCount": 2, "group": "Grupo 2"}, {"id": "H003", "name": "Assia De La Rosa", "membersCount": 2, "group": "Grupo 5"}, {"id": "H004", "name": "Salgado", "membersCount": 1, "group": "Grupo 5"}, {"id": "H005", "name": "Gomez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H006", "name": "Revollo Fuentes", "membersCount": 2, "group": "Grupo 2"}, {"id": "H007", "name": "Sierra Meza", "membersCount": 2, "group": "Grupo 3"}, {"id": "H008", "name": "Perez Buelvas", "membersCount": 2, "group": "Grupo 3"}, {"id": "H009", "name": "Perez Gomez", "membersCount": 2, "group": "Grupo 5"}, {"id": "H010", "name": "Perez Quiroz", "membersCount": 1, "group": "Grupo 2"}, {"id": "H011", "name": "Mendivil", "membersCount": 1, "group": "Grupo 4"}, {"id": "H012", "name": "Quiroz Perez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H013", "name": "Revollo Sierra", "membersCount": 2, "group": "Grupo 5"}, {"id": "H014", "name": "Mendez Assia", "membersCount": 1, "group": "Grupo 3"}, {"id": "H015", "name": "Tovar", "membersCount": 1, "group": "Grupo 1"}, {"id": "H016", "name": "Perez Yepez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H017", "name": "Severiche", "membersCount": 1, "group": "Grupo 4"}, {"id": "H018", "name": "Sanchez Calderin", "membersCount": 1, "group": "Grupo 2"}, {"id": "H019", "name": "Prieto", "membersCount": 1, "group": "Grupo 2"}, {"id": "H020", "name": "Diaz Cardenas", "membersCount": 1, "group": "Grupo 2"}, {"id": "H021", "name": "Perez Arrieta", "membersCount": 2, "group": "Grupo 4"}, {"id": "H022", "name": "Julio Uribe", "membersCount": 2, "group": "Grupo 2"}, {"id": "H023", "name": "Arteaga Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H024", "name": "Hernandez Espina", "membersCount": 3, "group": "Grupo 5"}, {"id": "H025", "name": "Rodriguez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H026", "name": "Castro Perez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H027", "name": "Sincelejo", "membersCount": 1, "group": "Grupo 1"}, {"id": "H028", "name": "Wilchez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H029", "name": "Reales Regalado", "membersCount": 1, "group": "Grupo 2"}, {"id": "H030", "name": "Vergara", "membersCount": 1, "group": "Grupo 3"}, {"id": "H031", "name": "Barboza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H032", "name": "Marquez Arias", "membersCount": 2, "group": "Grupo 5"}, {"id": "H033", "name": "Mendez Garizao", "membersCount": 1, "group": "Grupo 1"}, {"id": "H034", "name": "Mercado", "membersCount": 2, "group": "Grupo 5"}, {"id": "H035", "name": "Gelvez Hernandez", "membersCount": 3, "group": "Grupo 4"}, {"id": "H036", "name": "Perez Mendez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H037", "name": "Gutierrez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H038", "name": "Sierra", "membersCount": 1, "group": "Grupo 5"}, {"id": "H039", "name": "Salazar Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H040", "name": "Monterroza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H041", "name": "Cardenas Arrieta", "membersCount": 1, "group": "Grupo 3"}, {"id": "H042", "name": "Saumeth Sierra", "membersCount": 5, "group": "Grupo 4"}, {"id": "H043", "name": "Barboza Pérez", "membersCount": 1, "group": "Visitante"}, {"id": "H044", "name": "Manjarrez", "membersCount": 1, "group": "Visitante"}, {"id": "H045", "name": "Mendivil (Visitante)", "membersCount": 1, "group": "Visitante"}];
 
     const defaultSeedMembers = [{"id": "P0044", "name": "Jorge Eliecer Regino Wilchez", "shortName": "Jorge Wilchez", "hogarId": "H028", "family": "Wilchez", "group": "Grupo 1", "role": "PUB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0056", "name": "Samir Joel Perez Mendez", "shortName": "Samir Perez", "hogarId": "H036", "family": "Perez Mendez", "group": "Grupo 3", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0024", "name": "Amada Isabel Tovar NN", "shortName": "Amada Tovar", "hogarId": "H015", "family": "Tovar", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0034", "name": "Oscar Enrique Arteaga Mendez", "shortName": "Oscar Arteaga", "hogarId": "H023", "family": "Arteaga Rangel", "group": "Grupo 1", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0035", "name": "Ana Fernanda Arteaga (Rangel Salazar)", "shortName": "Ana Arteaga", "hogarId": "H023", "family": "Arteaga Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0040", "name": "Leiffer Jesus Castro Tovar", "shortName": "Leiffer Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "SM", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0041", "name": "Maria del Carmen Castro (Perez Quiroz)", "shortName": "Maria Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "PUB", "familyRole": "Madre", "aliasZoom": "Familia Castro Pérez", "aliasWhatsApp": "", "device": ""}, {"id": "P0042", "name": "Danilce Senaida Sincelejo (Perez Barboza)", "shortName": "Danilce Sincelejo", "hogarId": "H027", "family": "Sincelejo", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0043", "name": "Adis Maria Wilchez Montes", "shortName": "Adis Wilchez", "hogarId": "H028", "family": "Wilchez", "group": "Grupo 1", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047", "name": "Nalieth Castro Pérez", "shortName": "Nalieth Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "Menor", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047b", "name": "Arinda del Carmen Barboza (Portacio Sierra)", "shortName": "Arinda Barboza", "hogarId": "H031", "family": "Barboza", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": "OPPO A54"}, {"id": "P0050", "name": "Ester Maria Mendez Garizao", "shortName": "Ester Mendez", "hogarId": "H033", "family": "Mendez Garizao", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0059", "name": "Digna Rosa Salazar Amaris", "shortName": "Digna Salazar", "hogarId": "H039", "family": "Salazar Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0060", "name": "Zaida Rangel Salazar", "shortName": "Zaida Rangel", "hogarId": "H039", "family": "Salazar Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0061", "name": "Sonia Monterroza", "shortName": "Sonia Monterroza", "hogarId": "H040", "family": "Monterroza", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0003", "name": "Lilibeth del Carmen Revollo Vergara", "shortName": "Lilibeth Revollo", "hogarId": "H002", "family": "Revollo", "group": "Grupo 2", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0004", "name": "Michael Andres Martinez Revollo", "shortName": "Michael Martinez", "hogarId": "H002", "family": "Revollo", "group": "Grupo 2", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0008", "name": "Ligia Raquel Gomez (Wilches Diaz)", "shortName": "Ligia Gomez", "hogarId": "H005", "family": "Gomez", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0009", "name": "Arturo Rafael Revollo Fuentes", "shortName": "Arturo Revollo", "hogarId": "H006", "family": "Revollo Fuentes", "group": "Grupo 2", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0010", "name": "Leticia del Carmen Revollo (Vergara Monterroza)", "shortName": "Leticia Revollo", "hogarId": "H006", "family": "Revollo Fuentes", "group": "Grupo 2", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0017", "name": "Ludys del Carmen Perez (Quiroz Gonzalez)", "shortName": "Ludys Perez", "hogarId": "H010", "family": "Perez Quiroz", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "Ludys Quiroz", "aliasWhatsApp": "", "device": ""}, {"id": "P0025", "name": "Yaquelin Elena Perez Yepez", "shortName": "Yaquelin Perez", "hogarId": "H016", "family": "Perez Yepez", "group": "Grupo 2", "role": "PR", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0027", "name": "Francisco Jose Sanchez Calderin", "shortName": "Francisco Sanchez", "hogarId": "H018", "family": "Sanchez Calderin", "group": "Grupo 2", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0028", "name": "Beatriz Elena Prieto (Liñan Diaz)", "shortName": "Beatriz Prieto", "hogarId": "H019", "family": "Prieto", "group": "Grupo 2", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0029", "name": "Alfonso Manuel Diaz Cardenas", "shortName": "Alfonso Diaz", "hogarId": "H020", "family": "Diaz Cardenas", "group": "Grupo 2", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0032", "name": "Miguel Esteban Julio Alvarez", "shortName": "Miguel Julio", "hogarId": "H022", "family": "Julio Uribe", "group": "Grupo 2", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0033", "name": "Esther Lucia Julio (Uribe Gonzalez)", "shortName": "Esther Julio", "hogarId": "H022", "family": "Julio Uribe", "group": "Grupo 2", "role": "PR", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0045", "name": "Tarcila Judith Reales Regalado", "shortName": "Tarcila Reales", "hogarId": "H029", "family": "Reales Regalado", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "Tarcila Reales de Gómez", "aliasWhatsApp": "", "device": ""}, {"id": "P0001", "name": "Jesus Manuel Perez Quiroz", "shortName": "Jesus Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "PUB", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0002", "name": "Esther Marina Perez (Florez Villalobos)", "shortName": "Esther Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047c", "name": "Emmanuel Perez Florez", "shortName": "Emmanuel Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0011", "name": "Xavier Enrique Sierra Villamil", "shortName": "Xavier Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "PUB", "familyRole": "Padre", "aliasZoom": "Xavier,Rous yLionel Andrés", "aliasWhatsApp": "", "device": ""}, {"id": "P0012", "name": "Rose Estela Sierra (Meza Vitola)", "shortName": "Rose Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0048b", "name": "Lionel Sierra Meza", "shortName": "Lionel Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0013", "name": "Elcy Edith Perez (Buelvas Cadena)", "shortName": "Elcy Perez", "hogarId": "H008", "family": "Perez Buelvas", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0014", "name": "Natali Perez Buelvas", "shortName": "Natali Perez", "hogarId": "H008", "family": "Perez Buelvas", "group": "Grupo 3", "role": "PUB", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0019", "name": "Jose Blas Quiroz Palacio", "shortName": "Jesus Quiroz", "hogarId": "H012", "family": "Quiroz Perez", "group": "Grupo 3", "role": "ANC", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0020", "name": "Suleima Quiros (Perez Buelvas)", "shortName": "Suleima Quiros", "hogarId": "H012", "family": "Quiroz Perez", "group": "Grupo 3", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0023", "name": "Jaider de Jesus Mendez Assia", "shortName": "Jaider Mendez", "hogarId": "H014", "family": "Mendez Assia", "group": "Grupo 3", "role": "SM", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0039", "name": "Alcira Luz Rodriguez (Perez Tovar)", "shortName": "Alcira Rodriguez", "hogarId": "H025", "family": "Rodriguez", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0046", "name": "Orledis del Carmen Vergara (Lobo Cuello)", "shortName": "Orledis Vergara", "hogarId": "H030", "family": "Vergara", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0057", "name": "Yorlenis Gutierrez", "shortName": "Yorlenis Gutierrez", "hogarId": "H037", "family": "Gutierrez", "group": "Grupo 3", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0062", "name": "Luz Marina Cardenas Arrieta", "shortName": "Luz Marina Cardenas", "hogarId": "H041", "family": "Cardenas Arrieta", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0018", "name": "Mary Cruz Mendivil (Santos Herazo)", "shortName": "Mary Mendivil", "hogarId": "H011", "family": "Mendivil", "group": "Grupo 4", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0026", "name": "Sandra Luz Severiche (Dominguez Castellar)", "shortName": "Sandra Severiche", "hogarId": "H017", "family": "Severiche", "group": "Grupo 4", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0030", "name": "Rosario de Jesus Perez (Arrieta Marquez)", "shortName": "Rosario Perez", "hogarId": "H021", "family": "Perez Arrieta", "group": "Grupo 4", "role": "PR", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0031", "name": "Ketly Valeria Perez Arrieta", "shortName": "Ketly Perez", "hogarId": "H021", "family": "Perez Arrieta", "group": "Grupo 4", "role": "PR", "familyRole": "Hija", "aliasZoom": "Ketly Pérez", "aliasWhatsApp": "", "device": ""}, {"id": "P0053", "name": "Gabriel Gelvez", "shortName": "Gabriel Gelvez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PUB", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0054", "name": "Yoelis Onice Gelvez (Hernandez)", "shortName": "Yoelis Gelvez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0055", "name": "Franyerlis Michel Hernandez", "shortName": "Franyerlis Hernandez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PNB", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0063", "name": "Luis Alberto Saumeth Manjarrez", "shortName": "Luis Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "ANC", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0064", "name": "Nini Jhoana Saumeth (Sierra)", "shortName": "Nini Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0065", "name": "Luis Miguel Saumeth Sierra", "shortName": "Luis Miguel Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PUB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0066", "name": "Diego Saumeth", "shortName": "Diego Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0067", "name": "Ricardo Saumeth", "shortName": "Ricardo Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0005", "name": "Libardo Enrique Assia Atencia", "shortName": "Libardo Assia", "hogarId": "H003", "family": "Assia De La Rosa", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Filadelfa , Libardo (2)", "aliasWhatsApp": "", "device": ""}, {"id": "P0006", "name": "Filadelfa Assia (De La Rosa Mendoza)", "shortName": "Filadelfa Assia", "hogarId": "H003", "family": "Assia De La Rosa", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0007", "name": "Karina Rocio Salgado", "shortName": "Karina Salgado", "hogarId": "H004", "family": "Salgado", "group": "Grupo 5", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "57320****620", "aliasWhatsApp": "", "device": ""}, {"id": "P0015", "name": "German Enrique Perez Quiroz", "shortName": "German Perez", "hogarId": "H009", "family": "Perez Gomez", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0016", "name": "Gendys Perez (Gomez Buelvas)", "shortName": "Gendys Perez", "hogarId": "H009", "family": "Perez Gomez", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0021", "name": "Arturo Enrique Revollo Vergara", "shortName": "Arturo Revollo", "hogarId": "H013", "family": "Revollo Sierra", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Arturo y Amarys", "aliasWhatsApp": "", "device": ""}, {"id": "P0022", "name": "Amarys del Carmen Revollo (Sierra Granados)", "shortName": "Amarys Revollo", "hogarId": "H013", "family": "Revollo Sierra", "group": "Grupo 5", "role": "PR", "familyRole": "Esposa", "aliasZoom": "Arturo y Amarys", "aliasWhatsApp": "", "device": ""}, {"id": "P0036", "name": "Jamer Joaquin Hernandez Perez", "shortName": "Jamer Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PUB", "familyRole": "Padre", "aliasZoom": "Hernández", "aliasWhatsApp": "", "device": ""}, {"id": "P0037", "name": "Fabiola Cristina Hernandez (Espina Molina)", "shortName": "Fabiola Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PR", "familyRole": "Madre", "aliasZoom": "Hernández", "aliasWhatsApp": "", "device": ""}, {"id": "P0038", "name": "Jamer Arturo Hernandez Espina", "shortName": "Jamer Arturo Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0048", "name": "Felix de Jesus Marquez Cardenas", "shortName": "Felix Marquez", "hogarId": "H032", "family": "Marquez Arias", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Julia Arias", "aliasWhatsApp": "", "device": ""}, {"id": "P0049", "name": "Julia Isabel Marquez (Arias Cardenas)", "shortName": "Julia Marquez", "hogarId": "H032", "family": "Marquez Arias", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "Julia Arias", "aliasWhatsApp": "", "device": ""}, {"id": "P0051", "name": "William Mercado", "shortName": "William Mercado", "hogarId": "H034", "family": "Mercado", "group": "Grupo 5", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0052", "name": "Saray Mercado", "shortName": "Saray Mercado", "hogarId": "H034", "family": "Mercado", "group": "Grupo 5", "role": "PR", "familyRole": "Esposa", "aliasZoom": "TECNO MOBILE LIMITED TECNO CH7n", "aliasWhatsApp": "", "device": ""}, {"id": "P0058", "name": "Aura de Jesus Sierra (Granados Mariano)", "shortName": "Aura Sierra", "hogarId": "H038", "family": "Sierra", "group": "Grupo 5", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0046v", "name": "Edalvi de Duarte (Perez)", "shortName": "Edalvi Duarte", "hogarId": "H029", "family": "Duarte", "group": "Visitante", "role": "Visitante", "familyRole": "Esposa", "aliasZoom": "Edalvi de Duarte", "aliasWhatsApp": "", "device": ""}, {"id": "P0046y", "name": "Yolima Manjarrez", "shortName": "Yolima Manjarrez", "hogarId": "H044", "family": "Manjarrez", "group": "Visitante", "role": "Visitante", "familyRole": "Otro", "aliasZoom": "Yolima Manjarrez", "aliasWhatsApp": "", "device": ""}, {"id": "P0047d", "name": "Diana Gabriela Mendivil", "shortName": "Diana Mendivil", "hogarId": "H045", "family": "Mendivil (Visitante)", "group": "Visitante", "role": "Visitante", "familyRole": "Otro", "aliasZoom": "Diana Gabriela Mendivil", "aliasWhatsApp": "", "device": ""}, {"id": "P0068", "name": "Fabiola Tatiana Barboza Perez", "shortName": "Fabiola Barboza", "hogarId": "H043", "family": "Barboza Pérez", "group": "Visitante", "role": "Visitante", "familyRole": "Madre", "aliasZoom": "iphone de Fabiola tatiana", "aliasWhatsApp": "", "device": ""}, {"id": "P0069", "name": "Nathan Castro Perez", "shortName": "Nathan Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}];
@@ -828,19 +639,22 @@
       const txt = document.getElementById("cloud-status-msg");
 
       if (state === "ok") {
-        banner.className = "bg-emerald-950/80 border-b border-emerald-700 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        banner.style.backgroundColor = "#064e3b";
+        banner.style.borderBottomColor = "#047857";
         icon.innerText = "🟢";
-        txt.className = "font-bold text-emerald-300";
+        txt.style.color = "#a7f3d0";
         txt.innerText = msg || "NUBE ACTIVA: Sincronizado en tiempo real (Computador y Celular)";
       } else if (state === "error") {
-        banner.className = "bg-rose-950 border-b border-rose-700 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        banner.style.backgroundColor = "#881337";
+        banner.style.borderBottomColor = "#be123c";
         icon.innerText = "🔴";
-        txt.className = "font-bold text-rose-200";
-        txt.innerText = msg || "Error en Firebase: Permiso denegado. Revisa las Reglas en Firebase Console.";
+        txt.style.color = "#fecdd3";
+        txt.innerText = msg || "Error en Firebase: Permiso denegado en Reglas.";
       } else {
-        banner.className = "bg-slate-900 border-b border-slate-800 px-3 py-1.5 text-[11px] flex items-center justify-between";
+        banner.style.backgroundColor = "#0f172a";
+        banner.style.borderBottomColor = "#1e293b";
         icon.innerText = "🔄";
-        txt.className = "font-medium text-slate-400";
+        txt.style.color = "#94a3b8";
         txt.innerText = msg || "Conectando con Firebase...";
       }
     }
@@ -906,11 +720,7 @@
 
       } catch(e) {
         isCloudOnline = false;
-        if (e.message && e.message.includes("permission")) {
-          updateCloudBanner("error", "Firebase: Permiso denegado. Abre Firestore > Reglas y pon allow read, write: if true;");
-        } else {
-          updateCloudBanner("error", "Error conectando a Firebase: " + e.message);
-        }
+        updateCloudBanner("error", "Error conectando a Firebase: " + e.message);
       }
     }
 
@@ -951,7 +761,6 @@
       Storage.saveLocalAndCloud();
     };
 
-    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y APERTURA DE SILLAS
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -964,10 +773,16 @@
 
         // Fila Izquierda
         const rowL = document.createElement("div");
-        rowL.className = "flex items-center gap-1.5";
+        rowL.style.display = "flex";
+        rowL.style.alignItems = "center";
+        rowL.style.gap = "6px";
         
         const spanL = document.createElement("span");
-        spanL.className = "w-3 text-[10px] font-black text-slate-500 text-right";
+        spanL.style.width = "14px";
+        spanL.style.fontSize = "10px";
+        spanL.style.fontWeight = "900";
+        spanL.style.color = "#64748b";
+        spanL.style.textAlign = "right";
         spanL.innerText = `F${rNum}`;
         rowL.appendChild(spanL);
 
@@ -980,7 +795,9 @@
 
         // Fila Derecha
         const rowR = document.createElement("div");
-        rowR.className = "flex items-center gap-1.5";
+        rowR.style.display = "flex";
+        rowR.style.alignItems = "center";
+        rowR.style.gap = "6px";
 
         for (let s = 1; s <= row.right; s++) {
           const sid = `MAIN-R-R${rNum}-S${s}`;
@@ -989,7 +806,11 @@
         }
 
         const spanR = document.createElement("span");
-        spanR.className = "w-3 text-[10px] font-black text-slate-500 text-left";
+        spanR.style.width = "14px";
+        spanR.style.fontSize = "10px";
+        spanR.style.fontWeight = "900";
+        spanR.style.color = "#64748b";
+        spanR.style.textAlign = "left";
         spanR.innerText = `F${rNum}`;
         rowR.appendChild(spanR);
 
@@ -1035,41 +856,48 @@
 
       if (isDisabled) {
         if (isDesignModeActive) {
-          el.className = "chair-seat w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-amber-100 border-2 border-dashed border-amber-500 text-amber-800 text-xs font-black cursor-pointer shadow-sm";
-          el.innerHTML = "+";
+          el.className = "chair-seat";
+          el.style.backgroundColor = "#fef3c7";
+          el.style.border = "2px dashed #f59e0b";
+          el.style.color = "#b45309";
+          el.style.fontWeight = "900";
+          el.innerText = "+";
           el.onclick = () => toggleDisableChair(seatId);
         } else {
-          el.className = "w-9 h-9 sm:w-10 sm:h-10 opacity-0 pointer-events-none";
+          el.className = "chair-seat";
+          el.style.opacity = "0";
+          el.style.pointerEvents = "none";
         }
         return el;
       }
 
       const occupant = members.find(a => a.seatId === seatId);
       const colorMap = {
-        "Grupo 1": "bg-sky-600 border-sky-400 text-white shadow-md shadow-sky-700/30",
-        "Grupo 2": "bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-700/30",
-        "Grupo 3": "bg-amber-600 border-amber-300 text-white shadow-md shadow-amber-700/30",
-        "Grupo 4": "bg-purple-600 border-purple-400 text-white shadow-md shadow-purple-700/30",
-        "Grupo 5": "bg-pink-600 border-pink-400 text-white shadow-md shadow-pink-700/30",
-        "Visitante": "bg-slate-700 border-slate-500 text-white shadow-md shadow-slate-800/30",
-        "Menor": "bg-teal-600 border-teal-300 text-white shadow-md shadow-teal-700/30"
+        "Grupo 1": { bg: "#0284c7", border: "#38bdf8", color: "#ffffff" },
+        "Grupo 2": { bg: "#059669", border: "#34d399", color: "#ffffff" },
+        "Grupo 3": { bg: "#d97706", border: "#fde68a", color: "#ffffff" },
+        "Grupo 4": { bg: "#9333ea", border: "#c084fc", color: "#ffffff" },
+        "Grupo 5": { bg: "#db2777", border: "#f472b6", color: "#ffffff" },
+        "Visitante": { bg: "#475569", border: "#94a3b8", color: "#ffffff" },
+        "Menor": { bg: "#0d9488", border: "#5eead4", color: "#ffffff" }
       };
 
       if (occupant) {
-        const bg = colorMap[occupant.group] || "bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-700/30";
-        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center p-0.5 cursor-pointer border text-center font-sans ${bg}`;
+        const c = colorMap[occupant.group] || { bg: "#4f46e5", border: "#818cf8", color: "#ffffff" };
+        el.className = "chair-seat";
+        el.style.backgroundColor = c.bg;
+        el.style.borderColor = c.border;
+        el.style.color = c.color;
         const shortName = (occupant.shortName || occupant.name).split(" ")[0];
         el.innerHTML = `
-          <span class="text-[8.5px] font-bold truncate max-w-full leading-tight">${shortName}</span>
-          <span class="text-[7px] opacity-85 leading-none mt-0.5 uppercase">${occupant.role.split(',')[0]}</span>
-          ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black">✕</button>` : ''}
+          <span style="font-size: 8.5px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.1;">${shortName}</span>
+          <span style="font-size: 7px; opacity: 0.85; text-transform: uppercase;">${occupant.role.split(',')[0]}</span>
         `;
       } else {
-        el.className = `chair-seat relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center bg-white hover:bg-slate-100 border-2 border-slate-300/90 text-slate-600 cursor-pointer shadow-sm ${isDesignModeActive ? 'border-amber-500 hover:border-amber-600' : ''}`;
+        el.className = "chair-seat chair-vacant";
         el.innerHTML = `
-          <span class="text-[11px] opacity-40">🪑</span>
-          <span class="text-[7.5px] font-mono font-bold text-slate-500">${label}</span>
-          ${isDesignModeActive ? `<button class="absolute -top-1 -right-1 bg-rose-600 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8.5px] font-bold shadow">✕</button>` : ''}
+          <span style="font-size: 11px; opacity: 0.4;">🪑</span>
+          <span style="font-size: 7.5px; font-family: monospace; font-weight: 800; color: #64748b;">${label}</span>
         `;
       }
 
@@ -1099,7 +927,7 @@
     window.filterDirectory = function(val) {
       currentSearchTerm = val !== undefined ? val : (document.getElementById("dir-search-input")?.value || "");
       const clearBtn = document.getElementById("dir-clear-search");
-      if (clearBtn) clearBtn.classList.toggle("hidden", !currentSearchTerm);
+      if (clearBtn) clearBtn.style.display = currentSearchTerm ? "block" : "none";
       renderDirectory();
     };
 
@@ -1141,34 +969,40 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="py-6 text-center text-slate-500 text-xs">Sin coincidencias para "${currentSearchTerm}"</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b; font-size: 11px;">Sin coincidencias para "${currentSearchTerm}"</div>`;
         return;
       }
 
       filtered.forEach(a => {
         const isPlaced = !!a.location;
         const item = document.createElement("div");
-        item.className = `p-2 rounded-xl border flex items-center justify-between gap-1 text-xs ${
-          isPlaced ? "bg-slate-950/50 border-slate-800/80 opacity-60" : "bg-slate-950 border-slate-800 hover:border-slate-700"
-        }`;
+        item.style.padding = "7px 9px";
+        item.style.borderRadius = "10px";
+        item.style.border = "1px solid #1e293b";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.fontSize = "11px";
+        item.style.backgroundColor = isPlaced ? "rgba(2, 6, 23, 0.6)" : "#020617";
+        if (isPlaced) item.style.opacity = "0.7";
 
         let locBadge = "";
-        if (a.location === "main") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Pral</span>`;
-        if (a.location === "sec") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">Sala 2</span>`;
-        if (a.location === "zoom") locBadge = `<span class="text-[8.5px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">Zoom</span>`;
+        if (a.location === "main") locBadge = `<span style="font-size: 8px; padding: 1px 4px; border-radius: 4px; background-color: #082f49; color: #38bdf8; border: 1px solid #0284c7;">Pral</span>`;
+        if (a.location === "sec") locBadge = `<span style="font-size: 8px; padding: 1px 4px; border-radius: 4px; background-color: #134e4a; color: #2dd4bf; border: 1px solid #0f766e;">Sala 2</span>`;
+        if (a.location === "zoom") locBadge = `<span style="font-size: 8px; padding: 1px 4px; border-radius: 4px; background-color: #172554; color: #60a5fa; border: 1px solid #1d4ed8;">Zoom</span>`;
 
         item.innerHTML = `
-          <div class="truncate min-w-0 pr-1">
-            <div class="font-medium text-slate-100 truncate text-[11.5px]">${a.shortName || a.name}</div>
-            <div class="text-[9px] text-slate-400">${a.family} • <span class="text-indigo-300">${a.group}</span></div>
+          <div style="min-width: 0; flex: 1; padding-right: 6px;">
+            <div style="font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${a.shortName || a.name}</div>
+            <div style="font-size: 9px; color: #94a3b8;">${a.family} • <span style="color: #a5b4fc; font-weight: 600;">${a.group}</span></div>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0">
+          <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
             ${isPlaced ? `
               ${locBadge}
-              <button onclick="unseatPerson('${a.id}')" class="p-1 text-slate-400 hover:text-rose-400">✕</button>
+              <button onclick="unseatPerson('${a.id}')" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;">✕</button>
             ` : `
-              <button onclick="autoSeatNextAvailable('${a.id}')" class="px-1.5 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold" title="Ubicar en la próxima silla disponible">+ Salón</button>
-              <button onclick="quickAddZoomPerson('${a.id}')" class="px-1.5 py-0.5 bg-blue-700 hover:bg-blue-600 text-white rounded text-[10px]" title="Conectar en Zoom">📹</button>
+              <button onclick="autoSeatNextAvailable('${a.id}')" class="btn btn-indigo" style="padding: 2px 6px; font-size: 9.5px;">+ Salón</button>
+              <button onclick="quickAddZoomPerson('${a.id}')" class="btn btn-emerald" style="padding: 2px 6px; font-size: 9.5px;">📹</button>
             `}
           </div>
         `;
@@ -1185,61 +1019,37 @@
 
       if (zoomMembers.length === 0) {
         container.innerHTML = `
-          <div class="py-8 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl space-y-2">
-            <span class="text-sm block">📹 Sin personas en Zoom</span>
-            <button onclick="openQuickZoomModal()" class="py-1 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold shadow">
-              ➕ Agregar Personas a Zoom
-            </button>
+          <div style="padding: 24px; text-align: center; color: #64748b; font-size: 11px; border: 1px dashed #1e293b; border-radius: 10px;">
+            <span style="display: block; margin-bottom: 6px;">📹 Sin personas en Zoom</span>
+            <button onclick="openQuickZoomModal()" class="btn btn-emerald" style="font-size: 10px;">➕ Conectar Personas</button>
           </div>
         `;
         return;
       }
 
-      if (currentZoomDisplay === "grouped") {
-        zoomConnections.forEach(conn => {
-          const card = document.createElement("div");
-          card.className = "p-2.5 rounded-xl bg-slate-950 border border-blue-900/50 space-y-2 shadow-sm";
-          const groupMembers = conn.memberIds.map(mid => members.find(a => a.id === mid && a.location === 'zoom')).filter(Boolean);
+      zoomMembers.forEach(m => {
+        const item = document.createElement("div");
+        item.style.padding = "7px 9px";
+        item.style.borderRadius = "10px";
+        item.style.backgroundColor = "#020617";
+        item.style.border = "1px solid #1e3a8a";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.fontSize = "11px";
 
-          let membersHtml = "";
-          groupMembers.forEach(m => {
-            membersHtml += `
-              <div class="flex items-center justify-between py-1 px-1.5 bg-slate-900/80 rounded-lg text-xs">
-                <span class="text-white">${m.shortName || m.name} <span class="text-[9px] text-slate-400">(${m.role})</span></span>
-                <div class="flex items-center gap-1">
-                  <button onclick="autoSeatNextAvailable('${m.id}')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[9.5px]">🪑 Salón</button>
-                  <button onclick="unseatPerson('${m.id}')" class="p-0.5 text-slate-400 hover:text-rose-400 text-xs">✕</button>
-                </div>
-              </div>
-            `;
-          });
-
-          card.innerHTML = `
-            <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
-              <span class="font-bold text-white text-xs truncate">💻 ${conn.label}</span>
-              <span class="px-1.5 py-0.2 bg-blue-950 text-blue-300 border border-blue-800 rounded text-[9px] font-mono">${groupMembers.length}</span>
-            </div>
-            <div class="space-y-1">${membersHtml}</div>
-          `;
-          container.appendChild(card);
-        });
-      } else {
-        zoomMembers.forEach(m => {
-          const item = document.createElement("div");
-          item.className = "p-2 rounded-xl bg-slate-950 border border-blue-900/40 flex items-center justify-between text-xs";
-          item.innerHTML = `
-            <div class="truncate pr-1">
-              <div class="font-bold text-white truncate">${m.shortName || m.name}</div>
-              <div class="text-[9px] text-slate-400">${m.family} • ${m.group} • ${m.role}</div>
-            </div>
-            <div class="flex items-center gap-1">
-              <button onclick="autoSeatNextAvailable('${m.id}')" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded text-[10px]">🪑 Salón</button>
-              <button onclick="unseatPerson('${m.id}')" class="p-1 text-slate-400 hover:text-rose-400">✕</button>
-            </div>
-          `;
-          container.appendChild(item);
-        });
-      }
+        item.innerHTML = `
+          <div style="min-width: 0; flex: 1; padding-right: 6px;">
+            <div style="font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.shortName || m.name}</div>
+            <div style="font-size: 9px; color: #94a3b8;">${m.family} • ${m.group} • ${m.role}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+            <button onclick="autoSeatNextAvailable('${m.id}')" class="btn btn-dark" style="padding: 2px 6px; font-size: 9.5px; color: #34d399;">🪑 Salón</button>
+            <button onclick="unseatPerson('${m.id}')" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;">✕</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
     }
 
     window.renderDBTable = function(val) {
@@ -1261,29 +1071,28 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 text-xs">Sin registros.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="padding: 16px; text-align: center; color: #64748b;">Sin registros.</td></tr>`;
         return;
       }
 
       filtered.forEach(a => {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-950/80 transition-colors";
+        tr.style.borderBottom = "1px solid #1e293b";
         tr.innerHTML = `
-          <td class="p-2.5">
-            <div class="font-bold text-white font-sans">${a.name}</div>
-            <div class="text-[9.5px] text-slate-500 font-mono">${a.id}</div>
+          <td style="padding: 8px 10px;">
+            <div style="font-weight: 700; color: #fff;">${a.name}</div>
+            <div style="font-size: 9px; color: #64748b;">${a.id}</div>
           </td>
-          <td class="p-2.5 font-bold text-indigo-300 font-sans">${a.shortName || ''}</td>
-          <td class="p-2.5">${a.family}</td>
-          <td class="p-2.5 text-center text-slate-400">${a.familyRole || 'Otro'}</td>
-          <td class="p-2.5 text-center font-bold text-sky-400">${a.group}</td>
-          <td class="p-2.5 text-center">
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${a.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':a.role==='Visitante'?'bg-slate-800 text-slate-300':'bg-indigo-950 text-indigo-300 border border-indigo-800'}">${a.role}</span>
+          <td style="padding: 8px 10px; font-weight: 700; color: #a5b4fc;">${a.shortName || ''}</td>
+          <td style="padding: 8px 10px;">${a.family}</td>
+          <td style="padding: 8px 10px; text-align: center; color: #94a3b8;">${a.familyRole || 'Otro'}</td>
+          <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #38bdf8;">${a.group}</td>
+          <td style="padding: 8px 10px; text-align: center;">
+            <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; background-color: #1e1b4b; color: #a5b4fc; border: 1px solid #3730a3;">${a.role}</span>
           </td>
-          <td class="p-2.5 text-slate-400 truncate max-w-[140px]">${a.aliasZoom || '-'}</td>
-          <td class="p-2.5 text-right space-x-1 whitespace-nowrap">
-            <button onclick="editMemberModal('${a.id}')" class="px-2 py-1 bg-indigo-600/80 hover:bg-indigo-600 text-white rounded text-[10px] font-bold">Editar</button>
-            <button onclick="deleteMemberDirect('${a.id}')" class="px-2 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 rounded text-[10px] font-bold" title="Eliminar definitivamente">🗑️</button>
+          <td style="padding: 8px 10px; text-align: right; white-space: nowrap;">
+            <button onclick="editMemberModal('${a.id}')" class="btn btn-indigo" style="padding: 2px 6px; font-size: 9px;">Editar</button>
+            <button onclick="deleteMemberDirect('${a.id}')" class="btn btn-rose" style="padding: 2px 6px; font-size: 9px;">🗑️</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1344,7 +1153,7 @@
           }
         }
       }
-      showToast("Salón principal lleno. Ubícalo manualmente.");
+      showToast("Salón principal lleno.");
     };
 
     window.unseatPerson = function(id) {
@@ -1394,13 +1203,16 @@
       filtered.forEach(a => {
         const isZ = a.location === "zoom";
         const btn = document.createElement("button");
-        btn.className = `w-full text-left p-2 rounded-xl flex items-center justify-between text-xs ${isZ ? 'bg-blue-950/80 border border-blue-500 text-white' : 'bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800'}`;
+        btn.style.width = "100%; text-align: left; padding: 7px 9px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; margin-bottom: 4px; border: 1px solid #1e293b; cursor: pointer;";
+        btn.style.backgroundColor = isZ ? "rgba(23, 37, 84, 0.8)" : "#020617";
+        btn.style.color = "#fff";
+
         btn.innerHTML = `
           <div>
-            <div class="font-bold">${a.shortName || a.name}</div>
-            <div class="text-[9px] text-slate-400">${a.family} • ${a.group}</div>
+            <div style="font-weight: 700;">${a.shortName || a.name}</div>
+            <div style="font-size: 8.5px; color: #94a3b8;">${a.family} • ${a.group}</div>
           </div>
-          <span class="text-[10px] px-2 py-0.5 bg-blue-600 text-white rounded font-bold">${isZ ? '✓ Conectado' : '+ Conectar'}</span>
+          <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; background-color: #059669; color: #fff;">${isZ ? '✓ Conectado' : '+ Conectar'}</span>
         `;
         btn.onclick = () => {
           if (isZ) window.unseatPerson(a.id);
@@ -1426,7 +1238,7 @@
         document.getElementById("form-member-group").value = m.group || "Grupo 1";
         document.getElementById("form-member-role").value = m.role || "PUB";
         document.getElementById("form-member-aliaszoom").value = m.aliasZoom || "";
-        deleteBtn.classList.remove("hidden");
+        deleteBtn.style.display = "block";
       } else {
         document.getElementById("modal-member-header").innerHTML = `<span>👤</span> Registrar Nuevo Integrante`;
         document.getElementById("form-member-id").value = "";
@@ -1437,7 +1249,7 @@
         document.getElementById("form-member-group").value = "Grupo 1";
         document.getElementById("form-member-role").value = "PUB";
         document.getElementById("form-member-aliaszoom").value = "";
-        deleteBtn.classList.add("hidden");
+        deleteBtn.style.display = "none";
       }
       document.getElementById("modal-edit-member").classList.remove("hidden");
     };
@@ -1461,21 +1273,18 @@
       if (!currentSeatId) return null;
       if (currentSeatId.startsWith("MAIN-")) {
         const parts = currentSeatId.split("-");
-        const side = parts[1]; // "L" o "R"
+        const side = parts[1];
         const r = parseInt(parts[2].replace("R", ""));
         const s = parseInt(parts[3].replace("S", ""));
         const rowConfig = hallLayout.rows[r - 1];
         const maxS = rowConfig[side === "L" ? "left" : "right"];
 
-        // Si hay una silla contigua en la misma fila
         if (s < maxS) {
           return `MAIN-${side}-R${r}-S${s + 1}`;
         }
-        // Si llegó al final de la fila, avanza a la siguiente fila asiento 1
         if (r < hallLayout.rows.length) {
           return `MAIN-${side}-R${r + 1}-S1`;
         }
-        // Si terminó la isla izquierda, pasa a la derecha
         if (side === "L") {
           return `MAIN-R-R1-S1`;
         }
@@ -1496,7 +1305,7 @@
       let humanLabel = label;
       if (seatId.startsWith("MAIN-")) {
         const p = seatId.split("-");
-        humanLabel = `Fila ${p[2].replace("R","")} • ${p[1]==='L'?'Isla Izquierda':'Isla Derecha'} (${label})`;
+        humanLabel = `F${p[2].replace("R","")} • ${p[1]==='L'?'Isla Izq':'Isla Der'} (${label})`;
       } else if (seatId.startsWith("SEC-")) {
         humanLabel = `Segunda Sala (${label})`;
       }
@@ -1513,21 +1322,18 @@
 
         const roleBadge = document.getElementById("modal-occ-role-badge");
         roleBadge.innerText = occupant.role;
-        roleBadge.className = `px-2 py-0.5 rounded text-[8.5px] font-bold ${
-          occupant.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
-          occupant.role==='Visitante'?'bg-slate-800 text-slate-300 border border-slate-700':
-          'bg-indigo-950 text-indigo-300 border border-indigo-800'
-        }`;
+        roleBadge.style.backgroundColor = occupant.role === "Menor" ? "#042f2e" : occupant.role === "Visitante" ? "#1e293b" : "#1e1b4b";
+        roleBadge.style.color = occupant.role === "Menor" ? "#5eead4" : occupant.role === "Visitante" ? "#cbd5e1" : "#a5b4fc";
 
         document.getElementById("modal-occ-btn-zoom").onclick = () => {
           window.quickAddZoomPerson(occupant.id);
           closeModal("modal-seat");
         };
 
-        occCard.classList.remove("hidden");
+        occCard.style.display = "block";
       } else {
         document.getElementById("modal-seat-subtitle").innerText = "Escribe y pulsa Enter para sentar y avanzar de una vez";
-        occCard.classList.add("hidden");
+        occCard.style.display = "none";
       }
 
       window.renderSeatList("");
@@ -1549,11 +1355,10 @@
 
       if (filtered.length === 0) {
         highlightedCandidateId = null;
-        box.innerHTML = `<div class="py-4 text-center text-slate-500 text-xs">Sin coincidencias para "${term}"</div>`;
+        box.innerHTML = `<div style="padding: 16px; text-align: center; color: #64748b; font-size: 11px;">Sin coincidencias para "${term}"</div>`;
         return;
       }
 
-      // La primera opción es la candidata destacada para presionar Enter
       highlightedCandidateId = filtered[0].id;
 
       filtered.forEach((a, idx) => {
@@ -1562,52 +1367,47 @@
         const isCurrentSeat = a.seatId === selectedSeatId;
         const isPlaced = !!a.location;
 
-        card.className = `w-full p-2 sm:p-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between text-xs border gap-1.5 transition-all ${
-          isTopPick ? 'bg-indigo-950 border-indigo-400 ring-2 ring-indigo-500 shadow-md' :
-          isCurrentSeat ? 'bg-indigo-950/40 border-indigo-500/80 ring-1 ring-indigo-500' :
-          isPlaced ? 'bg-slate-950/60 border-slate-800 opacity-70' :
-          'bg-slate-950 border-slate-800 hover:border-slate-700'
-        }`;
-        
+        card.style.padding = "6px 8px";
+        card.style.borderRadius = "10px";
+        card.style.display = "flex";
+        card.style.alignItems = "center";
+        card.style.justifyContent = "space-between";
+        card.style.gap = "6px";
+        card.style.fontSize = "11px";
+        card.style.border = isTopPick ? "2px solid #6366f1" : "1px solid #1e293b";
+        card.style.backgroundColor = isTopPick ? "#1e1b4b" : (isPlaced ? "rgba(2, 6, 23, 0.6)" : "#020617");
+        if (isPlaced) card.style.opacity = "0.7";
+
         const unseatedFamily = members.filter(m => m.hogarId === a.hogarId && m.id !== a.id && !m.location);
         const hasFamily = unseatedFamily.length > 0;
 
         let locBadge = "";
-        if (a.location === "main") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 border border-sky-800">En Salón (${a.seatId.replace('MAIN-','').replace('-',' ')})</span>`;
-        if (a.location === "sec") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-teal-950 text-teal-300 border border-teal-800">Sala 2</span>`;
-        if (a.location === "zoom") locBadge = `<span class="text-[8px] px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 border border-blue-800">Zoom</span>`;
+        if (a.location === "main") locBadge = `<span style="font-size: 7.5px; padding: 1px 4px; border-radius: 4px; background-color: #082f49; color: #38bdf8;">En Salón</span>`;
+        if (a.location === "sec") locBadge = `<span style="font-size: 7.5px; padding: 1px 4px; border-radius: 4px; background-color: #134e4a; color: #2dd4bf;">Sala 2</span>`;
+        if (a.location === "zoom") locBadge = `<span style="font-size: 7.5px; padding: 1px 4px; border-radius: 4px; background-color: #172554; color: #60a5fa;">Zoom</span>`;
 
         card.innerHTML = `
-          <div class="truncate min-w-0 flex-1 cursor-pointer" onclick="seatSinglePerson('${a.id}', true)">
-            <div class="flex items-center gap-1.5">
-              ${isTopPick ? '<span class="text-amber-400 font-black text-xs">↵</span>' : ''}
-              <strong class="text-white text-[12px] truncate">${a.shortName || a.name}</strong>
-              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-bold ${
-                a.role==='Menor'?'bg-teal-950 text-teal-300 border border-teal-800':
-                a.role==='Visitante'?'bg-slate-800 text-slate-300':
-                'bg-indigo-950 text-indigo-300 border border-indigo-800'
-              }">${a.role}</span>
+          <div style="min-width: 0; flex: 1; cursor: pointer;" onclick="seatSinglePerson('${a.id}', true)">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              ${isTopPick ? '<span style="color: #fbbf24; font-weight: 900;">↵</span>' : ''}
+              <strong style="color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${a.shortName || a.name}</strong>
+              <span style="font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 800; background-color: #1e293b; color: #a5b4fc;">${a.role}</span>
               ${locBadge}
             </div>
-            <div class="text-[9px] text-slate-400 mt-0.5 truncate">
-              ${a.family} (${a.familyRole || 'Otro'}) • <span class="text-indigo-300 font-semibold">${a.group}</span>
-              ${a.aliasZoom ? `• Zoom: ${a.aliasZoom}` : ''}
+            <div style="font-size: 8.5px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${a.family} (${a.familyRole || 'Otro'}) • <span style="color: #a5b4fc; font-weight: 700;">${a.group}</span>
             </div>
           </div>
           
-          <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0">
+          <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
             ${hasFamily ? `
-              <div class="flex items-center gap-1 bg-slate-900 border border-teal-700/80 rounded-lg p-0.5">
-                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'left')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold flex items-center gap-0.5" title="Sienta a la familia hacia la izquierda de esta silla">
-                  ⬅️ Familia (${unseatedFamily.length + 1})
-                </button>
-                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'right')" class="text-[9px] px-2 py-1 bg-teal-800 hover:bg-teal-700 text-teal-100 rounded font-bold flex items-center gap-0.5" title="Sienta a la familia hacia la derecha de esta silla">
-                  ➡️ Familia (${unseatedFamily.length + 1})
-                </button>
+              <div style="display: flex; gap: 2px; background-color: #0f172a; padding: 2px; border-radius: 6px; border: 1px solid #14b8a6;">
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'left')" class="btn btn-teal" style="padding: 2px 4px; font-size: 8.5px;">⬅️ Fam (${unseatedFamily.length + 1})</button>
+                <button onclick="seatWholeFamilyDirectional('${a.id}', '${a.hogarId}', '${selectedSeatId}', '${selectedSeatType}', 'right')" class="btn btn-teal" style="padding: 2px 4px; font-size: 8.5px;">Fam (Der) ➡️</button>
               </div>
             ` : ''}
             
-            <button onclick="seatSinglePerson('${a.id}', true)" class="text-[10px] px-3 py-1 ${isTopPick ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-lg font-bold shadow flex items-center gap-1">
+            <button onclick="seatSinglePerson('${a.id}', true)" class="btn ${isTopPick ? 'btn-emerald' : 'btn-indigo'}" style="padding: 3px 6px; font-size: 9.5px;">
               ${hasFamily ? 'Solo él' : 'Sentar ↵'}
             </button>
           </div>
@@ -1616,7 +1416,6 @@
       });
     };
 
-    // VINCULA LA TECLA ENTER AL BUSCADOR DEL MODAL PARA SELECCIONAR LA MEJOR OPCIÓN AL INSTANTE
     function bindKeyboardShortcuts() {
       const input = document.getElementById("modal-seat-search");
       if (!input) return;
@@ -1630,7 +1429,6 @@
       });
     }
 
-    // SIENTA A LA PERSONA Y AVANZA AUTOMÁTICAMENTE A LA SIGUIENTE SILLA CONTIGUA
     window.seatSinglePerson = function(id, autoAdvance) {
       const p = members.find(a => a.id === id);
       if (!p) return;
@@ -1640,7 +1438,6 @@
       refreshUI();
       showToast(`${p.shortName || p.name} sentado.`);
 
-      // Si se pide auto-avance, pasa a la siguiente silla de la banca
       if (autoAdvance) {
         const nextSid = getNextAvailableSeatId(selectedSeatId);
         if (nextSid) {
@@ -1669,7 +1466,6 @@
         const startR = parseInt(parts[2].replace("R", ""));
         const startS = parseInt(parts[3].replace("S", ""));
 
-        // 1. Puesto primario
         primaryPerson.location = "main";
         primaryPerson.seatId = startSeatId;
         occupied.add(startSeatId);
@@ -1773,19 +1569,19 @@
     };
 
     window.switchView = function(mode) {
-      document.getElementById("view-salon-mode").classList.toggle("hidden", mode !== "salon");
-      document.getElementById("view-db-mode").classList.toggle("hidden", mode === "salon");
+      document.getElementById("view-salon-mode").style.display = mode === "salon" ? "grid" : "none";
+      document.getElementById("view-db-mode").style.display = mode === "db" ? "block" : "none";
       if (mode === "db") window.renderDBTable();
     };
 
     window.switchMobileView = function(view) {
       if (view === "db") { window.switchView("db"); return; }
       window.switchView("salon");
-      document.getElementById("panel-directory-col").classList.toggle("hidden", view !== "list");
-      document.getElementById("panel-hall-col").classList.toggle("hidden", view !== "hall");
-      document.getElementById("panel-zoom-col").classList.toggle("hidden", view !== "zoom");
-      document.querySelectorAll("[id^='mob-nav-']").forEach(b => b.className = "py-1.5 text-center rounded-lg");
-      document.getElementById(`mob-nav-${view}`).className = "py-1.5 text-center rounded-lg view-tab-active";
+      document.getElementById("panel-directory-col").style.display = view === "list" ? "flex" : "none";
+      document.getElementById("panel-hall-col").style.display = view === "hall" ? "flex" : "none";
+      document.getElementById("panel-zoom-col").style.display = view === "zoom" ? "flex" : "none";
+      document.querySelectorAll(".mobile-nav button").forEach(b => b.classList.remove("active"));
+      document.getElementById(`mob-nav-${view}`)?.classList.add("active");
     };
 
     window.toggleDesignMode = function() {
@@ -1814,9 +1610,8 @@
 
     window.removeHallRow = function() {
       if (hallLayout.rows.length > 1) {
-        const removed = hallLayout.rows.pop();
-        // Liberar a las personas que estaban en esa fila
-        const rNum = hallLayout.rows.length + 1;
+        const rNum = hallLayout.rows.length;
+        hallLayout.rows.pop();
         members.forEach(m => {
           if (m.seatId && (m.seatId.includes(`MAIN-L-R${rNum}-`) || m.seatId.includes(`MAIN-R-R${rNum}-`))) {
             m.location = null;
@@ -1844,13 +1639,11 @@
       const t = document.getElementById("meeting-type-select").value;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Clasificación de asistentes
       const presencialMembers = members.filter(a => a.location && a.location !== "zoom");
       const zoomMembers = members.filter(a => a.location === "zoom");
       const allPresent = members.filter(a => a.location);
       const allAbsent = members.filter(a => !a.location);
 
-      // Conteo general
       const totalPresential = presencialMembers.length;
       const totalZoom = zoomMembers.length;
       const grandTotal = allPresent.length;
@@ -1859,7 +1652,6 @@
       const totalMenores = allPresent.filter(a => a.role === 'Menor').length;
       const totalVisitantes = allPresent.filter(a => a.role === 'Visitante' || a.group === 'Visitante').length;
 
-      // Construye la lista de cada grupo detallando PRESENTES y FALTANTES/AUSENTES
       function buildDetailedGroupSections(attendeesSubset, isGlobal) {
         let text = "";
         let globalNum = 1;
@@ -1909,7 +1701,6 @@
             text += `- (Sin publicadores presentes)\n*Total Presentes Grupo ${g} = 0*\n`;
           }
 
-          // Listado de Ausentes / Faltantes del Grupo
           if (gAbsent.length > 0) {
             pAbsentTotal += gAbsent.length;
             text += `\n*Ausentes Grupo ${g} (${gAbsent.length}):*\n`;
@@ -1923,7 +1714,6 @@
           text += `\n───────────────────────────\n\n`;
         }
 
-        // Menores y visitantes independientes presentes
         const others = attendeesSubset.filter(a => (a.role === "Menor" || a.role === "Visitante") && (!a.group || a.group === "Visitante" || a.group === "Menor"));
         if (others.length > 0) {
           text += `*MENORES Y VISITANTES*\n`;
@@ -1941,7 +1731,7 @@
         return { text, totalCount: globalNum - 1, pPresentTotal, pAbsentTotal, mCount, vCount };
       }
 
-      // 1. REPORTE UNIFICADO COMPLETO (SALÓN + ZOOM + FALTANTES)
+      // 1. REPORTE COMPLETO
       const fullData = buildDetailedGroupSections(allPresent, true);
       let r_all = `*REPORTE DE ASISTENCIA - CONGREGACIÓN JARDÍN*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_all += `📊 *CONSOLIDADO GENERAL*\n`;
@@ -1955,7 +1745,7 @@
       r_all += `═══════════════════════════\n🏛️ *DESGLOSE POR GRUPOS Y AUSENCIAS*\n═══════════════════════════\n\n`;
       r_all += fullData.text;
 
-      // 2. REPORTE EXCLUSIVO ZOOM (FORMATO NORMATIVO R2)
+      // 2. REPORTE SOLO ZOOM
       const zoomData = buildDetailedGroupSections(zoomMembers, false);
       let r_zoom = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
       r_zoom += zoomData.text;
@@ -1964,7 +1754,7 @@
       r_zoom += `*Total Publicadores = ${zoomData.pPresentTotal}*\n\n`;
       r_zoom += `*TOTAL ASISTENCIA VIRTUAL:* ${zoomData.totalCount}`;
 
-      // 3. REPORTE EXCLUSIVO SALÓN (PRESENCIAL)
+      // 3. REPORTE SOLO SALÓN
       const salonData = buildDetailedGroupSections(presencialMembers, false);
       let r_salon = `*REPORTE ASISTENCIA SALÓN (PRESENCIAL)*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_salon += salonData.text;
@@ -1973,21 +1763,20 @@
       r_salon += `*Total Publicadores = ${salonData.pPresentTotal}*\n\n`;
       r_salon += `*TOTAL ASISTENCIA SALÓN:* ${salonData.totalCount}`;
 
-      // REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO
+      // REPORTE 1
       let r1 = `--- REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO ---\n\n`;
       r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Vídeo Salón del Reino (Cabina de transmisión)\n   - Anfitrión / Acomodador\n\n`;
-      r1 += `2. Balance de Asistencia y Ausencias:\n`;
+      r1 += `2. Balance General:\n`;
       r1 += `   - Presencial en Salón: ${totalPresential}\n`;
       r1 += `   - Virtual en Zoom: ${totalZoom}\n`;
       r1 += `   - Gran Total Presentes: ${grandTotal}\n`;
       r1 += `   - Total Publicadores Faltantes: ${fullData.pAbsentTotal}\n`;
-      r1 += `   - Conexiones efectivas de hogares Zoom: ${zoomConnections.length}\n`;
 
-      // REPORTE 3: VALIDACIÓN Y APRENDIZAJE
+      // REPORTE 3
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
-      r3 += `1. Conexiones operativas identificadas y excluidas del conteo normativo.\n`;
-      r3 += `2. Salvedades de WhatsApp cotejadas visualmente contra Zoom (Regla 3).\n`;
-      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra (75 integrantes).\n`;
+      r3 += `1. Conexiones operativas excluidas del conteo normativo.\n`;
+      r3 += `2. Salvedades de WhatsApp cruzadas contra presencia en Zoom.\n`;
+      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
 
       generatedReports = { r_all, r_zoom, r_salon, r1, r3 };
       window.setReportTab('r_all');
@@ -1996,10 +1785,10 @@
 
     window.setReportTab = function(type) {
       document.querySelectorAll("#report-type-nav button").forEach(b => {
-        b.className = "py-1 px-2.5 rounded-lg text-slate-400 whitespace-nowrap";
+        b.className = "btn btn-dark";
       });
       const activeBtn = document.getElementById(`rtab-btn-${type}`);
-      if (activeBtn) activeBtn.className = "py-1 px-2.5 rounded-lg font-bold bg-emerald-600 text-white whitespace-nowrap";
+      if (activeBtn) activeBtn.className = "btn btn-emerald";
       document.getElementById("report-output-textarea").value = generatedReports[type] || "";
     };
 
@@ -2014,64 +1803,25 @@
     window.openPasteZoomModal = function() { document.getElementById("modal-paste-zoom").classList.remove("hidden"); };
     window.closeModal = function(id) { document.getElementById(id)?.classList.add("hidden"); };
 
-    window.openHogaresModal = function() {
-      const box = document.getElementById("hogares-table-list");
-      box.innerHTML = "";
-      hogares.forEach(h => {
-        const row = document.createElement("div");
-        row.className = "p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs";
-        row.innerHTML = `
-          <div>
-            <strong class="text-white">${h.name}</strong> <span class="text-[10px] text-teal-300 font-mono">(${h.id})</span>
-            <span class="text-[9px] text-slate-400 block">${h.group}</span>
-          </div>
-          <button onclick="deleteHogarDirect('${h.id}')" class="text-rose-400 hover:text-rose-300 font-bold px-2">✕</button>
-        `;
-        box.appendChild(row);
-      });
-      document.getElementById("modal-hogares").classList.remove("hidden");
-    };
-
-    window.saveNewHogar = function() {
-      const name = document.getElementById("form-hogar-name").value.trim();
-      const group = document.getElementById("form-hogar-group").value;
-      if (!name) return alert("Ingresa el nombre.");
-      const maxNum = hogares.reduce((max, h) => Math.max(max, parseInt(h.id.replace("H", "")) || 0), 0);
-      const newId = "H" + String(maxNum + 1).padStart(3, "0");
-      hogares.push({ id: newId, name, membersCount: 1, group });
-      document.getElementById("form-hogar-name").value = "";
-      Storage.saveLocalAndCloud();
-      populateHogarDropdown();
-      window.openHogaresModal();
-    };
-
-    window.deleteHogarDirect = function(id) {
-      hogares = hogares.filter(h => h.id !== id);
-      Storage.saveLocalAndCloud();
-      populateHogarDropdown();
-      window.openHogaresModal();
-    };
-
     window.setFilterGroup = function(g) {
       currentFilterGroup = g;
-      document.querySelectorAll("#group-filters-wrapper button").forEach(b => b.className = "filter-pill px-2 py-0.5 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 font-medium whitespace-nowrap");
-      document.querySelector(`#group-filters-wrapper button[data-g="${g}"]`).className = "filter-pill tab-active px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-medium whitespace-nowrap";
+      document.querySelectorAll("#group-filters-wrapper button").forEach(b => {
+        b.className = "btn btn-dark";
+      });
+      const activeBtn = document.querySelector(`#group-filters-wrapper button[data-g="${g}"]`);
+      if (activeBtn) activeBtn.className = "btn btn-indigo";
       renderDirectory();
     };
 
     window.setStatusFilter = function(st) {
       currentFilterStatus = st;
-      document.getElementById("st-filter-all").className = st === "ALL" ? "py-1 rounded-lg font-bold bg-indigo-600 text-white" : "py-1 rounded-lg text-slate-400";
-      document.getElementById("st-filter-pen").className = st === "PENDING" ? "py-1 rounded-lg font-bold bg-indigo-600 text-white" : "py-1 rounded-lg text-slate-400";
-      document.getElementById("st-filter-pla").className = st === "PLACED" ? "py-1 rounded-lg font-bold bg-indigo-600 text-white" : "py-1 rounded-lg text-slate-400";
+      document.getElementById("st-filter-all").style.backgroundColor = st === "ALL" ? "#4f46e5" : "transparent";
+      document.getElementById("st-filter-all").style.color = st === "ALL" ? "#ffffff" : "#94a3b8";
+      document.getElementById("st-filter-pen").style.backgroundColor = st === "PENDING" ? "#4f46e5" : "transparent";
+      document.getElementById("st-filter-pen").style.color = st === "PENDING" ? "#ffffff" : "#94a3b8";
+      document.getElementById("st-filter-pla").style.backgroundColor = st === "PLACED" ? "#4f46e5" : "transparent";
+      document.getElementById("st-filter-pla").style.color = st === "PLACED" ? "#ffffff" : "#94a3b8";
       renderDirectory();
-    };
-
-    window.setZoomViewMode = function(mode) {
-      currentZoomDisplay = mode;
-      document.getElementById("btn-zoom-view-grouped").className = mode === "grouped" ? "py-1 rounded-lg font-bold bg-blue-600 text-white" : "py-1 rounded-lg text-slate-400";
-      document.getElementById("btn-zoom-view-individual").className = mode === "individual" ? "py-1 rounded-lg font-bold bg-blue-600 text-white" : "py-1 rounded-lg text-slate-400";
-      renderZoom();
     };
 
     window.newZoomGroupPrompt = function() {
@@ -2140,10 +1890,11 @@
     function showToast(txt) {
       const t = document.getElementById("toast");
       document.getElementById("toast-txt").innerText = txt;
-      t.className = "fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white text-xs px-3.5 py-2 rounded-xl shadow-2xl opacity-100 transform translate-y-0 transition-all duration-200 z-50 pointer-events-none";
+      t.style.opacity = "1";
+      t.style.transform = "translateY(0)";
       setTimeout(() => {
-        t.classList.remove("translate-y-0", "opacity-100");
-        t.classList.add("translate-y-10", "opacity-0");
+        t.style.opacity = "0";
+        t.style.transform = "translateY(20px)";
       }, 2000);
     }
 
