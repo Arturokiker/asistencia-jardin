@@ -24,7 +24,7 @@
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-3 py-2 shadow-xl">
     <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-2.5">
       
-      <!-- Identidad y Modo de Red -->
+      <!-- Identidad y Estado de Conexión -->
       <div class="flex items-center justify-between w-full lg:w-auto gap-2">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-600/30">
@@ -34,17 +34,17 @@
             <h1 class="text-sm font-bold text-white leading-tight">Asistencia Jardín</h1>
             <div class="flex items-center gap-1.5">
               <span id="net-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">Sistema Activo</span>
+              <span id="net-status-txt" class="text-[9px] text-slate-400 font-mono">Local + Nube Activa</span>
             </div>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 text-xs">
-          <select id="meeting-type-select" onchange="autoSaveActiveSession()" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
+          <select id="meeting-type-select" onchange="persistActiveSession()" class="bg-transparent text-indigo-300 font-semibold text-[11px] focus:outline-none cursor-pointer">
             <option value="Entre semana" class="bg-slate-900 text-white">📅 Entre semana</option>
             <option value="Fin de semana" class="bg-slate-900 text-white">📅 Fin de semana</option>
           </select>
-          <input type="date" id="meeting-date-input" onchange="autoSaveActiveSession()" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
+          <input type="date" id="meeting-date-input" onchange="persistActiveSession()" class="bg-transparent text-slate-300 text-[11px] focus:outline-none cursor-pointer">
         </div>
 
         <!-- Acciones Móviles Rápidas -->
@@ -104,9 +104,6 @@
         </button>
         <button onclick="openBackupModal()" class="px-2.5 py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
           <span>💾 Backup</span>
-        </button>
-        <button onclick="openHistoryModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-medium border border-slate-700">
-          <span>📜 Historial</span>
         </button>
         <button onclick="openReportModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-900/40">
           📋 Reporte WhatsApp
@@ -175,7 +172,7 @@
     <!-- COLUMNA 2: SALÓN DEL REINO (MAPA DE SILLAS) -->
     <section id="panel-hall-col" class="lg:col-span-5 bg-slate-900 rounded-2xl border border-slate-800 p-3 flex flex-col h-[calc(100vh-8.5rem)] shadow-lg overflow-hidden relative">
       <div id="editor-banner" class="hidden mb-2 bg-amber-950/90 border border-amber-600 text-amber-200 text-xs px-3 py-1.5 rounded-xl flex items-center justify-between flex-shrink-0 shadow">
-        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta sillas con + / - o toca una silla para borrar/restaurar</span>
+        <span class="font-bold flex items-center gap-1">✏️ Modo Editor: Ajusta sillas con + / - o toca una silla para habilitar/deshabilitar</span>
         <button onclick="toggleDesignMode()" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px]">Terminar</button>
       </div>
 
@@ -295,7 +292,7 @@
         <span class="text-lg">👥</span>
         <div>
           <h2 class="text-sm font-bold text-white leading-tight">Directorio Oficial de Integrantes y Familias</h2>
-          <p class="text-[10px] text-slate-400">Edición en caliente, borrado definitivo y administración</p>
+          <p class="text-[10px] text-slate-400">Sincronización híbrida: Local + Nube instantánea</p>
         </div>
       </div>
 
@@ -499,7 +496,7 @@
           <h3 class="text-xs font-bold text-white flex items-center gap-1.5"><span>📹</span> Conectar Persona a Zoom</h3>
           <p class="text-[10px] text-slate-400">Toca para sumar o retirar de Zoom</p>
         </div>
-        <button onclick="closeModal('modal-quick-zoom')" class="text-slate-400 hover:text-white text-sm">✕</button>
+        <button onclick="closeModal('modal-quick-zoom')" class="text-slate-400 hover:text-white p-1 text-sm">✕</button>
       </div>
       <div class="relative flex-shrink-0">
         <input type="text" id="quick-zoom-search-input" oninput="renderQuickZoomList()" placeholder="Buscar hermano, menor o visitante..." class="w-full pl-7 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -580,45 +577,36 @@
     </div>
   </div>
 
-  <!-- MODAL: HISTORIAL -->
-  <div id="modal-history" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl p-4 shadow-2xl space-y-3 max-h-[92vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-base">📜</span>
-          <h3 class="text-xs font-bold text-white">Historial de Reuniones Guardadas</h3>
-        </div>
-        <button onclick="closeModal('modal-history')" class="text-slate-400 hover:text-white text-sm">✕</button>
-      </div>
-      <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-800 rounded-xl max-h-64 bg-slate-950">
-        <table class="w-full text-left text-[11px] text-slate-300">
-          <thead class="bg-slate-900 text-slate-400 text-[10px] uppercase sticky top-0 border-b border-slate-800">
-            <tr>
-              <th class="p-2">Fecha / Tipo</th>
-              <th class="p-2 text-center">Presencial</th>
-              <th class="p-2 text-center">Zoom</th>
-              <th class="p-2 text-center">Total</th>
-              <th class="p-2 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="history-records-table-body" class="divide-y divide-slate-850"></tbody>
-        </table>
-      </div>
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800 flex-shrink-0">
-        <button onclick="clearAllHistory()" class="text-[10px] text-rose-400 hover:underline">Vaciar historial</button>
-        <button onclick="closeModal('modal-history')" class="text-xs px-3 py-1 bg-slate-800 text-slate-300 rounded-lg">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-slate-700 text-white text-xs px-3.5 py-2 rounded-xl shadow-2xl opacity-0 transform translate-y-10 transition-all duration-200 z-50 pointer-events-none">
     <span id="toast-txt">Notificación</span>
   </div>
 
-  <!-- SCRIPT MAESTRO INTEGRADO (TOTALMENTE AUTÓNOMO Y RESISTENTE) -->
-  <script>
-    // 1. SEMILLA MAESTRA INICIAL (SÓLO SI NUNCA SE HA INICIALIZADO)
+  <!-- SCRIPT MAESTRO INTEGRADO (LOCAL FIRST + CLOUD SYNC AUTOMÁTICO) -->
+  <script type="module">
+    // Importación sin bloqueo de Firebase v10
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      initializeFirestore, 
+      persistentLocalCache, 
+      persistentMultipleTabManager,
+      collection, doc, getDocs, setDoc, deleteDoc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFBrFwnOPVRzfJW-kSkOUfRyv55mw1LVU",
+      authDomain: "asistencia-reuniones-final.firebaseapp.com",
+      projectId: "asistencia-reuniones-final",
+      storageBucket: "asistencia-reuniones-final.firebasestorage.app",
+      messagingSenderId: "430000122597",
+      appId: "1:430000122597:web:1ba68fae5124a5220a420c"
+    };
+
+    const CONGREGATION_ID = "jardin-los-palmitos";
+    let db = null;
+    let isCloudOnline = false;
+
+    // Directorio semilla inicial (solo se usa la primera vez que se abre la app)
     const defaultSeedHogares = [{"id": "H001", "name": "Perez Florez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H002", "name": "Revollo", "membersCount": 2, "group": "Grupo 2"}, {"id": "H003", "name": "Assia De La Rosa", "membersCount": 2, "group": "Grupo 5"}, {"id": "H004", "name": "Salgado", "membersCount": 1, "group": "Grupo 5"}, {"id": "H005", "name": "Gomez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H006", "name": "Revollo Fuentes", "membersCount": 2, "group": "Grupo 2"}, {"id": "H007", "name": "Sierra Meza", "membersCount": 2, "group": "Grupo 3"}, {"id": "H008", "name": "Perez Buelvas", "membersCount": 2, "group": "Grupo 3"}, {"id": "H009", "name": "Perez Gomez", "membersCount": 2, "group": "Grupo 5"}, {"id": "H010", "name": "Perez Quiroz", "membersCount": 1, "group": "Grupo 2"}, {"id": "H011", "name": "Mendivil", "membersCount": 1, "group": "Grupo 4"}, {"id": "H012", "name": "Quiroz Perez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H013", "name": "Revollo Sierra", "membersCount": 2, "group": "Grupo 5"}, {"id": "H014", "name": "Mendez Assia", "membersCount": 1, "group": "Grupo 3"}, {"id": "H015", "name": "Tovar", "membersCount": 1, "group": "Grupo 1"}, {"id": "H016", "name": "Perez Yepez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H017", "name": "Severiche", "membersCount": 1, "group": "Grupo 4"}, {"id": "H018", "name": "Sanchez Calderin", "membersCount": 1, "group": "Grupo 2"}, {"id": "H019", "name": "Prieto", "membersCount": 1, "group": "Grupo 2"}, {"id": "H020", "name": "Diaz Cardenas", "membersCount": 1, "group": "Grupo 2"}, {"id": "H021", "name": "Perez Arrieta", "membersCount": 2, "group": "Grupo 4"}, {"id": "H022", "name": "Julio Uribe", "membersCount": 2, "group": "Grupo 2"}, {"id": "H023", "name": "Arteaga Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H024", "name": "Hernandez Espina", "membersCount": 3, "group": "Grupo 5"}, {"id": "H025", "name": "Rodriguez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H026", "name": "Castro Perez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H027", "name": "Sincelejo", "membersCount": 1, "group": "Grupo 1"}, {"id": "H028", "name": "Wilchez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H029", "name": "Reales Regalado", "membersCount": 1, "group": "Grupo 2"}, {"id": "H030", "name": "Vergara", "membersCount": 1, "group": "Grupo 3"}, {"id": "H031", "name": "Barboza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H032", "name": "Marquez Arias", "membersCount": 2, "group": "Grupo 5"}, {"id": "H033", "name": "Mendez Garizao", "membersCount": 1, "group": "Grupo 1"}, {"id": "H034", "name": "Mercado", "membersCount": 2, "group": "Grupo 5"}, {"id": "H035", "name": "Gelvez Hernandez", "membersCount": 3, "group": "Grupo 4"}, {"id": "H036", "name": "Perez Mendez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H037", "name": "Gutierrez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H038", "name": "Sierra", "membersCount": 1, "group": "Grupo 5"}, {"id": "H039", "name": "Salazar Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H040", "name": "Monterroza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H041", "name": "Cardenas Arrieta", "membersCount": 1, "group": "Grupo 3"}, {"id": "H042", "name": "Saumeth Sierra", "membersCount": 5, "group": "Grupo 4"}, {"id": "H043", "name": "Barboza Pérez", "membersCount": 1, "group": "Visitante"}, {"id": "H044", "name": "Manjarrez", "membersCount": 1, "group": "Visitante"}, {"id": "H045", "name": "Mendivil (Visitante)", "membersCount": 1, "group": "Visitante"}];
 
     const defaultSeedMembers = [{"id": "P0044", "name": "Jorge Eliecer Regino Wilchez", "shortName": "Jorge Wilchez", "hogarId": "H028", "family": "Wilchez", "group": "Grupo 1", "role": "PUB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0056", "name": "Samir Joel Perez Mendez", "shortName": "Samir Perez", "hogarId": "H036", "family": "Perez Mendez", "group": "Grupo 3", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0024", "name": "Amada Isabel Tovar NN", "shortName": "Amada Tovar", "hogarId": "H015", "family": "Tovar", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0034", "name": "Oscar Enrique Arteaga Mendez", "shortName": "Oscar Arteaga", "hogarId": "H023", "family": "Arteaga Rangel", "group": "Grupo 1", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0035", "name": "Ana Fernanda Arteaga (Rangel Salazar)", "shortName": "Ana Arteaga", "hogarId": "H023", "family": "Arteaga Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0040", "name": "Leiffer Jesus Castro Tovar", "shortName": "Leiffer Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "SM", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0041", "name": "Maria del Carmen Castro (Perez Quiroz)", "shortName": "Maria Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "PUB", "familyRole": "Madre", "aliasZoom": "Familia Castro Pérez", "aliasWhatsApp": "", "device": ""}, {"id": "P0042", "name": "Danilce Senaida Sincelejo (Perez Barboza)", "shortName": "Danilce Sincelejo", "hogarId": "H027", "family": "Sincelejo", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0043", "name": "Adis Maria Wilchez Montes", "shortName": "Adis Wilchez", "hogarId": "H028", "family": "Wilchez", "group": "Grupo 1", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047", "name": "Nalieth Castro Pérez", "shortName": "Nalieth Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "Menor", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047b", "name": "Arinda del Carmen Barboza (Portacio Sierra)", "shortName": "Arinda Barboza", "hogarId": "H031", "family": "Barboza", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": "OPPO A54"}, {"id": "P0050", "name": "Ester Maria Mendez Garizao", "shortName": "Ester Mendez", "hogarId": "H033", "family": "Mendez Garizao", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0059", "name": "Digna Rosa Salazar Amaris", "shortName": "Digna Salazar", "hogarId": "H039", "family": "Salazar Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0060", "name": "Zaida Rangel Salazar", "shortName": "Zaida Rangel", "hogarId": "H039", "family": "Salazar Rangel", "group": "Grupo 1", "role": "PR", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0061", "name": "Sonia Monterroza", "shortName": "Sonia Monterroza", "hogarId": "H040", "family": "Monterroza", "group": "Grupo 1", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0003", "name": "Lilibeth del Carmen Revollo Vergara", "shortName": "Lilibeth Revollo", "hogarId": "H002", "family": "Revollo", "group": "Grupo 2", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0004", "name": "Michael Andres Martinez Revollo", "shortName": "Michael Martinez", "hogarId": "H002", "family": "Revollo", "group": "Grupo 2", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0008", "name": "Ligia Raquel Gomez (Wilches Diaz)", "shortName": "Ligia Gomez", "hogarId": "H005", "family": "Gomez", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0009", "name": "Arturo Rafael Revollo Fuentes", "shortName": "Arturo Revollo", "hogarId": "H006", "family": "Revollo Fuentes", "group": "Grupo 2", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0010", "name": "Leticia del Carmen Revollo (Vergara Monterroza)", "shortName": "Leticia Revollo", "hogarId": "H006", "family": "Revollo Fuentes", "group": "Grupo 2", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0017", "name": "Ludys del Carmen Perez (Quiroz Gonzalez)", "shortName": "Ludys Perez", "hogarId": "H010", "family": "Perez Quiroz", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "Ludys Quiroz", "aliasWhatsApp": "", "device": ""}, {"id": "P0025", "name": "Yaquelin Elena Perez Yepez", "shortName": "Yaquelin Perez", "hogarId": "H016", "family": "Perez Yepez", "group": "Grupo 2", "role": "PR", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0027", "name": "Francisco Jose Sanchez Calderin", "shortName": "Francisco Sanchez", "hogarId": "H018", "family": "Sanchez Calderin", "group": "Grupo 2", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0028", "name": "Beatriz Elena Prieto (Liñan Diaz)", "shortName": "Beatriz Prieto", "hogarId": "H019", "family": "Prieto", "group": "Grupo 2", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0029", "name": "Alfonso Manuel Diaz Cardenas", "shortName": "Alfonso Diaz", "hogarId": "H020", "family": "Diaz Cardenas", "group": "Grupo 2", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0032", "name": "Miguel Esteban Julio Alvarez", "shortName": "Miguel Julio", "hogarId": "H022", "family": "Julio Uribe", "group": "Grupo 2", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0033", "name": "Esther Lucia Julio (Uribe Gonzalez)", "shortName": "Esther Julio", "hogarId": "H022", "family": "Julio Uribe", "group": "Grupo 2", "role": "PR", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0045", "name": "Tarcila Judith Reales Regalado", "shortName": "Tarcila Reales", "hogarId": "H029", "family": "Reales Regalado", "group": "Grupo 2", "role": "PUB", "familyRole": "Otro", "aliasZoom": "Tarcila Reales de Gómez", "aliasWhatsApp": "", "device": ""}, {"id": "P0001", "name": "Jesus Manuel Perez Quiroz", "shortName": "Jesus Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "PUB", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0002", "name": "Esther Marina Perez (Florez Villalobos)", "shortName": "Esther Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0047c", "name": "Emmanuel Perez Florez", "shortName": "Emmanuel Perez", "hogarId": "H001", "family": "Perez Florez", "group": "Grupo 3", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0011", "name": "Xavier Enrique Sierra Villamil", "shortName": "Xavier Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "PUB", "familyRole": "Padre", "aliasZoom": "Xavier,Rous yLionel Andrés", "aliasWhatsApp": "", "device": ""}, {"id": "P0012", "name": "Rose Estela Sierra (Meza Vitola)", "shortName": "Rose Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0048b", "name": "Lionel Sierra Meza", "shortName": "Lionel Sierra", "hogarId": "H007", "family": "Sierra Meza", "group": "Grupo 3", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0013", "name": "Elcy Edith Perez (Buelvas Cadena)", "shortName": "Elcy Perez", "hogarId": "H008", "family": "Perez Buelvas", "group": "Grupo 3", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0014", "name": "Natali Perez Buelvas", "shortName": "Natali Perez", "hogarId": "H008", "family": "Perez Buelvas", "group": "Grupo 3", "role": "PUB", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0019", "name": "Jose Blas Quiroz Palacio", "shortName": "Jesus Quiroz", "hogarId": "H012", "family": "Quiroz Perez", "group": "Grupo 3", "role": "ANC", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0020", "name": "Suleima Quiros (Perez Buelvas)", "shortName": "Suleima Quiros", "hogarId": "H012", "family": "Quiroz Perez", "group": "Grupo 3", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0023", "name": "Jaider de Jesus Mendez Assia", "shortName": "Jaider Mendez", "hogarId": "H014", "family": "Mendez Assia", "group": "Grupo 3", "role": "SM", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0039", "name": "Alcira Luz Rodriguez (Perez Tovar)", "shortName": "Alcira Rodriguez", "hogarId": "H025", "family": "Rodriguez", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0046", "name": "Orledis del Carmen Vergara (Lobo Cuello)", "shortName": "Orledis Vergara", "hogarId": "H030", "family": "Vergara", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0057", "name": "Yorlenis Gutierrez", "shortName": "Yorlenis Gutierrez", "hogarId": "H037", "family": "Gutierrez", "group": "Grupo 3", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0062", "name": "Luz Marina Cardenas Arrieta", "shortName": "Luz Marina Cardenas", "hogarId": "H041", "family": "Cardenas Arrieta", "group": "Grupo 3", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0018", "name": "Mary Cruz Mendivil (Santos Herazo)", "shortName": "Mary Mendivil", "hogarId": "H011", "family": "Mendivil", "group": "Grupo 4", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0026", "name": "Sandra Luz Severiche (Dominguez Castellar)", "shortName": "Sandra Severiche", "hogarId": "H017", "family": "Severiche", "group": "Grupo 4", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0030", "name": "Rosario de Jesus Perez (Arrieta Marquez)", "shortName": "Rosario Perez", "hogarId": "H021", "family": "Perez Arrieta", "group": "Grupo 4", "role": "PR", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0031", "name": "Ketly Valeria Perez Arrieta", "shortName": "Ketly Perez", "hogarId": "H021", "family": "Perez Arrieta", "group": "Grupo 4", "role": "PR", "familyRole": "Hija", "aliasZoom": "Ketly Pérez", "aliasWhatsApp": "", "device": ""}, {"id": "P0053", "name": "Gabriel Gelvez", "shortName": "Gabriel Gelvez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PUB", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0054", "name": "Yoelis Onice Gelvez (Hernandez)", "shortName": "Yoelis Gelvez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PR", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0055", "name": "Franyerlis Michel Hernandez", "shortName": "Franyerlis Hernandez", "hogarId": "H035", "family": "Gelvez Hernandez", "group": "Grupo 4", "role": "PNB", "familyRole": "Hija", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0063", "name": "Luis Alberto Saumeth Manjarrez", "shortName": "Luis Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "ANC", "familyRole": "Padre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0064", "name": "Nini Jhoana Saumeth (Sierra)", "shortName": "Nini Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PUB", "familyRole": "Madre", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0065", "name": "Luis Miguel Saumeth Sierra", "shortName": "Luis Miguel Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PUB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0066", "name": "Diego Saumeth", "shortName": "Diego Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0067", "name": "Ricardo Saumeth", "shortName": "Ricardo Saumeth", "hogarId": "H042", "family": "Saumeth Sierra", "group": "Grupo 4", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0005", "name": "Libardo Enrique Assia Atencia", "shortName": "Libardo Assia", "hogarId": "H003", "family": "Assia De La Rosa", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Filadelfa , Libardo (2)", "aliasWhatsApp": "", "device": ""}, {"id": "P0006", "name": "Filadelfa Assia (De La Rosa Mendoza)", "shortName": "Filadelfa Assia", "hogarId": "H003", "family": "Assia De La Rosa", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0007", "name": "Karina Rocio Salgado", "shortName": "Karina Salgado", "hogarId": "H004", "family": "Salgado", "group": "Grupo 5", "role": "PUB", "familyRole": "Soltero/a", "aliasZoom": "57320****620", "aliasWhatsApp": "", "device": ""}, {"id": "P0015", "name": "German Enrique Perez Quiroz", "shortName": "German Perez", "hogarId": "H009", "family": "Perez Gomez", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0016", "name": "Gendys Perez (Gomez Buelvas)", "shortName": "Gendys Perez", "hogarId": "H009", "family": "Perez Gomez", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0021", "name": "Arturo Enrique Revollo Vergara", "shortName": "Arturo Revollo", "hogarId": "H013", "family": "Revollo Sierra", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Arturo y Amarys", "aliasWhatsApp": "", "device": ""}, {"id": "P0022", "name": "Amarys del Carmen Revollo (Sierra Granados)", "shortName": "Amarys Revollo", "hogarId": "H013", "family": "Revollo Sierra", "group": "Grupo 5", "role": "PR", "familyRole": "Esposa", "aliasZoom": "Arturo y Amarys", "aliasWhatsApp": "", "device": ""}, {"id": "P0036", "name": "Jamer Joaquin Hernandez Perez", "shortName": "Jamer Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PUB", "familyRole": "Padre", "aliasZoom": "Hernández", "aliasWhatsApp": "", "device": ""}, {"id": "P0037", "name": "Fabiola Cristina Hernandez (Espina Molina)", "shortName": "Fabiola Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PR", "familyRole": "Madre", "aliasZoom": "Hernández", "aliasWhatsApp": "", "device": ""}, {"id": "P0038", "name": "Jamer Arturo Hernandez Espina", "shortName": "Jamer Arturo Hernandez", "hogarId": "H024", "family": "Hernandez Espina", "group": "Grupo 5", "role": "PNB", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0048", "name": "Felix de Jesus Marquez Cardenas", "shortName": "Felix Marquez", "hogarId": "H032", "family": "Marquez Arias", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposo", "aliasZoom": "Julia Arias", "aliasWhatsApp": "", "device": ""}, {"id": "P0049", "name": "Julia Isabel Marquez (Arias Cardenas)", "shortName": "Julia Marquez", "hogarId": "H032", "family": "Marquez Arias", "group": "Grupo 5", "role": "PUB", "familyRole": "Esposa", "aliasZoom": "Julia Arias", "aliasWhatsApp": "", "device": ""}, {"id": "P0051", "name": "William Mercado", "shortName": "William Mercado", "hogarId": "H034", "family": "Mercado", "group": "Grupo 5", "role": "ANC, PR", "familyRole": "Esposo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0052", "name": "Saray Mercado", "shortName": "Saray Mercado", "hogarId": "H034", "family": "Mercado", "group": "Grupo 5", "role": "PR", "familyRole": "Esposa", "aliasZoom": "TECNO MOBILE LIMITED TECNO CH7n", "aliasWhatsApp": "", "device": ""}, {"id": "P0058", "name": "Aura de Jesus Sierra (Granados Mariano)", "shortName": "Aura Sierra", "hogarId": "H038", "family": "Sierra", "group": "Grupo 5", "role": "PUB", "familyRole": "Otro", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}, {"id": "P0046v", "name": "Edalvi de Duarte (Perez)", "shortName": "Edalvi Duarte", "hogarId": "H029", "family": "Duarte", "group": "Visitante", "role": "Visitante", "familyRole": "Esposa", "aliasZoom": "Edalvi de Duarte", "aliasWhatsApp": "", "device": ""}, {"id": "P0046y", "name": "Yolima Manjarrez", "shortName": "Yolima Manjarrez", "hogarId": "H044", "family": "Manjarrez", "group": "Visitante", "role": "Visitante", "familyRole": "Otro", "aliasZoom": "Yolima Manjarrez", "aliasWhatsApp": "", "device": ""}, {"id": "P0047d", "name": "Diana Gabriela Mendivil", "shortName": "Diana Mendivil", "hogarId": "H045", "family": "Mendivil (Visitante)", "group": "Visitante", "role": "Visitante", "familyRole": "Otro", "aliasZoom": "Diana Gabriela Mendivil", "aliasWhatsApp": "", "device": ""}, {"id": "P0068", "name": "Fabiola Tatiana Barboza Perez", "shortName": "Fabiola Barboza", "hogarId": "H043", "family": "Barboza Pérez", "group": "Visitante", "role": "Visitante", "familyRole": "Madre", "aliasZoom": "iphone de Fabiola tatiana", "aliasWhatsApp": "", "device": ""}, {"id": "P0069", "name": "Nathan Castro Perez", "shortName": "Nathan Castro", "hogarId": "H026", "family": "Castro Perez", "group": "Grupo 1", "role": "Menor", "familyRole": "Hijo", "aliasZoom": "", "aliasWhatsApp": "", "device": ""}];
@@ -651,26 +639,26 @@
     let hallZoomScale = 1.0;
     let isDesignModeActive = false;
 
-    // 2. PERSISTENCIA EN LOCALSTORAGE CON VERSIÓN LIMPIA (SOLUCIÓN DEFINITIVA A SAMIR)
+    // Persistencia Local Primero
     const Storage = {
       init() {
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v3");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v4");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v3", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v4", JSON.stringify(hogares));
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v3");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v4");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers;
-          localStorage.setItem("asistencia_jardin_members_v3", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v4", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v3");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v4");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -692,21 +680,77 @@
       },
 
       saveLocal() {
-        localStorage.setItem("asistencia_jardin_members_v3", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v3", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_members_v4", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v4", JSON.stringify(hogares));
         const sessionPayload = {
           meetingDate: document.getElementById("meeting-date-input").value,
           meetingType: document.getElementById("meeting-type-select").value,
           zoomConnections,
           attendees: members
         };
-        localStorage.setItem("asistencia_jardin_session_v3", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v4", JSON.stringify(sessionPayload));
+        
+        // Sincronizar en la nube inmediatamente sin bloquear
+        this.pushToCloud(sessionPayload);
+      },
+
+      async pushToCloud(sessionPayload) {
+        if (!isCloudOnline || !db) return;
+        try {
+          await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), sessionPayload);
+        } catch(e) {
+          console.warn("Sincronización encolada offline:", e);
+        }
+      },
+
+      async deleteMemberCloud(id) {
+        if (!isCloudOnline || !db) return;
+        try {
+          await deleteDoc(doc(db, "congregaciones", CONGREGATION_ID, "integrantes", id));
+        } catch(e) {}
       }
     };
 
-    // 3. ARRANQUE INMEDIATO DE LA APLICACIÓN
+    // Conexión Asíncrona con Firebase en Segundo Plano
+    async function initCloudSync() {
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = initializeFirestore(app, {
+          localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
+        isCloudOnline = true;
+        document.getElementById("net-status-dot").className = "inline-block w-2 h-2 rounded-full bg-emerald-400";
+        document.getElementById("net-status-txt").innerText = "Sincronizado con Nube";
+
+        // Escuchar cambios remotos en tiempo real
+        onSnapshot(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.attendees && Array.isArray(data.attendees)) {
+              data.attendees.forEach(remoteM => {
+                const localM = members.find(m => m.id === remoteM.id);
+                if (localM) {
+                  localM.location = remoteM.location;
+                  localM.seatId = remoteM.seatId;
+                  localM.zoomConnId = remoteM.zoomConnId;
+                }
+              });
+              if (data.zoomConnections) zoomConnections = data.zoomConnections;
+              renderHall();
+              renderDirectory();
+              renderZoom();
+              updateCounters();
+            }
+          }
+        });
+      } catch(e) {
+        document.getElementById("net-status-dot").className = "inline-block w-2 h-2 rounded-full bg-amber-400";
+        document.getElementById("net-status-txt").innerText = "Modo Local Autónomo";
+      }
+    }
+
+    // Arranque Directo Síncrono
     function initApp() {
-      // Cargar fechas iniciales
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -717,6 +761,7 @@
       Storage.init();
       populateHogarDropdown();
       refreshUI();
+      initCloudSync();
 
       if (window.innerWidth < 1024) switchMobileView("hall");
     }
@@ -730,7 +775,11 @@
       Storage.saveLocal();
     }
 
-    // 4. MAPA DEL SALÓN
+    window.persistActiveSession = function() {
+      Storage.saveLocal();
+    };
+
+    // Salón del Reino
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -851,7 +900,7 @@
       refreshUI();
     }
 
-    // 5. DIRECTORIO LATERAL
+    // Directorio Lateral
     function renderDirectory() {
       const container = document.getElementById("directory-list-container");
       if (!container) return;
@@ -907,7 +956,7 @@
       });
     }
 
-    // 6. ZOOM
+    // Zoom
     function renderZoom() {
       const container = document.getElementById("zoom-cards-container");
       if (!container) return;
@@ -974,7 +1023,7 @@
       }
     }
 
-    // 7. BASE DE DATOS (CON BORRADO 100% DEFINITIVO)
+    // Base de Datos
     function renderDBTable() {
       const tbody = document.getElementById("db-members-table-body");
       if (!tbody) return;
@@ -1049,7 +1098,7 @@
       document.getElementById("st-cnt-pla").innerText = members.filter(a => a.location).length;
     }
 
-    // 8. FUNCIONES DE ACCIÓN DIRECTA EN WINDOW
+    // Funciones en Window
     window.unseatPerson = function(id) {
       const p = members.find(a => a.id === id);
       if (p) {
@@ -1080,7 +1129,7 @@
       }
     };
 
-    // FUNCIÓN QUE BORRA DEFINITIVAMENTE A SAMIR / CUALQUIER MIEMBRO
+    // Borrado Definitivo (Caso Samir)
     window.deleteMemberDirect = function(id) {
       const p = members.find(a => a.id === id);
       if (!p) return;
@@ -1089,6 +1138,7 @@
       window.unseatPerson(id);
       members = members.filter(m => m.id !== id);
       Storage.saveLocal();
+      Storage.deleteMemberCloud(id);
       refreshUI();
       showToast(`"${p.name}" eliminado de la base de datos.`);
     };
@@ -1263,7 +1313,6 @@
       }
     };
 
-    // 9. EVENTOS Y CONTROLADORES DE MODALES
     window.switchView = function(mode) {
       document.getElementById("view-salon-mode").classList.toggle("hidden", mode !== "salon");
       document.getElementById("view-db-mode").classList.toggle("hidden", mode === "salon");
@@ -1273,14 +1322,11 @@
     window.switchMobileView = function(view) {
       if (view === "db") { window.switchView("db"); return; }
       window.switchView("salon");
-      const pList = document.getElementById("panel-directory-col");
-      const pHall = document.getElementById("panel-hall-col");
-      const pZoom = document.getElementById("panel-zoom-col");
-
-      [pList, pHall, pZoom].forEach(p => p?.classList.add("hidden"));
-      if (view === "hall") pHall?.classList.remove("hidden");
-      if (view === "list") pList?.classList.remove("hidden");
-      if (view === "zoom") pZoom?.classList.remove("hidden");
+      document.getElementById("panel-directory-col").classList.toggle("hidden", view !== "list");
+      document.getElementById("panel-hall-col").classList.toggle("hidden", view !== "hall");
+      document.getElementById("panel-zoom-col").classList.toggle("hidden", view !== "zoom");
+      document.querySelectorAll("[id^='mob-nav-']").forEach(b => b.className = "py-1.5 text-center rounded-lg");
+      document.getElementById(`mob-nav-${view}`).className = "py-1.5 text-center rounded-lg view-tab-active";
     };
 
     window.toggleDesignMode = function() {
@@ -1376,12 +1422,8 @@
     };
 
     window.openBackupModal = function() { document.getElementById("modal-backup").classList.remove("hidden"); };
-    window.openHistoryModal = function() { document.getElementById("modal-history").classList.remove("hidden"); };
     window.openPasteZoomModal = function() { document.getElementById("modal-paste-zoom").classList.remove("hidden"); };
-
-    window.closeModal = function(id) {
-      document.getElementById(id)?.classList.add("hidden");
-    };
+    window.closeModal = function(id) { document.getElementById(id)?.classList.add("hidden"); };
 
     window.openHogaresModal = function() {
       const box = document.getElementById("hogares-table-list");
@@ -1503,6 +1545,19 @@
       a.click();
     };
 
+    window.downloadSessionJSON = function() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, hogares, zoomConnections }));
+      const a = document.createElement("a");
+      a.href = str;
+      a.download = `asistencia_jardin_${document.getElementById("meeting-date-input").value}.json`;
+      a.click();
+    };
+
+    window.copySessionJSON = function() {
+      navigator.clipboard.writeText(JSON.stringify({ members, hogares, zoomConnections }));
+      showToast("JSON copiado al portapapeles.");
+    };
+
     function showToast(txt) {
       const t = document.getElementById("toast");
       document.getElementById("toast-txt").innerText = txt;
@@ -1513,7 +1568,7 @@
       }, 2000);
     }
 
-    // Arranque directo
+    // Arranque
     initApp();
   </script>
 </body>
