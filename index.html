@@ -8,7 +8,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #020617; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
-    /* REGLA CRÍTICA DE VISIBILIDAD */
+    /* REGLA CRÍTICA DE VISIBILIDAD (EVITA QUE LOS MODALES SE ABRAN POR DEFECTO) */
     .hidden { display: none !important; }
 
     /* Encabezado */
@@ -159,6 +159,7 @@
         </div>
 
         <div style="display: flex; gap: 4px;">
+          <button onclick="toggleDesignMode()" id="btn-toggle-design" class="btn btn-amber" style="padding: 4px 8px; font-size: 10px;" title="Editar cantidad de sillas y habilitar/deshabilitar puestos">✏️ Editar Sillas</button>
           <button onclick="startNewMeetingSession()" class="btn btn-rose" style="padding: 4px 8px; font-size: 10px;">🔄 Nueva</button>
           <button onclick="openReportModal()" class="btn btn-emerald" style="padding: 4px 10px; font-size: 10px;">📋 Reporte</button>
         </div>
@@ -248,7 +249,7 @@
     <!-- COLUMNA 2: SALÓN DEL REINO CON PISO BLANCO -->
     <section id="panel-hall-col" class="panel-box" style="padding: 8px;">
       
-      <!-- PLATAFORMA PRINCIPAL CON BOTONES DIRECTOS + FILA / - FILA -->
+      <!-- PLATAFORMA PRINCIPAL CON CONTROLES DE FILAS (+ FILA / - FILA) -->
       <div style="background: linear-gradient(to right, #92400e, #b45309, #92400e); border: 2px solid #f59e0b; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
         <div style="display: flex; align-items: center; gap: 6px;">
           <span style="background-color: rgba(0,0,0,0.5); border: 1px solid #fbbf24; color: #fde68a; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 6px;">🎤 ATRIL</span>
@@ -256,8 +257,8 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 4px; background-color: rgba(15, 23, 42, 0.9); padding: 2px 6px; border-radius: 8px; border: 1px solid #475569;">
-          <button onclick="addHallRow()" class="btn btn-emerald" style="padding: 3px 6px; font-size: 9px;">+ Fila</button>
-          <button onclick="removeHallRow()" class="btn btn-rose" style="padding: 3px 6px; font-size: 9px;">- Fila</button>
+          <button onclick="addHallRow()" class="btn btn-emerald" style="padding: 3px 6px; font-size: 9.5px;" title="Agregar una nueva fila al final del salón">+ Fila</button>
+          <button onclick="removeHallRow()" class="btn btn-rose" style="padding: 3px 6px; font-size: 9.5px;" title="Quitar la última fila del salón">- Fila</button>
           <div style="width: 1px; height: 14px; background-color: #475569; margin: 0 2px;"></div>
           <button onclick="adjustHallZoom(-0.15)" style="background: none; border: none; color: #cbd5e1; font-weight: 900; cursor: pointer; padding: 0 3px;">-</button>
           <span id="zoom-lvl-txt" style="font-size: 9px; font-family: monospace; font-weight: 700; color: #a5b4fc; min-width: 32px; text-align: center;">100%</span>
@@ -763,6 +764,7 @@
       Storage.saveLocalAndCloud();
     };
 
+    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y CONTROLES POR FILA
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -788,6 +790,29 @@
         spanL.innerText = `F${rNum}`;
         rowL.appendChild(spanL);
 
+        // Si el Modo Editor está activo, muestra botones para añadir o quitar sillas en esa fila
+        if (isDesignModeActive) {
+          const btnAddSeatL = document.createElement("button");
+          btnAddSeatL.className = "btn btn-emerald";
+          btnAddSeatL.style.padding = "2px 5px";
+          btnAddSeatL.style.fontSize = "9px";
+          btnAddSeatL.innerText = "+";
+          btnAddSeatL.title = "Agregar silla a esta fila (Izquierda)";
+          btnAddSeatL.onclick = () => { row.left++; refreshUI(); };
+          rowL.appendChild(btnAddSeatL);
+
+          if (row.left > 1) {
+            const btnSubSeatL = document.createElement("button");
+            btnSubSeatL.className = "btn btn-rose";
+            btnSubSeatL.style.padding = "2px 5px";
+            btnSubSeatL.style.fontSize = "9px";
+            btnSubSeatL.innerText = "-";
+            btnSubSeatL.title = "Quitar silla de esta fila (Izquierda)";
+            btnSubSeatL.onclick = () => { row.left--; refreshUI(); };
+            rowL.appendChild(btnSubSeatL);
+          }
+        }
+
         for (let s = 1; s <= row.left; s++) {
           const sid = `MAIN-L-R${rNum}-S${s}`;
           const isDis = (row.disabled || []).includes(sid);
@@ -805,6 +830,29 @@
           const sid = `MAIN-R-R${rNum}-S${s}`;
           const isDis = (row.disabled || []).includes(sid);
           rowR.appendChild(createChair(sid, `D${s}`, "main", isDis));
+        }
+
+        // Si el Modo Editor está activo en la derecha
+        if (isDesignModeActive) {
+          const btnAddSeatR = document.createElement("button");
+          btnAddSeatR.className = "btn btn-emerald";
+          btnAddSeatR.style.padding = "2px 5px";
+          btnAddSeatR.style.fontSize = "9px";
+          btnAddSeatR.innerText = "+";
+          btnAddSeatR.title = "Agregar silla a esta fila (Derecha)";
+          btnAddSeatR.onclick = () => { row.right++; refreshUI(); };
+          rowR.appendChild(btnAddSeatR);
+
+          if (row.right > 1) {
+            const btnSubSeatR = document.createElement("button");
+            btnSubSeatR.className = "btn btn-rose";
+            btnSubSeatR.style.padding = "2px 5px";
+            btnSubSeatR.style.fontSize = "9px";
+            btnSubSeatR.innerText = "-";
+            btnSubSeatR.title = "Quitar silla de esta fila (Derecha)";
+            btnSubSeatR.onclick = () => { row.right--; refreshUI(); };
+            rowR.appendChild(btnSubSeatR);
+          }
         }
 
         const spanR = document.createElement("span");
@@ -1045,7 +1093,7 @@
             <div style="font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.shortName || m.name}</div>
             <div style="font-size: 9px; color: #94a3b8;">${m.family} • ${m.group} • ${m.role}</div>
           </div>
-          <div style="display: flex; align-items: gap: 4px; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
             <button onclick="autoSeatNextAvailable('${m.id}')" class="btn btn-dark" style="padding: 2px 6px; font-size: 9.5px; color: #34d399;">🪑 Salón</button>
             <button onclick="unseatPerson('${m.id}')" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;">✕</button>
           </div>
@@ -1529,6 +1577,47 @@
       }
     };
 
+    window.saveMemberForm = function() {
+      const id = document.getElementById("form-member-id").value;
+      const name = document.getElementById("form-member-name").value.trim();
+      let shortName = document.getElementById("form-member-shortname").value.trim();
+      const hogarId = document.getElementById("form-member-hogar").value;
+      const familyRole = document.getElementById("form-member-familyrole").value;
+      const group = document.getElementById("form-member-group").value;
+      const role = document.getElementById("form-member-role").value;
+      const aliasZoom = document.getElementById("form-member-aliaszoom").value.trim();
+
+      if (!name) return alert("Por favor ingresa el nombre.");
+      const hogarObj = hogares.find(h => h.id === hogarId);
+      const familyName = hogarObj ? hogarObj.name : "General";
+
+      if (!shortName) {
+        const parts = name.split(/\s+/);
+        shortName = `${parts[0]} ${familyName.split(/\s+/)[0]}`;
+      }
+
+      const mObj = {
+        id: id || ("P" + String(Date.now()).slice(-4)),
+        name, shortName, hogarId, family: familyName, familyRole, group, role, aliasZoom, aliasWhatsApp: "", device: ""
+      };
+
+      const idx = members.findIndex(m => m.id === mObj.id);
+      if (idx >= 0) members[idx] = mObj;
+      else members.push(mObj);
+
+      document.getElementById("modal-edit-member").classList.add("hidden");
+      refreshUI();
+      showToast(`Hermano ${shortName} guardado.`);
+    };
+
+    window.deleteMemberFromForm = function() {
+      const id = document.getElementById("form-member-id").value;
+      if (id) {
+        window.deleteMemberDirect(id);
+        document.getElementById("modal-edit-member").classList.add("hidden");
+      }
+    };
+
     window.switchView = function(mode) {
       document.getElementById("view-salon-mode").style.display = mode === "salon" ? "grid" : "none";
       document.getElementById("view-db-mode").style.display = mode === "db" ? "block" : "none";
@@ -1547,8 +1636,13 @@
 
     window.toggleDesignMode = function() {
       isDesignModeActive = !isDesignModeActive;
-      document.getElementById("editor-banner")?.classList.toggle("hidden", !isDesignModeActive);
+      const banner = document.getElementById("btn-toggle-design");
+      if (banner) {
+        banner.style.backgroundColor = isDesignModeActive ? "#d97706" : "rgba(217, 119, 6, 0.2)";
+        banner.style.color = isDesignModeActive ? "#ffffff" : "#fcd34d";
+      }
       renderHall();
+      showToast(isDesignModeActive ? "Modo Editor de Sillas ACTIVO" : "Modo Editor desactivado");
     };
 
     window.adjustHallZoom = function(delta) {
@@ -1735,9 +1829,9 @@
 
       // REPORTE 3
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
-      r3 += `1. Conexiones operativas identificadas y excluidas del conteo normativo.\n`;
-      r3 += `2. Salvedades de WhatsApp cotejadas visualmente contra Zoom (Regla 3).\n`;
-      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra (75 integrantes).\n`;
+      r3 += `1. Conexiones operativas excluidas del conteo normativo.\n`;
+      r3 += `2. Salvedades de WhatsApp cruzadas contra presencia en Zoom.\n`;
+      r3 += `3. Nombres cortos y roles cotejados contra la Base de Datos maestra.\n`;
 
       generatedReports = { r_all, r_zoom, r_salon, r1, r3 };
       window.setReportTab('r_all');
@@ -1760,11 +1854,17 @@
       showToast("Reporte copiado al portapapeles.");
     };
 
+    window.openBackupModal = function() { document.getElementById("modal-backup").classList.remove("hidden"); };
+    window.openPasteZoomModal = function() { document.getElementById("modal-paste-zoom").classList.remove("hidden"); };
     window.closeModal = function(id) { document.getElementById(id)?.classList.add("hidden"); };
+
     window.setFilterGroup = function(g) {
       currentFilterGroup = g;
-      document.querySelectorAll("#group-filters-wrapper button").forEach(b => b.className = "btn btn-dark");
-      document.querySelector(`#group-filters-wrapper button[data-g="${g}"]`).className = "btn btn-indigo";
+      document.querySelectorAll("#group-filters-wrapper button").forEach(b => {
+        b.className = "btn btn-dark";
+      });
+      const activeBtn = document.querySelector(`#group-filters-wrapper button[data-g="${g}"]`);
+      if (activeBtn) activeBtn.className = "btn btn-indigo";
       renderDirectory();
     };
 
@@ -1777,6 +1877,69 @@
       document.getElementById("st-filter-pla").style.backgroundColor = st === "PLACED" ? "#4f46e5" : "transparent";
       document.getElementById("st-filter-pla").style.color = st === "PLACED" ? "#ffffff" : "#94a3b8";
       renderDirectory();
+    };
+
+    window.newZoomGroupPrompt = function() {
+      const name = prompt("Nombre de la conexión Zoom (ej. Familia Castro):");
+      if (name && name.trim()) {
+        zoomConnections.push({
+          id: "ZCONN_" + Date.now(),
+          label: name.trim(),
+          family: "General",
+          memberIds: []
+        });
+        refreshUI();
+      }
+    };
+
+    window.loadSampleZoomText = function() {
+      document.getElementById("paste-zoom-textarea").value = 
+`[26/8, 6:31 p.m.] Jamer Y Fabiola Hernández: (Jamer, Jamer A, Fabiola=3)
+[26/8, 6:34 p.m.] María de Castro: (María, Nalieth=2)
+- Karina Salgado
+- Esther Mendez`;
+    };
+
+    window.processPastedZoomText = function() {
+      const txt = document.getElementById("paste-zoom-textarea").value;
+      const lines = txt.split("\n");
+      let count = 0;
+      lines.forEach(l => {
+        const clean = cleanStr(l);
+        members.forEach(m => {
+          if (clean.includes(cleanStr(m.name.split(" ")[0]))) {
+            m.location = "zoom";
+            count++;
+          }
+        });
+      });
+      closeModal("modal-paste-zoom");
+      refreshUI();
+      showToast(`${count} personas sincronizadas en Zoom.`);
+    };
+
+    window.downloadCSV = function() {
+      let csv = "ID_Persona,ID_Hogar,Hogar,Integrante,Nombre_Corto,Rol_Familiar,Rol_Congregacion,Grupo_Servicio,Alias_Zoom\n";
+      members.forEach(m => {
+        csv += `"${m.id}","${m.hogarId}","${m.family}","${m.name}","${m.shortName}","${m.familyRole}","${m.role}","${m.group}","${m.aliasZoom}"\n`;
+      });
+      const a = document.createElement("a");
+      a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+      a.download = `directorio_jardin_${document.getElementById("meeting-date-input").value}.csv`;
+      a.click();
+    };
+
+    window.downloadSessionJSON = function() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, hogares, zoomConnections, hallLayout }));
+      const a = document.createElement("a");
+      a.href = str;
+      a.download = `asistencia_jardin_${document.getElementById("meeting-date-input").value}.json`;
+      a.click();
+    };
+
+    window.copySessionJSON = function() {
+      navigator.clipboard.writeText(JSON.stringify({ members, hogares, zoomConnections, hallLayout }));
+      showToast("JSON copiado al portapapeles.");
     };
 
     function showToast(txt) {
