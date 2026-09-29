@@ -8,10 +8,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #020617; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
-    /* REGLA FUNDAMENTAL DE VISIBILIDAD PARA MODALES */
+    /* REGLA CRÍTICA DE VISIBILIDAD (EVITA QUE LOS MODALES SE ABRAN POR DEFECTO) */
     .hidden { display: none !important; }
 
-    /* Encabezado */
+    /* Encabezado Responsivo para PC y Celular */
     header { background-color: #0f172a; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 40; padding: 8px 12px; }
     .header-container { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
     .header-top-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
@@ -166,7 +166,7 @@
 
         <!-- BARRA COMPLETA DE ESCRITORIO (PC) -->
         <div class="desktop-nav-bar">
-          <button onclick="switchView('salon')" class="btn btn-indigo">🏛️ Salón & Zoom</button>
+          <button onclick="switchView('salon')" class="btn btn-indigo">🏛️️ Salón & Zoom</button>
           <button onclick="switchView('db')" class="btn btn-teal">👥 Base de Datos (75)</button>
           <button onclick="toggleDesignMode()" id="btn-toggle-design-pc" class="btn btn-amber">✏️ Editar Sillas</button>
           <button onclick="startNewMeetingSession()" class="btn btn-rose">🔄 Nueva Reunión</button>
@@ -293,8 +293,12 @@
             
             <!-- ISLA IZQUIERDA -->
             <div class="island-card">
-              <div style="text-align: center; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0;">
-                <span style="font-size: 10px; font-weight: 900; color: #0284c7; text-transform: uppercase;">⬅️ Isla Izquierda</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 900; color: #0284c7; text-transform: uppercase;">⬅️ Isla Izq</span>
+                <div style="display: flex; gap: 2px;">
+                  <button onclick="modifySeatsAllRows('left', 1)" class="btn btn-emerald" style="padding: 1px 5px; font-size: 8.5px;" title="Añadir una silla a todas las bancas de la izquierda">+ Silla</button>
+                  <button onclick="modifySeatsAllRows('left', -1)" class="btn btn-rose" style="padding: 1px 5px; font-size: 8.5px;" title="Quitar una silla a todas las bancas de la izquierda">- Silla</button>
+                </div>
               </div>
               <div style="display: flex; flex-direction: column; gap: 6px;" id="grid-hall-left"></div>
             </div>
@@ -315,8 +319,12 @@
 
             <!-- ISLA DERECHA -->
             <div class="island-card">
-              <div style="text-align: center; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0;">
-                <span style="font-size: 10px; font-weight: 900; color: #059669; text-transform: uppercase;">Isla Derecha ➡️</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1.5px solid #e2e8f0; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 900; color: #059669; text-transform: uppercase;">Isla Der ➡️</span>
+                <div style="display: flex; gap: 2px;">
+                  <button onclick="modifySeatsAllRows('right', 1)" class="btn btn-emerald" style="padding: 1px 5px; font-size: 8.5px;" title="Añadir una silla a todas las bancas de la derecha">+ Silla</button>
+                  <button onclick="modifySeatsAllRows('right', -1)" class="btn btn-rose" style="padding: 1px 5px; font-size: 8.5px;" title="Quitar una silla a todas las bancas de la derecha">- Silla</button>
+                </div>
               </div>
               <div style="display: flex; flex-direction: column; gap: 6px;" id="grid-hall-right"></div>
             </div>
@@ -442,18 +450,24 @@
         <button onclick="closeModal('modal-seat')" style="background: none; border: none; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;">✕ Cerrar</button>
       </div>
 
-      <!-- Ficha del Ocupante Actual -->
-      <div id="modal-occupant-card" style="display: none; background-color: #020617; border: 1px solid #312e81; border-radius: 10px; padding: 6px 8px; margin-bottom: 6px; flex-shrink: 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 9px; font-weight: 800; color: #a5b4fc;">OCUPANTE ACTUAL</span>
-          <span id="modal-occ-role-badge" style="font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 4px;">PUB</span>
+      <!-- Ficha del Ocupante Actual (BLINDADA CONTRA ERRORES DE IDENTIFICADOR) -->
+      <div id="modal-occupant-card" style="display: none; background-color: #020617; border: 1.5px solid #4338ca; border-radius: 12px; padding: 10px; margin-bottom: 8px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #1e293b;">
+          <span style="font-size: 9.5px; font-weight: 800; color: #a5b4fc; text-transform: uppercase;">OCUPANTE ACTUAL</span>
+          <span id="modal-occ-role-badge" style="font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background-color: #1e1b4b; color: #a5b4fc;">PUB</span>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-          <strong id="modal-occ-name" style="font-size: 11.5px; color: #fff;">Nombre</strong>
-          <div style="display: flex; gap: 4px;">
-            <button id="modal-occ-btn-zoom" class="btn btn-indigo" style="padding: 2px 6px; font-size: 9px;">📹 A Zoom</button>
-            <button onclick="vacateCurrentSeat()" class="btn btn-rose" style="padding: 2px 6px; font-size: 9px;">✕ Liberar</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div style="min-width: 0; flex: 1;">
+            <strong id="modal-occ-name" style="font-size: 13px; color: #fff; display: block; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Nombre</strong>
+            <span id="modal-occ-details" style="font-size: 9.5px; color: #94a3b8; display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Familia • Grupo</span>
           </div>
+          <div style="display: flex; gap: 4px; flex-shrink: 0;">
+            <button id="modal-occ-btn-zoom" class="btn btn-indigo" style="padding: 4px 8px; font-size: 10px;">📹 A Zoom</button>
+            <button onclick="vacateCurrentSeat()" class="btn btn-rose" style="padding: 4px 8px; font-size: 10px;">✕ Liberar</button>
+          </div>
+        </div>
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #1e293b; display: flex; justify-content: flex-end;">
+          <button onclick="disableCurrentSeatFromModal()" class="btn btn-dark" style="padding: 3px 8px; font-size: 9.5px; color: #f87171;" title="Quita o anula esta silla del mapa">🚫 Eliminar / Anular esta Silla</button>
         </div>
       </div>
 
@@ -467,7 +481,10 @@
       <div id="modal-seat-people-list" class="no-scrollbar" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
 
       <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: #94a3b8; flex-shrink: 0;">
-        <span>💡 Enter o Sentar avanza a la siguiente silla de al lado</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span>💡 Enter o Sentar avanza a la siguiente</span>
+          <button onclick="disableCurrentSeatFromModal()" class="btn btn-dark" style="padding: 2px 6px; font-size: 9px; color: #f87171;" title="Elimina esta silla específica">🚫 Quitar Silla</button>
+        </div>
         <button onclick="closeModal('modal-seat'); openEditMemberModal(null)" class="btn btn-dark" style="padding: 2px 6px; font-size: 9px;">+ Nuevo</button>
       </div>
 
@@ -497,6 +514,105 @@
         <div style="display: flex; gap: 6px;">
           <button onclick="closeModal('modal-report-view')" class="btn btn-dark">Cerrar</button>
           <button onclick="copyReportText()" class="btn btn-emerald">Copiar Reporte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BACKUP Y DESCARGA -->
+  <div id="modal-backup" class="modal-overlay hidden">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 8px;">
+        <h3 style="font-size: 13px; font-weight: 800; color: #fff;">💾 Guardar y Respaldar Sesión</h3>
+        <button onclick="closeModal('modal-backup')" style="background: none; border: none; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;">✕</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+        <button onclick="downloadSessionJSON()" class="btn btn-indigo" style="padding: 12px; flex-direction: column; text-align: center;">
+          <span>💾 Descargar JSON</span>
+          <span style="font-size: 8.5px; opacity: 0.8; font-weight: 400;">Archivo completo</span>
+        </button>
+        <button onclick="copySessionJSON()" class="btn btn-dark" style="padding: 12px; flex-direction: column; text-align: center;">
+          <span>📋 Copiar JSON</span>
+          <span style="font-size: 8.5px; opacity: 0.8; font-weight: 400;">Al portapapeles</span>
+        </button>
+      </div>
+      <div style="display: flex; justify-content: flex-end;">
+        <button onclick="closeModal('modal-backup')" class="btn btn-dark">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR / CREAR INTEGRANTE -->
+  <div id="modal-edit-member" class="modal-overlay hidden">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 8px;">
+        <h3 class="text-xs font-bold text-white" id="modal-member-header"><span>👤</span> Registrar Integrante</h3>
+        <button onclick="closeModal('modal-edit-member')" style="background: none; border: none; color: #94a3b8; font-weight: 700; cursor: pointer;">✕</button>
+      </div>
+
+      <input type="hidden" id="form-member-id">
+
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+        <div>
+          <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Nombre Completo Oficial</label>
+          <input type="text" id="form-member-name" placeholder="Ej: Oscar Enrique Arteaga Mendez" style="width: 100%; padding: 6px 8px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;">
+        </div>
+        <div>
+          <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Nombre Corto (WhatsApp)</label>
+          <input type="text" id="form-member-shortname" placeholder="Ej: Oscar Arteaga" style="width: 100%; padding: 6px 8px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #a5b4fc; font-weight: 700; outline: none;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <div>
+            <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Hogar / Familia</label>
+            <select id="form-member-hogar" style="width: 100%; padding: 6px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;"></select>
+          </div>
+          <div>
+            <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Rol Familiar</label>
+            <select id="form-member-familyrole" style="width: 100%; padding: 6px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;">
+              <option value="Padre">Padre / Cabeza</option>
+              <option value="Esposo">Esposo</option>
+              <option value="Madre">Madre</option>
+              <option value="Esposa">Esposa</option>
+              <option value="Hijo">Hijo</option>
+              <option value="Hija">Hija</option>
+              <option value="Soltero/a">Soltero/a</option>
+              <option value="Otro" selected>Otro</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <div>
+            <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Grupo de Servicio</label>
+            <select id="form-member-group" style="width: 100%; padding: 6px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;">
+              <option value="Grupo 1">Grupo 1</option>
+              <option value="Grupo 2">Grupo 2</option>
+              <option value="Grupo 3">Grupo 3</option>
+              <option value="Grupo 4">Grupo 4</option>
+              <option value="Grupo 5">Grupo 5</option>
+              <option value="Visitante">Visitante</option>
+              <option value="Menor">Menor</option>
+            </select>
+          </div>
+          <div>
+            <label style="color: #94a3b8; display: block; margin-bottom: 2px;">Rol Congregación</label>
+            <select id="form-member-role" style="width: 100%; padding: 6px; background-color: #020617; border: 1px solid #1e293b; border-radius: 8px; color: #fff; outline: none;">
+              <option value="PUB">Publicador (PUB)</option>
+              <option value="PR">Precursor (PR)</option>
+              <option value="SM">Siervo Ministerial (SM)</option>
+              <option value="ANC">Anciano (ANC)</option>
+              <option value="PNB">Pub. No Bautizado (PNB)</option>
+              <option value="Menor">Menor</option>
+              <option value="Visitante">Visitante</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #1e293b;">
+        <button onclick="deleteMemberFromForm()" id="btn-delete-member-form" class="btn btn-rose" style="display: none;">🗑️ Eliminar</button>
+        <div style="display: flex; gap: 6px; margin-left: auto;">
+          <button onclick="closeModal('modal-edit-member')" class="btn btn-dark">Cancelar</button>
+          <button onclick="saveMemberForm()" class="btn btn-indigo">Guardar</button>
         </div>
       </div>
     </div>
@@ -572,33 +688,33 @@
 
     const Storage = {
       init() {
-        const storedLayout = localStorage.getItem("asistencia_jardin_layout_v14");
+        const storedLayout = localStorage.getItem("asistencia_jardin_layout_v15");
         if (storedLayout) {
           try { hallLayout = JSON.parse(storedLayout); } catch(e) {}
         }
 
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v14");
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v15");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v14", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v15", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v14");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v15");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v14");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v15");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v14", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v15", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v14");
+        const storedSession = localStorage.getItem("asistencia_jardin_session_v15");
         if (storedSession) {
           try {
             const s = JSON.parse(storedSession);
@@ -621,10 +737,10 @@
       },
 
       saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_layout_v14", JSON.stringify(hallLayout));
-        localStorage.setItem("asistencia_jardin_members_v14", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v14", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v14", JSON.stringify(deletedMemberIds));
+        localStorage.setItem("asistencia_jardin_layout_v15", JSON.stringify(hallLayout));
+        localStorage.setItem("asistencia_jardin_members_v15", JSON.stringify(members));
+        localStorage.setItem("asistencia_jardin_hogares_v15", JSON.stringify(hogares));
+        localStorage.setItem("asistencia_jardin_deleted_v15", JSON.stringify(deletedMemberIds));
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -653,7 +769,7 @@
           layout: hallLayout
         };
 
-        localStorage.setItem("asistencia_jardin_session_v14", JSON.stringify(sessionPayload));
+        localStorage.setItem("asistencia_jardin_session_v15", JSON.stringify(sessionPayload));
         this.pushToFirestore(sessionPayload);
       },
 
@@ -795,7 +911,122 @@
       Storage.saveLocalAndCloud();
     };
 
-    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y CONTROLES DINÁMICOS POR CADA FILA
+    // AÑADIR O QUITAR SILLAS DINÁMICAMENTE POR FILA O POR ISLA
+    window.addChairToRow = function(rowIndex, side) {
+      const row = hallLayout.rows[rowIndex];
+      const rNum = rowIndex + 1;
+      if (side === 'L') row.left++;
+      else row.right++;
+      const newCount = side === 'L' ? row.left : row.right;
+      refreshUI();
+      showToast(`Silla ${side === 'L' ? 'I' : 'D'}${newCount} agregada a Fila ${rNum}`);
+    };
+
+    window.removeChairFromRow = function(rowIndex, side) {
+      const row = hallLayout.rows[rowIndex];
+      const rNum = rowIndex + 1;
+      const currentCount = side === 'L' ? row.left : row.right;
+      if (currentCount <= 1) {
+        showToast("La fila debe tener al menos 1 silla.");
+        return;
+      }
+      const sid = `MAIN-${side}-R${rNum}-S${currentCount}`;
+      const occupant = members.find(m => m.seatId === sid);
+      if (occupant) {
+        occupant.location = null;
+        occupant.seatId = null;
+        occupant.zoomConnId = null;
+      }
+      if (row.disabled) {
+        row.disabled = row.disabled.filter(id => id !== sid);
+      }
+      if (side === 'L') row.left--;
+      else row.right--;
+      refreshUI();
+      showToast(`Silla ${side === 'L' ? 'I' : 'D'}${currentCount} retirada de Fila ${rNum}`);
+    };
+
+    window.modifySeatsAllRows = function(side, delta) {
+      hallLayout.rows.forEach(r => {
+        if (side === 'left') {
+          r.left = Math.max(1, (r.left || 4) + delta);
+        } else {
+          r.right = Math.max(1, (r.right || 4) + delta);
+        }
+      });
+      refreshUI();
+      showToast(`${delta > 0 ? '+1 Silla añadida' : '-1 Silla retirada'} en Isla ${side === 'left' ? 'Izquierda' : 'Derecha'}`);
+    };
+
+    window.addChairToAllRows = function() {
+      hallLayout.rows.forEach(r => { r.left++; r.right++; });
+      refreshUI();
+      showToast("Se agregó 1 silla a todas las filas del salón.");
+    };
+
+    window.addHallRow = function() {
+      hallLayout.rows.push({ left: 4, right: 4, disabled: [] });
+      refreshUI();
+      showToast(`Fila ${hallLayout.rows.length} agregada al salón.`);
+    };
+
+    window.removeHallRow = function() {
+      if (hallLayout.rows.length > 1) {
+        const rNum = hallLayout.rows.length;
+        hallLayout.rows.pop();
+        members.forEach(m => {
+          if (m.seatId && (m.seatId.includes(`MAIN-L-R${rNum}-`) || m.seatId.includes(`MAIN-R-R${rNum}-`))) {
+            m.location = null;
+            m.seatId = null;
+          }
+        });
+        refreshUI();
+        showToast(`Fila ${rNum} retirada del salón.`);
+      }
+    };
+
+    // ELIMINACIÓN Y RESTAURACIÓN DE SILLAS ESPECÍFICAS
+    window.toggleDisableChair = function(seatId) {
+      if (!seatId) return;
+      if (seatId.startsWith("MAIN-")) {
+        const parts = seatId.split("-");
+        const rNum = parseInt(parts[2].replace("R", ""));
+        const row = hallLayout.rows[rNum - 1];
+        if (row) {
+          if (!row.disabled) row.disabled = [];
+          if (row.disabled.includes(seatId)) {
+            row.disabled = row.disabled.filter(id => id !== seatId);
+            showToast(`Silla ${seatId} restaurada.`);
+          } else {
+            const p = members.find(a => a.seatId === seatId);
+            if (p) window.unseatPerson(p.id);
+            row.disabled.push(seatId);
+            showToast(`Silla ${seatId} eliminada/anulada.`);
+          }
+        }
+      } else if (seatId.startsWith("SEC-")) {
+        if (!hallLayout.disabledSecSeats) hallLayout.disabledSecSeats = [];
+        if (hallLayout.disabledSecSeats.includes(seatId)) {
+          hallLayout.disabledSecSeats = hallLayout.disabledSecSeats.filter(id => id !== seatId);
+          showToast(`Silla ${seatId} restaurada.`);
+        } else {
+          const p = members.find(a => a.seatId === seatId);
+          if (p) window.unseatPerson(p.id);
+          hallLayout.disabledSecSeats.push(seatId);
+          showToast(`Silla ${seatId} eliminada/anulada.`);
+        }
+      }
+      refreshUI();
+    };
+
+    window.disableCurrentSeatFromModal = function() {
+      if (selectedSeatId) {
+        window.toggleDisableChair(selectedSeatId);
+        closeModal("modal-seat");
+      }
+    };
+
+    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y CONTROLES POR CADA FILA
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -942,8 +1173,9 @@
           el.style.border = "2px dashed #f59e0b";
           el.style.color = "#b45309";
           el.style.fontWeight = "900";
-          el.innerText = "+";
-          el.onclick = () => toggleDisableChair(seatId);
+          el.title = "Silla anulada. Toca para restaurar";
+          el.innerHTML = `<span style="font-size: 14px; font-weight: 900;">+</span><span style="font-size: 7px;">${label}</span>`;
+          el.onclick = () => window.toggleDisableChair(seatId);
         } else {
           el.className = "chair-seat";
           el.style.opacity = "0";
@@ -973,35 +1205,24 @@
         el.innerHTML = `
           <span style="font-size: 8.5px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.1;">${shortName}</span>
           <span style="font-size: 7px; opacity: 0.85; text-transform: uppercase;">${occupant.role.split(',')[0]}</span>
+          ${isDesignModeActive ? `<span style="position: absolute; top: -4px; right: -4px; background-color: #ef4444; color: #fff; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">✕</span>` : ''}
         `;
       } else {
         el.className = "chair-seat chair-vacant";
         el.innerHTML = `
           <span style="font-size: 11px; opacity: 0.4;">🪑</span>
           <span style="font-size: 7.5px; font-family: monospace; font-weight: 800; color: #64748b;">${label}</span>
+          ${isDesignModeActive ? `<span style="position: absolute; top: -4px; right: -4px; background-color: #ef4444; color: #fff; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">✕</span>` : ''}
         `;
       }
 
       el.onclick = (e) => {
         e.stopPropagation();
-        if (isDesignModeActive) toggleDisableChair(seatId);
+        if (isDesignModeActive) window.toggleDisableChair(seatId);
         else openSeatModal(seatId, label, type, occupant);
       };
 
       return el;
-    }
-
-    function toggleDisableChair(seatId) {
-      hallLayout.rows.forEach(r => {
-        if (!r.disabled) r.disabled = [];
-        if (r.disabled.includes(seatId)) r.disabled = r.disabled.filter(id => id !== seatId);
-        else {
-          const p = members.find(a => a.seatId === seatId);
-          if (p) unseatPerson(p.id);
-          r.disabled.push(seatId);
-        }
-      });
-      refreshUI();
     }
 
     // DIRECTORIO LATERAL CON BÚSQUEDA INSTANTÁNEA
@@ -1206,68 +1427,6 @@
       document.getElementById("st-cnt-pla").innerText = members.filter(a => a.location).length;
     }
 
-    // GESTIÓN DE SILLAS DINÁMICA FILA POR FILA
-    window.addChairToRow = function(rowIndex, side) {
-      const row = hallLayout.rows[rowIndex];
-      const rNum = rowIndex + 1;
-      if (side === 'L') row.left++;
-      else row.right++;
-      const newCount = side === 'L' ? row.left : row.right;
-      refreshUI();
-      showToast(`Silla ${side === 'L' ? 'I' : 'D'}${newCount} agregada a Fila ${rNum}`);
-    };
-
-    window.removeChairFromRow = function(rowIndex, side) {
-      const row = hallLayout.rows[rowIndex];
-      const rNum = rowIndex + 1;
-      const currentCount = side === 'L' ? row.left : row.right;
-      if (currentCount <= 1) {
-        showToast("La fila debe tener al menos 1 silla.");
-        return;
-      }
-      const sid = `MAIN-${side}-R${rNum}-S${currentCount}`;
-      const occupant = members.find(m => m.seatId === sid);
-      if (occupant) {
-        occupant.location = null;
-        occupant.seatId = null;
-        occupant.zoomConnId = null;
-      }
-      if (row.disabled) {
-        row.disabled = row.disabled.filter(id => id !== sid);
-      }
-      if (side === 'L') row.left--;
-      else row.right--;
-      refreshUI();
-      showToast(`Silla ${side === 'L' ? 'I' : 'D'}${currentCount} retirada de Fila ${rNum}`);
-    };
-
-    window.addChairToAllRows = function() {
-      hallLayout.rows.forEach(r => { r.left++; r.right++; });
-      refreshUI();
-      showToast("Se agregó 1 silla a todas las filas.");
-    };
-
-    window.addHallRow = function() {
-      hallLayout.rows.push({ left: 4, right: 4, disabled: [] });
-      refreshUI();
-      showToast(`Fila ${hallLayout.rows.length} agregada al salón.`);
-    };
-
-    window.removeHallRow = function() {
-      if (hallLayout.rows.length > 1) {
-        const rNum = hallLayout.rows.length;
-        hallLayout.rows.pop();
-        members.forEach(m => {
-          if (m.seatId && (m.seatId.includes(`MAIN-L-R${rNum}-`) || m.seatId.includes(`MAIN-R-R${rNum}-`))) {
-            m.location = null;
-            m.seatId = null;
-          }
-        });
-        refreshUI();
-        showToast(`Fila ${rNum} retirada del salón.`);
-      }
-    };
-
     window.autoSeatNextAvailable = function(id) {
       const p = members.find(a => a.id === id);
       if (!p) return;
@@ -1431,6 +1590,7 @@
       return null;
     }
 
+    // APERTURA DEL MODAL BLINDADA (TOTALMENTE FUNCIONAL EN SILLAS OCUPADAS)
     function openSeatModal(seatId, label, type, occupant) {
       selectedSeatId = seatId;
       selectedSeatType = type;
@@ -1443,37 +1603,50 @@
         humanLabel = `Segunda Sala (${label})`;
       }
 
-      document.getElementById("modal-seat-title").innerText = `🪑 Silla: ${humanLabel}`;
+      const titleEl = document.getElementById("modal-seat-title");
+      if (titleEl) titleEl.innerText = `🪑 Silla: ${humanLabel}`;
+      
       const searchInput = document.getElementById("modal-seat-search");
       if (searchInput) searchInput.value = "";
 
       const occCard = document.getElementById("modal-occupant-card");
+      const occBadge = document.getElementById("modal-occ-role-badge");
+      const occName = document.getElementById("modal-occ-name");
+      const occDetails = document.getElementById("modal-occ-details");
+      const subtitle = document.getElementById("modal-seat-subtitle");
+
       if (occupant) {
-        document.getElementById("modal-seat-subtitle").innerText = "Puesto actualmente ocupado";
-        document.getElementById("modal-occ-name").innerText = occupant.name;
-        document.getElementById("modal-occ-shortname").innerText = occupant.shortName || occupant.name;
+        if (subtitle) subtitle.innerText = "Puesto actualmente ocupado";
+        if (occName) occName.innerText = occupant.name;
+        if (occDetails) occDetails.innerText = `${occupant.shortName ? occupant.shortName + ' • ' : ''}${occupant.family} (${occupant.familyRole || 'Familiar'}) • ${occupant.group}`;
 
-        const roleBadge = document.getElementById("modal-occ-role-badge");
-        roleBadge.innerText = occupant.role;
-        roleBadge.style.backgroundColor = occupant.role === "Menor" ? "#042f2e" : occupant.role === "Visitante" ? "#1e293b" : "#1e1b4b";
-        roleBadge.style.color = occupant.role === "Menor" ? "#5eead4" : occupant.role === "Visitante" ? "#cbd5e1" : "#a5b4fc";
+        if (occBadge) {
+          occBadge.innerText = occupant.role;
+          occBadge.style.backgroundColor = occupant.role === "Menor" ? "#042f2e" : occupant.role === "Visitante" ? "#1e293b" : "#1e1b4b";
+          occBadge.style.color = occupant.role === "Menor" ? "#5eead4" : occupant.role === "Visitante" ? "#cbd5e1" : "#a5b4fc";
+        }
 
-        document.getElementById("modal-occ-btn-zoom").onclick = () => {
-          window.quickAddZoomPerson(occupant.id);
-          closeModal("modal-seat");
-        };
+        const zoomBtn = document.getElementById("modal-occ-btn-zoom");
+        if (zoomBtn) {
+          zoomBtn.onclick = () => {
+            window.quickAddZoomPerson(occupant.id);
+            closeModal("modal-seat");
+          };
+        }
 
-        occCard.style.display = "block";
+        if (occCard) occCard.style.display = "block";
       } else {
-        document.getElementById("modal-seat-subtitle").innerText = "Escribe y pulsa Enter para sentar y avanzar de una vez";
-        occCard.style.display = "none";
+        if (subtitle) subtitle.innerText = "Escribe y pulsa Enter para sentar y avanzar de una vez";
+        if (occCard) occCard.style.display = "none";
       }
 
       window.renderSeatList("");
-      document.getElementById("modal-seat").classList.remove("hidden");
+      const modal = document.getElementById("modal-seat");
+      if (modal) modal.classList.remove("hidden");
       setTimeout(() => searchInput?.focus(), 60);
     }
 
+    // MODAL DE ASIGNACIÓN: FILTRA, RESALTA LA MEJOR OPCIÓN Y PERMITE ENTER RÁPIDO
     window.renderSeatList = function(val) {
       const box = document.getElementById("modal-seat-people-list");
       if (!box) return;
@@ -1724,7 +1897,7 @@
       if (btnPc) { btnPc.style.backgroundColor = stColor; btnPc.style.color = txtColor; }
       if (btnMob) { btnMob.style.backgroundColor = stColor; btnMob.style.color = txtColor; }
       renderHall();
-      showToast(isDesignModeActive ? "Modo Editor de Sillas ACTIVO" : "Modo Editor desactivado");
+      showToast(isDesignModeActive ? "Modo Editor ACTIVO: pulsa ✕ en sillas o +/- en filas" : "Modo Editor desactivado");
     };
 
     window.adjustHallZoom = function(delta) {
@@ -1855,7 +2028,7 @@
       r_all += `🔥 *GRAN TOTAL PRESENTES:* *${grandTotal}*\n`;
       r_all += `• Publicadores Presentes: *${totalPubs}*\n`;
       r_all += `• Menores Presentes: *${totalMenores}*\n`;
-      r_all += `• Visitantes: *${totalVisitantes}*\n`;
+      r_all += `• Visitantes Presentes: *${totalVisitantes}*\n`;
       r_all += `❌ *TOTAL AUSENTES/FALTANTES:* *${fullData.pAbsentTotal} publicadores*\n\n`;
       r_all += `═══════════════════════════\n🏛️ *DESGLOSE POR GRUPOS Y AUSENCIAS*\n═══════════════════════════\n\n`;
       r_all += fullData.text;
@@ -1921,6 +2094,7 @@
       showToast("Reporte copiado al portapapeles.");
     };
 
+    window.openBackupModal = function() { document.getElementById("modal-backup").classList.remove("hidden"); };
     window.closeModal = function(id) { document.getElementById(id)?.classList.add("hidden"); };
     
     window.setFilterGroup = function(g) {
