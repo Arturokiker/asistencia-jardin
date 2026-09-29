@@ -8,10 +8,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #020617; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
-    /* REGLA CRÍTICA DE VISIBILIDAD (EVITA QUE LOS MODALES SE ABRAN POR DEFECTO) */
+    /* REGLA CRÍTICA DE VISIBILIDAD */
     .hidden { display: none !important; }
 
-    /* Encabezado Responsivo para PC y Celular */
+    /* Encabezado Responsivo */
     header { background-color: #0f172a; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 40; padding: 8px 12px; }
     .header-container { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
     .header-top-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
@@ -23,10 +23,11 @@
     .btn-emerald { background-color: #059669; color: #ffffff; }
     .btn-rose { background-color: #881337; color: #fecdd3; border-color: #9f1239; }
     .btn-amber { background-color: rgba(217, 119, 6, 0.25); color: #fcd34d; border-color: rgba(245, 158, 11, 0.6); }
+    .btn-amber-active { background-color: #d97706 !important; color: #ffffff !important; border-color: #f59e0b !important; }
     .btn-dark { background-color: #1e293b; color: #cbd5e1; border-color: #334155; }
     .btn-teal { background-color: #0f766e; color: #ccfbf1; border-color: #14b8a6; }
     
-    /* Barra Escritorio: Siempre visible en PC (>= 900px) */
+    /* Barra Escritorio */
     .desktop-nav-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .mobile-header-actions { display: none; gap: 4px; }
     
@@ -137,9 +138,12 @@
       <span id="cloud-status-icon">🔄</span>
       <span id="cloud-status-msg" style="color: #cbd5e1; font-weight: 600;">Conectando con Firebase...</span>
     </div>
-    <button onclick="testCloudConnection(true)" class="btn btn-dark" style="font-size: 10px; padding: 2px 8px;">
-      Probar Nube
-    </button>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span id="session-sync-indicator" style="font-size: 10px; color: #94a3b8; font-family: monospace;">Reunión actual cargada</span>
+      <button onclick="testCloudConnection(true)" class="btn btn-dark" style="font-size: 10px; padding: 2px 8px;">
+        Probar Nube
+      </button>
+    </div>
   </div>
 
   <!-- CABECERA PRINCIPAL -->
@@ -147,29 +151,38 @@
     <div class="header-container">
       
       <div class="header-top-row">
-        <!-- Identidad y Fecha -->
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- Identidad, Selector de Fecha y Catálogo de Historial -->
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <div style="width: 32px; height: 32px; background-color: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🏛️</div>
           <div>
             <h1 style="font-size: 13px; font-weight: 800; line-height: 1.1;">Asistencia Jardín</h1>
             <p style="font-size: 9px; color: #94a3b8; font-family: monospace;">Los Palmitos – Sucre</p>
           </div>
           
-          <div style="display: flex; align-items: center; gap: 4px; background-color: #020617; padding: 3px 6px; border-radius: 8px; border: 1px solid #1e293b; margin-left: 6px;">
-            <select id="meeting-type-select" onchange="onMetadataChange()" style="background: transparent; color: #a5b4fc; font-size: 11px; font-weight: 700; border: none; outline: none; cursor: pointer;">
+          <!-- Controles de Fecha y Tipo de Reunión -->
+          <div style="display: flex; align-items: center; gap: 4px; background-color: #020617; padding: 3px 6px; border-radius: 8px; border: 1px solid #1e293b;">
+            <select id="meeting-type-select" onchange="onMeetingDateOrTypeChanged()" style="background: transparent; color: #a5b4fc; font-size: 11px; font-weight: 700; border: none; outline: none; cursor: pointer;">
               <option value="Entre semana" style="background-color: #0f172a; color: #fff;">Entre semana</option>
               <option value="Fin de semana" style="background-color: #0f172a; color: #fff;">Fin de semana</option>
             </select>
-            <input type="date" id="meeting-date-input" onchange="onMetadataChange()" style="background: transparent; color: #cbd5e1; font-size: 11px; border: none; outline: none; cursor: pointer;">
+            <input type="date" id="meeting-date-input" onchange="onMeetingDateOrTypeChanged()" style="background: transparent; color: #cbd5e1; font-size: 11px; border: none; outline: none; cursor: pointer;">
+          </div>
+
+          <!-- Selector de Reuniones Pasadas Guardadas -->
+          <div style="display: flex; align-items: center; gap: 4px; background-color: #020617; padding: 3px 6px; border-radius: 8px; border: 1px solid #334155;">
+            <span style="font-size: 10px; color: #fbbf24;">📁 Historial:</span>
+            <select id="history-sessions-select" onchange="loadSelectedPastMeeting(this.value)" style="background: transparent; color: #fde68a; font-size: 10.5px; font-weight: 700; border: none; outline: none; cursor: pointer; max-width: 170px;">
+              <option value="" style="background-color: #0f172a; color: #fff;">(Reuniones guardadas)</option>
+            </select>
           </div>
         </div>
 
         <!-- BARRA COMPLETA DE ESCRITORIO (PC) -->
         <div class="desktop-nav-bar">
-          <button onclick="switchView('salon')" class="btn btn-indigo">🏛️️ Salón & Zoom</button>
+          <button onclick="switchView('salon')" class="btn btn-indigo">🏛️ Salón & Zoom</button>
           <button onclick="switchView('db')" class="btn btn-teal">👥 Base de Datos (75)</button>
-          <button onclick="toggleDesignMode()" id="btn-toggle-design-pc" class="btn btn-amber">✏️ Editar Sillas</button>
-          <button onclick="startNewMeetingSession()" class="btn btn-rose">🔄 Nueva Reunión</button>
+          <button onclick="toggleDesignMode()" id="btn-toggle-design-pc" class="btn btn-amber">✏️️ Editar Sillas</button>
+          <button onclick="startNewMeetingSession()" class="btn btn-rose" title="Iniciar sesión limpia para una nueva fecha">🔄 Nueva</button>
           <button onclick="openBackupModal()" class="btn btn-dark">💾 Backup</button>
           <button onclick="openReportModal()" class="btn btn-emerald">📋 Reporte WhatsApp</button>
         </div>
@@ -264,7 +277,7 @@
       </div>
     </aside>
 
-    <!-- COLUMNA 2: SALÓN DEL REINO CON PISO BLANCO Y EDICIÓN DINÁMICA DE SILLAS -->
+    <!-- COLUMNA 2: SALÓN DEL REINO CON PISO BLANCO Y GESTIÓN COMPLETA DE SILLAS -->
     <section id="panel-hall-col" class="panel-box" style="padding: 8px;">
       
       <!-- PLATAFORMA PRINCIPAL CON CONTROLES COMPLETOS -->
@@ -388,7 +401,7 @@
 
   </main>
 
-  <!-- VISTA 2: BASE DE DATOS (ACCESIBLE DIRECTAMENTE EN PC Y MÓVIL) -->
+  <!-- VISTA 2: BASE DE DATOS -->
   <main id="view-db-mode" style="display: none; padding: 12px;">
     <div style="background-color: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
       <div>
@@ -450,7 +463,7 @@
         <button onclick="closeModal('modal-seat')" style="background: none; border: none; color: #94a3b8; font-weight: 700; font-size: 12px; cursor: pointer;">✕ Cerrar</button>
       </div>
 
-      <!-- Ficha del Ocupante Actual (BLINDADA CONTRA ERRORES DE IDENTIFICADOR) -->
+      <!-- Ficha del Ocupante Actual -->
       <div id="modal-occupant-card" style="display: none; background-color: #020617; border: 1.5px solid #4338ca; border-radius: 12px; padding: 10px; margin-bottom: 8px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #1e293b;">
           <span style="font-size: 9.5px; font-weight: 800; color: #a5b4fc; text-transform: uppercase;">OCUPANTE ACTUAL</span>
@@ -623,14 +636,14 @@
     <span id="toast-txt">Notificación</span>
   </div>
 
-  <!-- SCRIPT MAESTRO DE SINCRONIZACIÓN Y RELLENO CONTINUO -->
+  <!-- SCRIPT MAESTRO DE SINCRONIZACIÓN Y GESTIÓN POR FECHAS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       initializeFirestore, 
       persistentLocalCache, 
       persistentMultipleTabManager,
-      doc, setDoc, onSnapshot
+      doc, setDoc, getDoc, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -646,6 +659,7 @@
     const myClientId = "client_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
     let db = null;
     let isCloudOnline = false;
+    let unsubscribeMeetingListener = null;
 
     // Directorio Maestro Oficial (75 integrantes)
     const defaultSeedHogares = [{"id": "H001", "name": "Perez Florez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H002", "name": "Revollo", "membersCount": 2, "group": "Grupo 2"}, {"id": "H003", "name": "Assia De La Rosa", "membersCount": 2, "group": "Grupo 5"}, {"id": "H004", "name": "Salgado", "membersCount": 1, "group": "Grupo 5"}, {"id": "H005", "name": "Gomez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H006", "name": "Revollo Fuentes", "membersCount": 2, "group": "Grupo 2"}, {"id": "H007", "name": "Sierra Meza", "membersCount": 2, "group": "Grupo 3"}, {"id": "H008", "name": "Perez Buelvas", "membersCount": 2, "group": "Grupo 3"}, {"id": "H009", "name": "Perez Gomez", "membersCount": 2, "group": "Grupo 5"}, {"id": "H010", "name": "Perez Quiroz", "membersCount": 1, "group": "Grupo 2"}, {"id": "H011", "name": "Mendivil", "membersCount": 1, "group": "Grupo 4"}, {"id": "H012", "name": "Quiroz Perez", "membersCount": 2, "group": "Grupo 3"}, {"id": "H013", "name": "Revollo Sierra", "membersCount": 2, "group": "Grupo 5"}, {"id": "H014", "name": "Mendez Assia", "membersCount": 1, "group": "Grupo 3"}, {"id": "H015", "name": "Tovar", "membersCount": 1, "group": "Grupo 1"}, {"id": "H016", "name": "Perez Yepez", "membersCount": 1, "group": "Grupo 2"}, {"id": "H017", "name": "Severiche", "membersCount": 1, "group": "Grupo 4"}, {"id": "H018", "name": "Sanchez Calderin", "membersCount": 1, "group": "Grupo 2"}, {"id": "H019", "name": "Prieto", "membersCount": 1, "group": "Grupo 2"}, {"id": "H020", "name": "Diaz Cardenas", "membersCount": 1, "group": "Grupo 2"}, {"id": "H021", "name": "Perez Arrieta", "membersCount": 2, "group": "Grupo 4"}, {"id": "H022", "name": "Julio Uribe", "membersCount": 2, "group": "Grupo 2"}, {"id": "H023", "name": "Arteaga Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H024", "name": "Hernandez Espina", "membersCount": 3, "group": "Grupo 5"}, {"id": "H025", "name": "Rodriguez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H026", "name": "Castro Perez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H027", "name": "Sincelejo", "membersCount": 1, "group": "Grupo 1"}, {"id": "H028", "name": "Wilchez", "membersCount": 2, "group": "Grupo 1"}, {"id": "H029", "name": "Reales Regalado", "membersCount": 1, "group": "Grupo 2"}, {"id": "H030", "name": "Vergara", "membersCount": 1, "group": "Grupo 3"}, {"id": "H031", "name": "Barboza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H032", "name": "Marquez Arias", "membersCount": 2, "group": "Grupo 5"}, {"id": "H033", "name": "Mendez Garizao", "membersCount": 1, "group": "Grupo 1"}, {"id": "H034", "name": "Mercado", "membersCount": 2, "group": "Grupo 5"}, {"id": "H035", "name": "Gelvez Hernandez", "membersCount": 3, "group": "Grupo 4"}, {"id": "H036", "name": "Perez Mendez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H037", "name": "Gutierrez", "membersCount": 1, "group": "Grupo 3"}, {"id": "H038", "name": "Sierra", "membersCount": 1, "group": "Grupo 5"}, {"id": "H039", "name": "Salazar Rangel", "membersCount": 2, "group": "Grupo 1"}, {"id": "H040", "name": "Monterroza", "membersCount": 1, "group": "Grupo 1"}, {"id": "H041", "name": "Cardenas Arrieta", "membersCount": 1, "group": "Grupo 3"}, {"id": "H042", "name": "Saumeth Sierra", "membersCount": 5, "group": "Grupo 4"}, {"id": "H043", "name": "Barboza Pérez", "membersCount": 1, "group": "Visitante"}, {"id": "H044", "name": "Manjarrez", "membersCount": 1, "group": "Visitante"}, {"id": "H045", "name": "Mendivil (Visitante)", "membersCount": 1, "group": "Visitante"}];
@@ -656,6 +670,7 @@
     let hogares = [];
     let zoomConnections = [];
     let deletedMemberIds = [];
+    let savedSessionsIndex = []; // Catálogo de reuniones guardadas ['2026-09-16_Entre_semana', ...]
     let currentFilterGroup = "TODOS";
     let currentFilterStatus = "ALL";
     let currentSearchTerm = "";
@@ -686,45 +701,62 @@
       return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     }
 
-    const Storage = {
-      init() {
-        const storedLayout = localStorage.getItem("asistencia_jardin_layout_v15");
-        if (storedLayout) {
-          try { hallLayout = JSON.parse(storedLayout); } catch(e) {}
-        }
+    function getCurrentMeetingId() {
+      const d = document.getElementById("meeting-date-input")?.value || "2026-09-16";
+      const t = document.getElementById("meeting-type-select")?.value || "Entre semana";
+      const safeType = t.replace(/\s+/g, "_");
+      return `${d}_${safeType}`;
+    }
 
-        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v15");
+    // PERSISTENCIA POR FECHA
+    const Storage = {
+      initDirectory() {
+        const storedHogares = localStorage.getItem("asistencia_jardin_hogares_v16");
         if (storedHogares) {
           try { hogares = JSON.parse(storedHogares); } catch(e) { hogares = defaultSeedHogares; }
         } else {
           hogares = defaultSeedHogares;
-          localStorage.setItem("asistencia_jardin_hogares_v15", JSON.stringify(hogares));
+          localStorage.setItem("asistencia_jardin_hogares_v16", JSON.stringify(hogares));
         }
 
-        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v15");
+        const storedDeleted = localStorage.getItem("asistencia_jardin_deleted_v16");
         if (storedDeleted) {
           try { deletedMemberIds = JSON.parse(storedDeleted); } catch(e) { deletedMemberIds = []; }
         }
 
-        const storedMembers = localStorage.getItem("asistencia_jardin_members_v15");
+        const storedMembers = localStorage.getItem("asistencia_jardin_members_v16");
         if (storedMembers) {
           try { members = JSON.parse(storedMembers); } catch(e) { members = defaultSeedMembers; }
         } else {
           members = defaultSeedMembers.filter(m => !deletedMemberIds.includes(m.id));
-          localStorage.setItem("asistencia_jardin_members_v15", JSON.stringify(members));
+          localStorage.setItem("asistencia_jardin_members_v16", JSON.stringify(members));
         }
 
-        const storedSession = localStorage.getItem("asistencia_jardin_session_v15");
-        if (storedSession) {
+        const storedSessionsIdx = localStorage.getItem("asistencia_jardin_sessions_index_v16");
+        if (storedSessionsIdx) {
+          try { savedSessionsIndex = JSON.parse(storedSessionsIdx); } catch(e) { savedSessionsIndex = []; }
+        }
+      },
+
+      loadMeetingSession(meetingId) {
+        // 1. Limpiar ubicaciones previas de integrantes
+        members.forEach(m => {
+          m.location = null;
+          m.seatId = null;
+          m.zoomConnId = null;
+        });
+        zoomConnections = [];
+
+        // 2. Intentar cargar desde localStorage
+        const stored = localStorage.getItem(`asistencia_jardin_meeting_${meetingId}`);
+        if (stored) {
           try {
-            const s = JSON.parse(storedSession);
-            if (s.meetingDate) document.getElementById("meeting-date-input").value = s.meetingDate;
-            if (s.meetingType) document.getElementById("meeting-type-select").value = s.meetingType;
-            if (s.zoomConnections) zoomConnections = s.zoomConnections;
-            if (s.layout && s.layout.rows) hallLayout = s.layout;
-            if (s.assignments) {
+            const data = JSON.parse(stored);
+            if (data.layout && data.layout.rows) hallLayout = data.layout;
+            if (data.zoomConnections) zoomConnections = data.zoomConnections;
+            if (data.assignments) {
               members.forEach(m => {
-                const a = s.assignments[m.id];
+                const a = data.assignments[m.id];
                 if (a) {
                   m.location = a.location || null;
                   m.seatId = a.seatId || null;
@@ -732,15 +764,26 @@
                 }
               });
             }
+            updateSessionIndicator(`Cargada reunión archivada (${meetingId})`);
+            return true;
           } catch(e) {}
         }
+        updateSessionIndicator(`Reunión nueva / sin registro (${meetingId})`);
+        return false;
       },
 
-      saveLocalAndCloud() {
-        localStorage.setItem("asistencia_jardin_layout_v15", JSON.stringify(hallLayout));
-        localStorage.setItem("asistencia_jardin_members_v15", JSON.stringify(members));
-        localStorage.setItem("asistencia_jardin_hogares_v15", JSON.stringify(hogares));
-        localStorage.setItem("asistencia_jardin_deleted_v15", JSON.stringify(deletedMemberIds));
+      saveMeetingSession() {
+        const meetingId = getCurrentMeetingId();
+        const d = document.getElementById("meeting-date-input").value;
+        const t = document.getElementById("meeting-type-select").value;
+
+        // Registrar en catálogo de reuniones
+        if (!savedSessionsIndex.includes(meetingId)) {
+          savedSessionsIndex.push(meetingId);
+          savedSessionsIndex.sort().reverse();
+          localStorage.setItem("asistencia_jardin_sessions_index_v16", JSON.stringify(savedSessionsIndex));
+          updateHistoryDropdown();
+        }
 
         const assignmentsMap = {};
         members.forEach(m => {
@@ -753,11 +796,12 @@
           }
         });
 
-        const sessionPayload = {
+        const payload = {
           updatedAt: Date.now(),
           clientId: myClientId,
-          meetingDate: document.getElementById("meeting-date-input").value,
-          meetingType: document.getElementById("meeting-type-select").value,
+          meetingId,
+          meetingDate: d,
+          meetingType: t,
           assignments: assignmentsMap,
           zoomConnections: zoomConnections.map(c => ({
             id: c.id,
@@ -765,23 +809,50 @@
             family: c.family,
             memberIds: c.memberIds || []
           })),
-          deletedMemberIds: deletedMemberIds,
           layout: hallLayout
         };
 
-        localStorage.setItem("asistencia_jardin_session_v15", JSON.stringify(sessionPayload));
-        this.pushToFirestore(sessionPayload);
+        // Guardar por clave única de reunión
+        localStorage.setItem(`asistencia_jardin_meeting_${meetingId}`, JSON.stringify(payload));
+        // Guardar directorio maestro
+        localStorage.setItem("asistencia_jardin_members_v16", JSON.stringify(members));
+
+        // Subir a la colección de reuniones en Firestore
+        this.pushMeetingToFirestore(meetingId, payload);
       },
 
-      async pushToFirestore(payload) {
+      async pushMeetingToFirestore(meetingId, payload) {
         if (!isCloudOnline || !db) return;
         try {
-          await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), payload);
+          await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "reuniones", meetingId), payload);
+          // Actualizar documento de catálogo general en Firebase
+          await setDoc(doc(db, "congregaciones", CONGREGATION_ID, "catalogo_reuniones", "index"), {
+            lista: savedSessionsIndex,
+            ultimaReunion: meetingId,
+            updatedAt: Date.now()
+          });
         } catch(e) {
-          updateCloudBanner("error", "Error guardando en Firestore: " + (e.message || e));
+          console.warn("Error guardando reunión en nube:", e);
         }
       }
     };
+
+    function updateSessionIndicator(txt) {
+      const el = document.getElementById("session-sync-indicator");
+      if (el) el.innerText = txt;
+    }
+
+    function updateHistoryDropdown() {
+      const sel = document.getElementById("history-sessions-select");
+      if (!sel) return;
+      sel.innerHTML = `<option value="">(Reuniones guardadas: ${savedSessionsIndex.length})</option>`;
+      savedSessionsIndex.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.innerText = id.replace("_", " • ");
+        sel.appendChild(opt);
+      });
+    }
 
     function updateCloudBanner(state, msg) {
       const banner = document.getElementById("cloud-diagnostic-banner");
@@ -809,6 +880,7 @@
       }
     }
 
+    // CONEXIÓN A FIRESTORE Y ESCUCHA EN TIEMPO REAL POR REUNIÓN ACTIVA
     async function initFirestoreRealtime() {
       try {
         const app = initializeApp(firebaseConfig);
@@ -825,48 +897,22 @@
         isCloudOnline = true;
         updateCloudBanner("ok");
 
-        onSnapshot(doc(db, "congregaciones", CONGREGATION_ID, "sesion_activa", "actual"), (docSnap) => {
-          if (!docSnap.exists()) return;
-          const remote = docSnap.data();
-          if (remote.clientId === myClientId) return;
-
-          if (remote.layout && remote.layout.rows) {
-            hallLayout = remote.layout;
-          }
-
-          if (remote.deletedMemberIds && Array.isArray(remote.deletedMemberIds)) {
-            deletedMemberIds = remote.deletedMemberIds;
-            members = members.filter(m => !deletedMemberIds.includes(m.id));
-          }
-
-          if (remote.assignments) {
-            members.forEach(m => {
-              const a = remote.assignments[m.id];
-              if (a) {
-                m.location = a.location || null;
-                m.seatId = a.seatId || null;
-                m.zoomConnId = a.zoomConnId || null;
-              } else {
-                m.location = null;
-                m.seatId = null;
-                m.zoomConnId = null;
-              }
+        // 1. Cargar índice de reuniones desde la nube
+        try {
+          const catSnap = await getDoc(doc(db, "congregaciones", CONGREGATION_ID, "catalogo_reuniones", "index"));
+          if (catSnap.exists() && catSnap.data().lista) {
+            const remoteList = catSnap.data().lista;
+            remoteList.forEach(id => {
+              if (!savedSessionsIndex.includes(id)) savedSessionsIndex.push(id);
             });
+            savedSessionsIndex.sort().reverse();
+            localStorage.setItem("asistencia_jardin_sessions_index_v16", JSON.stringify(savedSessionsIndex));
+            updateHistoryDropdown();
           }
+        } catch(e) {}
 
-          if (remote.zoomConnections) zoomConnections = remote.zoomConnections;
-          if (remote.meetingDate) document.getElementById("meeting-date-input").value = remote.meetingDate;
-          if (remote.meetingType) document.getElementById("meeting-type-select").value = remote.meetingType;
-
-          renderHall();
-          renderDirectory();
-          renderZoom();
-          renderDBTable();
-          updateCounters();
-          showToast("⚡ Sincronizado desde el otro dispositivo");
-        }, (err) => {
-          updateCloudBanner("error", "Error en Reglas de Firestore: " + err.message);
-        });
+        // 2. Conectar listener a la reunión actual
+        listenCurrentMeeting();
 
       } catch(e) {
         isCloudOnline = false;
@@ -874,11 +920,73 @@
       }
     }
 
+    function listenCurrentMeeting() {
+      if (!isCloudOnline || !db) return;
+      if (unsubscribeMeetingListener) unsubscribeMeetingListener();
+
+      const meetingId = getCurrentMeetingId();
+      unsubscribeMeetingListener = onSnapshot(doc(db, "congregaciones", CONGREGATION_ID, "reuniones", meetingId), (docSnap) => {
+        if (!docSnap.exists()) return;
+        const remote = docSnap.data();
+        if (remote.clientId === myClientId) return;
+
+        if (remote.layout && remote.layout.rows) hallLayout = remote.layout;
+        if (remote.zoomConnections) zoomConnections = remote.zoomConnections;
+
+        if (remote.assignments) {
+          members.forEach(m => {
+            const a = remote.assignments[m.id];
+            if (a) {
+              m.location = a.location || null;
+              m.seatId = a.seatId || null;
+              m.zoomConnId = a.zoomConnId || null;
+            } else {
+              m.location = null;
+              m.seatId = null;
+              m.zoomConnId = null;
+            }
+          });
+        }
+
+        renderHall();
+        renderDirectory();
+        renderZoom();
+        renderDBTable();
+        updateCounters();
+        showToast("⚡ Sincronizado desde el otro dispositivo");
+      });
+    }
+
     window.testCloudConnection = function(userInvoked) {
       updateCloudBanner("loading", "Probando conexión con Firebase Firestore...");
       initFirestoreRealtime().then(() => {
         if (userInvoked && isCloudOnline) showToast("¡Conexión a Firebase verificada y activa!");
       });
+    };
+
+    // CUANDO EL USUARIO CAMBIA LA FECHA O EL TIPO DE REUNIÓN
+    window.onMeetingDateOrTypeChanged = function() {
+      const meetingId = getCurrentMeetingId();
+      Storage.loadMeetingSession(meetingId);
+      refreshUI();
+      listenCurrentMeeting();
+      showToast(`Reunión activa: ${meetingId}`);
+    };
+
+    // CARGA DESDE EL SELECTOR DE HISTORIAL
+    window.loadSelectedPastMeeting = function(selectedMeetingId) {
+      if (!selectedMeetingId) return;
+      const parts = selectedMeetingId.split("_");
+      const datePart = parts[0];
+      const typePart = parts.slice(1).join(" ").replace("_", " ");
+
+      document.getElementById("meeting-date-input").value = datePart;
+      document.getElementById("meeting-type-select").value = typePart;
+
+      Storage.loadMeetingSession(selectedMeetingId);
+      refreshUI();
+      listenCurrentMeeting();
+      showToast(`Cargada reunión archivada: ${selectedMeetingId}`);
     };
 
     function boot() {
@@ -889,7 +997,12 @@
       document.getElementById("meeting-date-input").value = `${yyyy}-${mm}-${dd}`;
       document.getElementById("meeting-type-select").value = (today.getDay() === 0 || today.getDay() === 6) ? "Fin de semana" : "Entre semana";
 
-      Storage.init();
+      Storage.initDirectory();
+      updateHistoryDropdown();
+
+      const initialMeetingId = getCurrentMeetingId();
+      Storage.loadMeetingSession(initialMeetingId);
+
       populateHogarDropdown();
       refreshUI();
       initFirestoreRealtime();
@@ -904,14 +1017,14 @@
       renderZoom();
       renderDBTable();
       updateCounters();
-      Storage.saveLocalAndCloud();
+      Storage.saveMeetingSession();
     }
 
     window.onMetadataChange = function() {
-      Storage.saveLocalAndCloud();
+      window.onMeetingDateOrTypeChanged();
     };
 
-    // AÑADIR O QUITAR SILLAS DINÁMICAMENTE POR FILA O POR ISLA
+    // GESTIÓN DE SILLAS DINÁMICAS
     window.addChairToRow = function(rowIndex, side) {
       const row = hallLayout.rows[rowIndex];
       const rNum = rowIndex + 1;
@@ -985,7 +1098,6 @@
       }
     };
 
-    // ELIMINACIÓN Y RESTAURACIÓN DE SILLAS ESPECÍFICAS
     window.toggleDisableChair = function(seatId) {
       if (!seatId) return;
       if (seatId.startsWith("MAIN-")) {
@@ -1026,7 +1138,7 @@
       }
     };
 
-    // RENDERIZADO DEL SALÓN CON PISO BLANCO Y CONTROLES POR CADA FILA
+    // RENDERIZADO DEL MAPA
     function renderHall() {
       const leftBox = document.getElementById("grid-hall-left");
       const rightBox = document.getElementById("grid-hall-right");
@@ -1052,14 +1164,12 @@
         spanL.innerText = `F${rNum}`;
         rowL.appendChild(spanL);
 
-        // Controles de sillas de esta fila (aparecen al activar "✏️ Editar Sillas")
         if (isDesignModeActive) {
           const btnAddL = document.createElement("button");
           btnAddL.className = "btn btn-emerald";
           btnAddL.style.padding = "2px 5px";
           btnAddL.style.fontSize = "9px";
           btnAddL.innerText = "+";
-          btnAddL.title = `Añadir silla a Fila ${rNum} Izquierda`;
           btnAddL.onclick = () => window.addChairToRow(rIdx, 'L');
           rowL.appendChild(btnAddL);
 
@@ -1069,7 +1179,6 @@
             btnSubL.style.padding = "2px 5px";
             btnSubL.style.fontSize = "9px";
             btnSubL.innerText = "-";
-            btnSubL.title = `Quitar silla de Fila ${rNum} Izquierda`;
             btnSubL.onclick = () => window.removeChairFromRow(rIdx, 'L');
             rowL.appendChild(btnSubL);
           }
@@ -1094,14 +1203,12 @@
           rowR.appendChild(createChair(sid, `D${s}`, "main", isDis));
         }
 
-        // Controles de sillas de esta fila (Derecha)
         if (isDesignModeActive) {
           const btnAddR = document.createElement("button");
           btnAddR.className = "btn btn-emerald";
           btnAddR.style.padding = "2px 5px";
           btnAddR.style.fontSize = "9px";
           btnAddR.innerText = "+";
-          btnAddR.title = `Añadir silla a Fila ${rNum} Derecha`;
           btnAddR.onclick = () => window.addChairToRow(rIdx, 'R');
           rowR.appendChild(btnAddR);
 
@@ -1111,7 +1218,6 @@
             btnSubR.style.padding = "2px 5px";
             btnSubR.style.fontSize = "9px";
             btnSubR.innerText = "-";
-            btnSubR.title = `Quitar silla de Fila ${rNum} Derecha`;
             btnSubR.onclick = () => window.removeChairFromRow(rIdx, 'R');
             rowR.appendChild(btnSubR);
           }
@@ -1249,7 +1355,6 @@
 
       const filtered = members.filter(a => {
         const matchesGroup = isSearching || (currentFilterGroup === "TODOS") || (a.group === currentFilterGroup) || (currentFilterGroup === "Menor" && a.role === "Menor");
-        
         let matchesStatus = true;
         if (!isSearching) {
           if (currentFilterStatus === "PENDING") matchesStatus = !a.location;
@@ -1590,7 +1695,7 @@
       return null;
     }
 
-    // APERTURA DEL MODAL BLINDADA (TOTALMENTE FUNCIONAL EN SILLAS OCUPADAS)
+    // APERTURA DEL MODAL BLINDADA
     function openSeatModal(seatId, label, type, occupant) {
       selectedSeatId = seatId;
       selectedSeatType = type;
@@ -1897,7 +2002,7 @@
       if (btnPc) { btnPc.style.backgroundColor = stColor; btnPc.style.color = txtColor; }
       if (btnMob) { btnMob.style.backgroundColor = stColor; btnMob.style.color = txtColor; }
       renderHall();
-      showToast(isDesignModeActive ? "Modo Editor ACTIVO: pulsa ✕ en sillas o +/- en filas" : "Modo Editor desactivado");
+      showToast(isDesignModeActive ? "Modo Editor ACTIVO: usa +/- en filas o islas" : "Modo Editor desactivado");
     };
 
     window.adjustHallZoom = function(delta) {
@@ -1913,15 +2018,15 @@
 
     window.startNewMeetingSession = function() {
       const d = document.getElementById("meeting-date-input").value;
-      if (!confirm(`¿Iniciar NUEVA reunión para la fecha ${d}?\n\nSe vaciará el salón y Zoom. Tu directorio de integrantes no se borrará.`)) return;
+      if (!confirm(`¿Iniciar NUEVA reunión para la fecha ${d}?\n\nSe limpiarán las sillas y Zoom para empezar la sesión de esta fecha. Las reuniones de fechas anteriores permanecen guardadas en el Historial.`)) return;
 
       members.forEach(a => { a.location = null; a.seatId = null; a.zoomConnId = null; });
       zoomConnections = [];
       refreshUI();
-      showToast("Salón y Zoom listos para la nueva reunión.");
+      showToast("Nueva reunión iniciada.");
     };
 
-    // GENERADOR DE REPORTES COMPLETO: INTEGRA SALÓN, ZOOM Y AUSENTES/FALTANTES
+    // GENERADOR DE REPORTES COMPLETO
     window.openReportModal = function() {
       const d = document.getElementById("meeting-date-input").value;
       const t = document.getElementById("meeting-type-select").value;
@@ -2019,7 +2124,6 @@
         return { text, totalCount: globalNum - 1, pPresentTotal, pAbsentTotal, mCount, vCount };
       }
 
-      // 1. REPORTE COMPLETO
       const fullData = buildDetailedGroupSections(allPresent, true);
       let r_all = `*REPORTE DE ASISTENCIA - CONGREGACIÓN JARDÍN*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_all += `📊 *CONSOLIDADO GENERAL*\n`;
@@ -2033,7 +2137,6 @@
       r_all += `═══════════════════════════\n🏛️ *DESGLOSE POR GRUPOS Y AUSENCIAS*\n═══════════════════════════\n\n`;
       r_all += fullData.text;
 
-      // 2. REPORTE SOLO ZOOM
       const zoomData = buildDetailedGroupSections(zoomMembers, false);
       let r_zoom = `*REPORTE ASISTENCIA ZOOM*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora de captura:* ${time}\n\n`;
       r_zoom += zoomData.text;
@@ -2042,7 +2145,6 @@
       r_zoom += `*Total Publicadores = ${zoomData.pPresentTotal}*\n\n`;
       r_zoom += `*TOTAL ASISTENCIA VIRTUAL:* ${zoomData.totalCount}`;
 
-      // 3. REPORTE SOLO SALÓN
       const salonData = buildDetailedGroupSections(presencialMembers, false);
       let r_salon = `*REPORTE ASISTENCIA SALÓN (PRESENCIAL)*\n*Fecha:* ${d}\n*Reunión:* ${t}\n*Hora:* ${time}\n\n`;
       r_salon += salonData.text;
@@ -2051,7 +2153,6 @@
       r_salon += `*Total Publicadores = ${salonData.pPresentTotal}*\n\n`;
       r_salon += `*TOTAL ASISTENCIA SALÓN:* ${salonData.totalCount}`;
 
-      // REPORTE 1
       let r1 = `--- REPORTE 1: EVALUACIÓN Y ANÁLISIS INTERNO ---\n\n`;
       r1 += `1. Conexiones Excluidas de Cabina / Operativas:\n   - Audio/Vídeo Salón del Reino (Cabina de transmisión)\n   - Anfitrión / Acomodador\n\n`;
       r1 += `2. Balance General:\n`;
@@ -2060,7 +2161,6 @@
       r1 += `   - Gran Total Presentes: ${grandTotal}\n`;
       r1 += `   - Total Publicadores Faltantes: ${fullData.pAbsentTotal}\n`;
 
-      // REPORTE 3
       let r3 = `--- REPORTE 3: VALIDACIÓN Y APRENDIZAJE ---\n\n`;
       r3 += `1. Conexiones operativas excluidas del conteo normativo.\n`;
       r3 += `2. Salvedades de WhatsApp cruzadas contra presencia en Zoom.\n`;
